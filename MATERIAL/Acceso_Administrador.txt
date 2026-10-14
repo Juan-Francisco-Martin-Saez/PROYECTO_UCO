@@ -1,0 +1,7 @@
+Administrador
+UCO_Admin_General_1982
+$2y$12$ldRRQQsKbcFt4u0pyD8oReaEJPE7wjtVg.1Qn3c1RaZQgUcVxeAnK
+
+
+C:\php\php.exe -r 'echo password_hash($argv[1], PASSWORD_DEFAULT), PHP_EOL;' -- 'UCO_Admin_General_1982'
+$env:UCO_ADMIN_PASSWORD_HASH = '$2y$12$ldRRQQsKbcFt4u0pyD8oReaEJPE7wjtVg.1Qn3c1RaZQgUcVxeAnK'
