@@ -65,16 +65,40 @@ if($action==='change_password'&&$method==='POST'){
  csrf();$old=(string)($_POST['current_password']??'');$new=(string)($_POST['new_password']??'');if(!password_verify($old,$current['password_hash']))respond(['error'=>'La contraseña actual no es correcta.'],422);validatePassword($new);$newHash=password_hash($new,PASSWORD_DEFAULT);$db->prepare('UPDATE admin_users SET password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$newHash,$current['id']]);$_SESSION['uco_auth_stamp']=hash('sha256',$newHash);respond(['ok'=>true]);
 }
 // v1.9: administración comercial, separada de las cuentas de empleados.
-if(in_array($action,['commercial_list','customer_save','customer_delete','group_save','group_delete','price_save','price_delete'],true)){
+if(in_array($action,['commercial_list','customer_save','customer_delete','group_save','group_delete','price_save','price_delete','base_save','discount_save','promotion_save','promotion_delete'],true)){
  adminOnly();commercialDb($db);
  if($action==='commercial_list'&&$method==='GET'){
   $customers=$db->query('SELECT id,company,tax_id,contact,email,group_id,active FROM customers ORDER BY company COLLATE NOCASE')->fetchAll();
   $groups=$db->query('SELECT id,name,active FROM customer_groups ORDER BY name COLLATE NOCASE')->fetchAll();
   $prices=$db->query("SELECT 'group' AS kind,group_id AS owner_id,product_id,price_cents FROM group_prices UNION ALL SELECT 'customer',customer_id,product_id,price_cents FROM customer_prices ORDER BY kind,owner_id,product_id")->fetchAll();
   $catalog=$db->query('SELECT id,sku,name FROM products ORDER BY name COLLATE NOCASE')->fetchAll();
-  respond(['customers'=>array_map('customerPublic',$customers),'groups'=>$groups,'prices'=>$prices,'products'=>$catalog]);
+  $base=$db->query('SELECT product_id,price_cents FROM base_prices ORDER BY product_id')->fetchAll();
+  $discounts=$db->query('SELECT group_id,percent_bp FROM group_discounts')->fetchAll();
+  $promotions=$db->query('SELECT id,name,scope,group_id,percent_bp,starts_at,ends_at,active FROM promotions ORDER BY active DESC,ends_at DESC,id DESC')->fetchAll();
+  respond(['customers'=>array_map('customerPublic',$customers),'groups'=>$groups,'prices'=>$prices,'products'=>$catalog,'base'=>$base,'discounts'=>$discounts,'promotions'=>$promotions]);
  }
  if($method!=='POST')respond(['error'=>'Método no permitido'],405);csrf();
+ if($action==='base_save'){
+  $product=(int)($_POST['product_id']??0);$raw=trim((string)($_POST['price']??''));$st=$db->prepare('SELECT 1 FROM products WHERE id=?');$st->execute([$product]);if(!$st->fetchColumn())respond(['error'=>'Producto inexistente'],422);
+  if($raw===''){$db->prepare('DELETE FROM base_prices WHERE product_id=?')->execute([$product]);respond(['ok'=>true]);}
+  $cents=priceCents($raw);if($cents===null)respond(['error'=>'Precio inválido'],422);
+  $db->prepare('INSERT INTO base_prices(product_id,price_cents) VALUES(?,?) ON CONFLICT(product_id) DO UPDATE SET price_cents=excluded.price_cents')->execute([$product,$cents]);respond(['ok'=>true]);
+ }
+ if($action==='discount_save'){
+  $group=(int)($_POST['group_id']??0);$raw=trim((string)($_POST['percent']??''));$st=$db->prepare('SELECT 1 FROM customer_groups WHERE id=?');$st->execute([$group]);if(!$st->fetchColumn())respond(['error'=>'Grupo inexistente'],422);
+  if(!preg_match('/^(?:100(?:[.,]0{1,2})?|\d{1,2}(?:[.,]\d{1,2})?)$/',$raw))respond(['error'=>'El descuento debe estar entre 0 y 100 %'],422);
+  $bp=priceCents($raw);$db->prepare('INSERT INTO group_discounts(group_id,percent_bp) VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET percent_bp=excluded.percent_bp')->execute([$group,$bp]);respond(['ok'=>true]);
+ }
+ if($action==='promotion_save'){
+  $id=(int)($_POST['id']??0);$name=trim((string)($_POST['name']??''));$scope=(string)($_POST['scope']??'all');$group=$scope==='group'?(int)($_POST['group_id']??0):null;
+  $start=(string)($_POST['starts_at']??'');$end=(string)($_POST['ends_at']??'');$raw=trim((string)($_POST['percent']??''));$active=($_POST['active']??'1')==='1'?1:0;
+  if(mb_strlen($name)<3||mb_strlen($name)>100||!in_array($scope,['all','group'],true)||($scope==='group'&&$group<1)||!preg_match('/^\d{4}-\d{2}-\d{2}$/',$start)||!preg_match('/^\d{4}-\d{2}-\d{2}$/',$end)||!checkdate((int)substr($start,5,2),(int)substr($start,8,2),(int)substr($start,0,4))||!checkdate((int)substr($end,5,2),(int)substr($end,8,2),(int)substr($end,0,4))||$end<$start||!preg_match('/^(?:100(?:[.,]0{1,2})?|\d{1,2}(?:[.,]\d{1,2})?)$/',$raw)||priceCents($raw)<1)respond(['error'=>'Revisa nombre, fechas y descuento de la promoción'],422);
+  if($group){$st=$db->prepare('SELECT 1 FROM customer_groups WHERE id=?');$st->execute([$group]);if(!$st->fetchColumn())respond(['error'=>'Grupo inexistente'],422);}
+  $bp=priceCents($raw);
+  if($id){$st=$db->prepare('UPDATE promotions SET name=?,scope=?,group_id=?,percent_bp=?,starts_at=?,ends_at=?,active=? WHERE id=?');$st->execute([$name,$scope,$group,$bp,$start,$end,$active,$id]);if(!$st->rowCount()){$st=$db->prepare('SELECT 1 FROM promotions WHERE id=?');$st->execute([$id]);if(!$st->fetchColumn())respond(['error'=>'Promoción inexistente'],404);}}
+  else $db->prepare('INSERT INTO promotions(name,scope,group_id,percent_bp,starts_at,ends_at,active) VALUES(?,?,?,?,?,?,?)')->execute([$name,$scope,$group,$bp,$start,$end,$active]);respond(['ok'=>true]);
+ }
+ if($action==='promotion_delete'){$db->prepare('DELETE FROM promotions WHERE id=?')->execute([(int)($_POST['id']??0)]);respond(['ok'=>true]);}
  if($action==='group_save'){
   $id=(int)($_POST['id']??0);$name=trim((string)($_POST['name']??''));$active=($_POST['active']??'1')==='1'?1:0;
   if(mb_strlen($name)<2||mb_strlen($name)>90)respond(['error'=>'Nombre de grupo inválido.'],422);

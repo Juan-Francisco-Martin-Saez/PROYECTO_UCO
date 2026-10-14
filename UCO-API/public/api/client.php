@@ -48,10 +48,11 @@ try{
   $page=max(1,min(100000,(int)($_GET['page']??1)));$limit=12;$q=trim((string)($_GET['q']??''));if(mb_strlen($q)>100)reply(['error'=>'Búsqueda demasiado larga'],400);
   $where=' WHERE p.active=1 AND c.active=1';$args=[];if($q!==''){$where.=" AND (p.name LIKE :qname ESCAPE '!' OR p.sku LIKE :qsku ESCAPE '!')";$term='%'.str_replace(['!','%','_'],['!!','!%','!_'],$q).'%';$args[':qname']=$term;$args[':qsku']=$term;}
   $from=' FROM products p JOIN categories c ON c.id=p.category_id';$st=$db->prepare('SELECT COUNT(*)'.$from.$where);$st->execute($args);$total=(int)$st->fetchColumn();
-  $sql="SELECT p.id,p.sku,p.name,p.description,p.unit,p.image,p.stock,c.name AS family,COALESCE(cp.price_cents,gp.price_cents) AS price_cents,CASE WHEN cp.price_cents IS NOT NULL THEN 'personal' WHEN gp.price_cents IS NOT NULL THEN 'grupo' ELSE NULL END AS price_source".$from." LEFT JOIN customer_prices cp ON cp.product_id=p.id AND cp.customer_id=:customer LEFT JOIN customer_groups cg ON cg.id=:grp AND cg.active=1 LEFT JOIN group_prices gp ON gp.product_id=p.id AND gp.group_id=cg.id".$where.' ORDER BY p.name COLLATE NOCASE,p.id LIMIT :limit OFFSET :offset';
-  $st=$db->prepare($sql);$st->bindValue(':customer',(int)$u['id'],PDO::PARAM_INT);$st->bindValue(':grp',(int)($u['group_id']??0),PDO::PARAM_INT);foreach($args as $k=>$v)$st->bindValue($k,$v);$st->bindValue(':limit',$limit,PDO::PARAM_INT);$st->bindValue(':offset',($page-1)*$limit,PDO::PARAM_INT);$st->execute();
+  $sql='SELECT p.id,p.sku,p.name,p.description,p.unit,p.image,p.stock,c.name AS family'.$from.$where.' ORDER BY p.name COLLATE NOCASE,p.id LIMIT :limit OFFSET :offset';
+  $st=$db->prepare($sql);foreach($args as $k=>$v)$st->bindValue($k,$v);$st->bindValue(':limit',$limit,PDO::PARAM_INT);$st->bindValue(':offset',($page-1)*$limit,PDO::PARAM_INT);$st->execute();
+  $rows=$st->fetchAll();foreach($rows as &$row){$price=commercialPrice($db,(int)$row['id'],(int)$u['id'],$u['group_id']===null?null:(int)$u['group_id']);$row=array_merge($row,$price);}unset($row);
   $group=null;if($u['group_id']){$g=$db->prepare('SELECT name FROM customer_groups WHERE id=? AND active=1');$g->execute([$u['group_id']]);$group=$g->fetchColumn()?:null;}
-  reply(['products'=>$st->fetchAll(),'total'=>$total,'page'=>$page,'limit'=>$limit,'group'=>$group]);
+  reply(['products'=>$rows,'total'=>$total,'page'=>$page,'limit'=>$limit,'group'=>$group]);
  }
  reply(['error'=>'Operación no permitida'],405);
 }catch(Throwable $e){error_log('UCO clientes: '.$e->getMessage());reply(['error'=>'No se pudo completar la operación'],500);}
