@@ -15,3 +15,7 @@
 
 /* v1.9.3 · Fotografías de catálogo privado. */
 .client-photo>img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+
+/* v1.9.6 · Rejilla real de tarjetas y buscador compacto en móvil. */
+uco-client-product-list{display:contents}
+@media(max-width:600px){.client-toolbar .field{flex:none;width:100%}.client-toolbar{gap:.65rem}.client-toolbar #count{align-self:flex-start}.client-products{gap:.9rem}}
