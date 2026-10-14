@@ -1,0 +1,151 @@
+{
+  "demo": true,
+  "categories": [
+    {
+      "slug": "verdura",
+      "name": "Verduras frescas"
+    },
+    {
+      "slug": "patata",
+      "name": "Patatas y cortes"
+    },
+    {
+      "slug": "congelado",
+      "name": "Congelados"
+    },
+    {
+      "slug": "empanado",
+      "name": "Empanados"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Tomates",
+      "category": "verdura",
+      "image": "./img/02.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 2,
+      "name": "Brócoli",
+      "category": "verdura",
+      "image": "./img/06.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 3,
+      "name": "Zanahorias",
+      "category": "verdura",
+      "image": "./img/04.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 4,
+      "name": "Pimientos",
+      "category": "verdura",
+      "image": "./img/03.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 5,
+      "name": "Patata entera",
+      "category": "patata",
+      "image": "./img/11.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 6,
+      "name": "Patata en dados",
+      "category": "patata",
+      "image": "./img/13.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 7,
+      "name": "Patatas fritas",
+      "category": "patata",
+      "image": "./img/14.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 8,
+      "name": "Patata a tiras",
+      "category": "patata",
+      "image": "./img/12.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 9,
+      "name": "Verdura congelada",
+      "category": "congelado",
+      "image": "./img/19.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 10,
+      "name": "Guisantes",
+      "category": "congelado",
+      "image": "./img/20.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 11,
+      "name": "Judías verdes",
+      "category": "congelado",
+      "image": "./img/21.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 12,
+      "name": "Mix de verduras",
+      "category": "congelado",
+      "image": "./img/22.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 13,
+      "name": "Aros de cebolla",
+      "category": "empanado",
+      "image": "./img/15.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 14,
+      "name": "Filetes empanados",
+      "category": "empanado",
+      "image": "./img/16.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 15,
+      "name": "Croquetas",
+      "category": "empanado",
+      "image": "./img/17.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    },
+    {
+      "id": 16,
+      "name": "Nuggets",
+      "category": "empanado",
+      "image": "./img/18.webp",
+      "description": "Referencia ilustrativa. Datos comerciales pendientes de validar.",
+      "is_demo": true
+    }
+  ]
+}
