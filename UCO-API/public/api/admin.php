@@ -5,6 +5,7 @@ ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cook
 function respond($v,int $code=200):never{http_response_code($code);echo json_encode($v,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 function norm(string $s):string{$s=mb_strtolower($s,'UTF-8');if(class_exists('Normalizer'))$s=Normalizer::normalize($s,Normalizer::FORM_D);return strtr($s,['á'=>'a','à'=>'a','ä'=>'a','â'=>'a','é'=>'e','è'=>'e','ë'=>'e','ê'=>'e','í'=>'i','ì'=>'i','ï'=>'i','î'=>'i','ó'=>'o','ò'=>'o','ö'=>'o','ô'=>'o','ú'=>'u','ù'=>'u','ü'=>'u','û'=>'u']);}
 function db():PDO{$db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=5000');return $db;}
+require_once __DIR__.'/commercial.php';
 function authorized():bool{return (int)($_SESSION['uco_user_id']??0)>0;}
 function usersDb():PDO{$db=db();$db->exec("CREATE TABLE IF NOT EXISTS admin_users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL COLLATE NOCASE UNIQUE, display_name TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'manager' CHECK(role IN ('admin','manager')), active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");$columns=$db->query('PRAGMA table_info(admin_users)')->fetchAll();if(!in_array('avatar',array_column($columns,'name'),true))$db->exec("ALTER TABLE admin_users ADD COLUMN avatar TEXT NOT NULL DEFAULT ''");return $db;}
 function adminOnly():void{if(($_SESSION['uco_role']??'')!=='admin')respond(['error'=>'Solo el administrador principal puede gestionar usuarios.'],403);}
@@ -33,6 +34,7 @@ if($action==='login'&&$method==='POST'){
 if(!authorized())respond(['error'=>'Acceso no autorizado'],401);
 if($action==='logout'&&$method==='POST'){csrf();$_SESSION=[];session_destroy();respond(['ok'=>true]);}
 $db=usersDb();
+$cols=array_column($db->query('PRAGMA table_info(products)')->fetchAll(),'name');if(!in_array('description',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN description TEXT NOT NULL DEFAULT ''");if(!in_array('unit',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN unit TEXT NOT NULL DEFAULT 'unidad'");
 // Si una cuenta se desactiva o cambia de rol, las sesiones anteriores dejan de autorizarse.
 $check=$db->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');$check->execute([$_SESSION['uco_user_id']]);$current=$check->fetch();
 if(!$current||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){$_SESSION=[];session_destroy();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
@@ -62,6 +64,44 @@ if($action==='user_delete'&&$method==='POST'){
 if($action==='change_password'&&$method==='POST'){
  csrf();$old=(string)($_POST['current_password']??'');$new=(string)($_POST['new_password']??'');if(!password_verify($old,$current['password_hash']))respond(['error'=>'La contraseña actual no es correcta.'],422);validatePassword($new);$newHash=password_hash($new,PASSWORD_DEFAULT);$db->prepare('UPDATE admin_users SET password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$newHash,$current['id']]);$_SESSION['uco_auth_stamp']=hash('sha256',$newHash);respond(['ok'=>true]);
 }
+// v1.9: administración comercial, separada de las cuentas de empleados.
+if(in_array($action,['commercial_list','customer_save','customer_delete','group_save','group_delete','price_save','price_delete'],true)){
+ adminOnly();commercialDb($db);
+ if($action==='commercial_list'&&$method==='GET'){
+  $customers=$db->query('SELECT id,company,tax_id,contact,email,group_id,active FROM customers ORDER BY company COLLATE NOCASE')->fetchAll();
+  $groups=$db->query('SELECT id,name,active FROM customer_groups ORDER BY name COLLATE NOCASE')->fetchAll();
+  $prices=$db->query("SELECT 'group' AS kind,group_id AS owner_id,product_id,price_cents FROM group_prices UNION ALL SELECT 'customer',customer_id,product_id,price_cents FROM customer_prices ORDER BY kind,owner_id,product_id")->fetchAll();
+  $catalog=$db->query('SELECT id,sku,name FROM products ORDER BY name COLLATE NOCASE')->fetchAll();
+  respond(['customers'=>array_map('customerPublic',$customers),'groups'=>$groups,'prices'=>$prices,'products'=>$catalog]);
+ }
+ if($method!=='POST')respond(['error'=>'Método no permitido'],405);csrf();
+ if($action==='group_save'){
+  $id=(int)($_POST['id']??0);$name=trim((string)($_POST['name']??''));$active=($_POST['active']??'1')==='1'?1:0;
+  if(mb_strlen($name)<2||mb_strlen($name)>90)respond(['error'=>'Nombre de grupo inválido.'],422);
+  if($id){$st=$db->prepare('UPDATE customer_groups SET name=?,active=? WHERE id=?');$st->execute([$name,$active,$id]);if(!$st->rowCount())respond(['error'=>'Grupo inexistente o sin cambios.'],404);}
+  else{$db->prepare('INSERT INTO customer_groups(name,active) VALUES(?,?)')->execute([$name,$active]);}
+  respond(['ok'=>true]);
+ }
+ if($action==='group_delete'){$st=$db->prepare('DELETE FROM customer_groups WHERE id=?');$st->execute([(int)($_POST['id']??0)]);respond(['ok'=>true]);}
+ if($action==='customer_save'){
+  $id=(int)($_POST['id']??0);$company=trim((string)($_POST['company']??''));$tax=trim((string)($_POST['tax_id']??''));$contact=trim((string)($_POST['contact']??''));$email=mb_strtolower(trim((string)($_POST['email']??'')),'UTF-8');$pass=(string)($_POST['password']??'');$active=($_POST['active']??'1')==='1'?1:0;$group=(int)($_POST['group_id']??0);$group=$group?:null;
+  if(mb_strlen($company)<2||mb_strlen($company)>160||mb_strlen($tax)>40||mb_strlen($contact)>100||!filter_var($email,FILTER_VALIDATE_EMAIL)||mb_strlen($email)>190)respond(['error'=>'Revisa los datos de empresa y correo.'],422);
+  if($group){$st=$db->prepare('SELECT 1 FROM customer_groups WHERE id=?');$st->execute([$group]);if(!$st->fetchColumn())respond(['error'=>'Grupo no válido.'],422);}
+  if($pass!==''||!$id)validatePassword($pass);
+  if($id){$st=$db->prepare('SELECT id FROM customers WHERE id=?');$st->execute([$id]);if(!$st->fetch())respond(['error'=>'Cliente inexistente.'],404);$sql='UPDATE customers SET company=?,tax_id=?,contact=?,email=?,group_id=?,active=?,updated_at=CURRENT_TIMESTAMP'.($pass!==''?',password_hash=?':'').' WHERE id=?';$args=[$company,$tax,$contact,$email,$group,$active];if($pass!=='')$args[]=password_hash($pass,PASSWORD_DEFAULT);$args[]=$id;$db->prepare($sql)->execute($args);}
+  else{$db->prepare('INSERT INTO customers(company,tax_id,contact,email,group_id,active,password_hash) VALUES(?,?,?,?,?,?,?)')->execute([$company,$tax,$contact,$email,$group,$active,password_hash($pass,PASSWORD_DEFAULT)]);}
+  respond(['ok'=>true]);
+ }
+ if($action==='customer_delete'){$db->prepare('DELETE FROM customers WHERE id=?')->execute([(int)($_POST['id']??0)]);respond(['ok'=>true]);}
+ if($action==='price_save'){
+  $kind=(string)($_POST['kind']??'');$owner=(int)($_POST['owner_id']??0);$product=(int)($_POST['product_id']??0);$cents=priceCents(trim((string)($_POST['price']??'')));
+  if(!in_array($kind,['group','customer'],true)||$owner<1||$product<1||$cents===null)respond(['error'=>'Revisa destinatario, producto y precio.'],422);
+  $table=$kind==='group'?'group_prices':'customer_prices';$col=$kind==='group'?'group_id':'customer_id';$db->prepare("INSERT INTO $table($col,product_id,price_cents) VALUES(?,?,?) ON CONFLICT($col,product_id) DO UPDATE SET price_cents=excluded.price_cents")->execute([$owner,$product,$cents]);respond(['ok'=>true]);
+ }
+ if($action==='price_delete'){
+  $kind=(string)($_POST['kind']??'');if(!in_array($kind,['group','customer'],true))respond(['error'=>'Tipo inválido'],422);$table=$kind==='group'?'group_prices':'customer_prices';$col=$kind==='group'?'group_id':'customer_id';$db->prepare("DELETE FROM $table WHERE $col=? AND product_id=?")->execute([(int)($_POST['owner_id']??0),(int)($_POST['product_id']??0)]);respond(['ok'=>true]);
+ }
+}
 if($action==='list' &&$method==='GET'){
  $q=trim((string)($_GET['q']??''));$family=(string)($_GET['family']??'');$active=(string)($_GET['active']??'');$stock=(string)($_GET['stock']??'');
  if(mb_strlen($q)>100)respond(['error'=>'Búsqueda demasiado larga'],400);
@@ -72,13 +112,14 @@ if($action==='list' &&$method==='GET'){
  if($stock==='yes')$where[]='p.stock>0';if($stock==='no')$where[]='p.stock=0';
  $filter=$where?' WHERE '.implode(' AND ',$where):'';
  $sql=' FROM products p JOIN categories c ON c.id=p.category_id'.$filter;
- $stmt=$db->prepare('SELECT p.id,p.sku,p.name,p.image,p.active,p.stock,p.notes,p.created_at,p.updated_at,c.slug AS category,c.name AS family'.$sql.' ORDER BY p.created_at DESC,p.id DESC LIMIT 2000');$stmt->execute($args);
+ $stmt=$db->prepare('SELECT p.id,p.sku,p.name,p.image,p.active,p.stock,p.notes,p.description,p.unit,p.created_at,p.updated_at,c.slug AS category,c.name AS family'.$sql.' ORDER BY p.created_at DESC,p.id DESC LIMIT 2000');$stmt->execute($args);
  $categories=$db->query('SELECT id,slug,name FROM categories WHERE active=1 ORDER BY sort_order,id')->fetchAll();
  $totals=$db->query('SELECT COUNT(*) AS total,COALESCE(SUM(active),0) AS active,COALESCE(SUM(CASE WHEN active=0 THEN 1 ELSE 0 END),0) AS inactive FROM products')->fetch();
  respond(['products'=>$stmt->fetchAll(),'categories'=>$categories,'totals'=>$totals]);
 }
 if($action==='save'&&$method==='POST'){
- csrf();$id=(int)($_POST['id']??0);$sku=trim((string)($_POST['sku']??''));$name=trim((string)($_POST['name']??''));$cat=(int)($_POST['category_id']??0);$active=(string)($_POST['active']??'1')==='1'?1:0;$stock=filter_var($_POST['stock']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>100000000]]);$notes=trim((string)($_POST['notes']??''));
+ csrf();$id=(int)($_POST['id']??0);$sku=trim((string)($_POST['sku']??''));$name=trim((string)($_POST['name']??''));$cat=(int)($_POST['category_id']??0);$active=(string)($_POST['active']??'1')==='1'?1:0;$stock=filter_var($_POST['stock']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>100000000]]);$notes=trim((string)($_POST['notes']??''));$description=trim((string)($_POST['description']??''));$unit=(string)($_POST['unit']??'unidad');
+ if(mb_strlen($description)>800||!in_array($unit,['unidad','kg','caja','saco','bandeja','litro','otro'],true))respond(['error'=>'Revisa el formato y la descripción comercial.'],422);
  if($sku===''||mb_strlen($sku)>60||$name===''||mb_strlen($name)>160||$stock===false||mb_strlen($notes)>350||substr_count($notes,"\n")>2)respond(['error'=>'Revisa código, nombre, stock y observaciones (máximo 3 líneas y 350 caracteres).'],422);
  if(!$db->prepare('SELECT 1 FROM categories WHERE id=? AND active=1')->execute([$cat]))respond(['error'=>'Familia inválida'],422);
  $check=$db->prepare('SELECT id FROM categories WHERE id=? AND active=1');$check->execute([$cat]);if(!$check->fetch())respond(['error'=>'Selecciona una familia válida'],422);
@@ -88,14 +129,14 @@ if($action==='save'&&$method==='POST'){
   if(!extension_loaded('gd'))respond(['error'=>'El servidor necesita la extensión GD para optimizar imágenes'],503);
   $info=@getimagesize($photo['tmp_name']);if(!$info||$info[0]>10000||$info[1]>10000||$info[0]*$info[1]>40000000||!in_array($info[2],[IMAGETYPE_JPEG,IMAGETYPE_PNG,IMAGETYPE_WEBP],true))respond(['error'=>'Usa JPG, PNG o WebP válidos'],422);
   $src=match($info[2]){IMAGETYPE_JPEG=>@imagecreatefromjpeg($photo['tmp_name']),IMAGETYPE_PNG=>@imagecreatefrompng($photo['tmp_name']),IMAGETYPE_WEBP=>@imagecreatefromwebp($photo['tmp_name'])};if(!$src)respond(['error'=>'No se pudo leer la imagen'],422);
-  $dst=imagecreatetruecolor(960,720);$bg=imagecolorallocate($dst,248,249,246);imagefill($dst,0,0,$bg);$scale=min(960/$info[0],720/$info[1],1);$w=max(1,(int)round($info[0]*$scale));$h=max(1,(int)round($info[1]*$scale));imagecopyresampled($dst,$src,(int)((960-$w)/2),(int)((720-$h)/2),0,0,$w,$h,$info[0],$info[1]);imagedestroy($src);
+  $dst=imagecreatetruecolor(960,720);$ratio=4/3;$sw=$info[0];$sh=$info[1];if($sw/$sh>$ratio){$sw=(int)round($sh*$ratio);$sx=(int)(($info[0]-$sw)/2);$sy=0;}else{$sh=(int)round($sw/$ratio);$sx=0;$sy=(int)(($info[1]-$sh)/2);}imagecopyresampled($dst,$src,0,0,$sx,$sy,960,720,$sw,$sh);imagedestroy($src);
   $dir=dirname(__DIR__).'/img/productos';if(!is_dir($dir)&&!mkdir($dir,0755,true))respond(['error'=>'No se pudo crear la carpeta de imágenes'],503);
   $filename=bin2hex(random_bytes(16)).'.webp';if(!imagewebp($dst,$dir.'/'.$filename,88)){imagedestroy($dst);respond(['error'=>'Error al guardar la fotografía'],503);}imagedestroy($dst);$image='./img/productos/'.$filename;
  }
  $search=norm($sku.' '.$name);
  try{
-  if($id>0){$old=$db->prepare('SELECT image FROM products WHERE id=?');$old->execute([$id]);$prev=$old->fetch();if(!$prev)respond(['error'=>'Producto inexistente'],404);$stmt=$db->prepare('UPDATE products SET sku=?,name=?,category_id=?,active=?,stock=?,notes=?,search_text=?,image=COALESCE(?,image),updated_at=CURRENT_TIMESTAMP WHERE id=?');$stmt->execute([$sku,$name,$cat,$active,$stock,$notes,$search,$image,$id]);}
-  else{$stmt=$db->prepare("INSERT INTO products(sku,name,category_id,active,stock,notes,search_text,image,is_demo) VALUES(?,?,?,?,?,?,?,?,0)");$stmt->execute([$sku,$name,$cat,$active,$stock,$notes,$search,$image]);$id=(int)$db->lastInsertId();}
+  if($id>0){$old=$db->prepare('SELECT image FROM products WHERE id=?');$old->execute([$id]);$prev=$old->fetch();if(!$prev)respond(['error'=>'Producto inexistente'],404);$stmt=$db->prepare('UPDATE products SET sku=?,name=?,category_id=?,active=?,stock=?,notes=?,description=?,unit=?,search_text=?,image=COALESCE(?,image),updated_at=CURRENT_TIMESTAMP WHERE id=?');$stmt->execute([$sku,$name,$cat,$active,$stock,$notes,$description,$unit,$search,$image,$id]);}
+  else{$stmt=$db->prepare("INSERT INTO products(sku,name,category_id,active,stock,notes,description,unit,search_text,image,is_demo) VALUES(?,?,?,?,?,?,?,?,?,?,0)");$stmt->execute([$sku,$name,$cat,$active,$stock,$notes,$description,$unit,$search,$image]);$id=(int)$db->lastInsertId();}
  }catch(PDOException $e){if($image)@unlink(dirname(__DIR__).'/'.substr($image,2));if(str_contains($e->getMessage(),'UNIQUE'))respond(['error'=>'Ese código de producto ya existe'],409);throw $e;}
  respond(['ok'=>true,'id'=>$id]);
 }
