@@ -1,3 +1,4 @@
+import './components/economy-elements.js';
 import {confirmChange,confirmStandalone} from './components/confirm-elements.js';
 import {mountPager} from './components/list-pager.js';
 /* v1.9.6 fase 2: controlador de tarifas separado de la interfaz Web Component. */
@@ -11,9 +12,26 @@ export function initTariffs({req,makeDialog,esc,refreshCommercial,getCommercial}
  function show(){const area=root.querySelector('#commercial-content');if(!area)return;area.hidden=true;let view=root.querySelector('#tariff-view');if(!view){view=document.createElement('uco-tariff-view');view.id='tariff-view';area.after(view);}view.hidden=false;render();}
  async function save(action,data){await req(action,{method:'POST',body:new URLSearchParams(data)});await refreshCommercial();render();}
  function render(){const c=getCommercial(),view=root.querySelector('#tariff-view');if(!view||view.hidden)return;
- const tabs=[['base','Tarifa general'],['groups','Descuentos por grupo'],['promos','Promociones']];
+ const tabs=[['base','Tarifa general'],['groups','Descuentos por grupo'],['promos','Promociones'],['economy','Impuestos y transporte']];
  view.renderFrame(tabs,tab);
  view.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});const panel=view.querySelector('#tariff-panel');
+ if(tab==='economy'){
+  panel.innerHTML='<uco-economy-settings></uco-economy-settings>';
+  const widget=panel.querySelector('uco-economy-settings'),msg=widget.querySelector('.uco-economy-message');
+  const request=async(body=null)=>{const res=await fetch('../api/economy-admin.php',{method:body?'POST':'GET',credentials:'same-origin',headers:body?{'X-CSRF-Token':(await req('session')).csrf}:undefined,body});const d=await res.json();if(!res.ok)throw Error(d.error||'Error de configuración');return d};
+  const cents=s=>Math.round(Number(s)*100);
+  request().then(d=>{
+   const ship=widget.querySelector('#uco-shipping');ship.shipping.value=d.settings.shipping_cents!==undefined?(+d.settings.shipping_cents/100).toFixed(2):'';
+   ship.free.value=d.settings.free_shipping_from_cents!==undefined?(+d.settings.free_shipping_from_cents/100).toFixed(2):'';
+   ship.prefixes.value=d.settings.allowed_postal_prefixes||'';
+   const tax=widget.querySelector('#uco-tax'),sel=tax.product;
+   sel.innerHTML='<option value="">Selecciona un producto</option>'+d.products.map(p=>`<option value="${p.id}">${esc(p.sku+' · '+p.name)}</option>`).join('');
+   const rates=new Map(d.taxes.map(x=>[+x.product_id,+x.rate_bp]));sel.onchange=()=>{tax.rate.value=rates.has(+sel.value)?(rates.get(+sel.value)/100).toFixed(2):''};
+   ship.onsubmit=async e=>{e.preventDefault();const f=new FormData();f.set('type','shipping');f.set('shipping_cents',cents(ship.shipping.value));f.set('free_shipping_from_cents',cents(ship.free.value));f.set('allowed_postal_prefixes',ship.prefixes.value);try{await request(f);msg.textContent='Transporte guardado correctamente'}catch(err){msg.textContent=err.message}};
+   tax.onsubmit=async e=>{e.preventDefault();const f=new FormData();f.set('type','tax');f.set('product_id',sel.value);f.set('rate_bp',cents(tax.rate.value));try{await request(f);rates.set(+sel.value,+f.get('rate_bp'));msg.textContent='IVA del producto guardado'}catch(err){msg.textContent=err.message}};
+  }).catch(e=>{msg.textContent=e.message});
+  return;
+ }
  if(tab==='base'){
   const list=c.products.filter(p=>(p.sku+' '+p.name).toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es')));const prices=new Map((c.base||[]).map(x=>[+x.product_id,+x.price_cents]));
   panel.innerHTML=`<div class="tariff-toolbar"><label class="field"><span>Buscar producto o referencia</span><input id="tariff-search" type="search" placeholder="Buscar producto…" value="${esc(query)}"></label><span class="muted">${list.length} productos · ${prices.size} con precio general</span></div><uco-table-scroll class="tablewrap"><table class="tariff-table"><thead><tr><th>Referencia</th><th>Producto</th><th>Precio general</th><th>Acción</th></tr></thead><tbody>${list.map(p=>`<tr><td>${esc(p.sku)}</td><td><div class="prod"><img src="${esc(/^\.\/img\/(?:productos\/[a-f0-9]{32}\.webp|[\w-]+\.(?:webp|png|svg))$/.test(p.image||'')?'../'+p.image.slice(2):'../img/00.webp')}" alt=""><strong>${esc(p.name)}</strong></div></td><td>${prices.has(+p.id)?money(prices.get(+p.id)):'<span class="muted">Sin precio</span>'}</td><td><button type="button" class="edit" data-base="${p.id}">Editar precio</button></td></tr>`).join('')||'<tr><td colspan="4">No hay productos con ese filtro.</td></tr>'}</tbody></table></uco-table-scroll>`;

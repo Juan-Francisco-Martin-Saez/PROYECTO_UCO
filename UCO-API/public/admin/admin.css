@@ -1139,3 +1139,6 @@ uco-confirm-change{display:block;min-width:0}.uco-confirm-change{display:grid;ga
 /* Contorno blanco uniforme para las imágenes de usuario. */
 .avatar-mini{border:1px solid #fff;box-sizing:border-box}
 .avatar-mini.avatar-logo{background:transparent;padding:0}
+
+/* Configuración económica UCO */
+uco-economy-settings{display:block;width:100%;min-width:0}.uco-economy-panel{padding:clamp(1rem,2vw,1.5rem);color:#232f5d}.uco-economy-panel h3{margin:0 0 .4rem;font-size:1.35rem}.uco-economy-panel p{line-height:1.5}.uco-economy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1.2rem}.uco-economy-grid form{display:flex;flex-direction:column;gap:.9rem;padding:1.15rem;background:#fff;border:1px solid #dce2ec;border-radius:1rem 0 1rem 0;min-width:0}.uco-economy-grid h4{margin:0;color:#232f5d}.uco-economy-grid label{display:grid;gap:.35rem;font-size:.84rem;font-weight:700}.uco-economy-grid input,.uco-economy-grid select{width:100%;min-width:0;box-sizing:border-box;border:1px solid #c9d2de;border-radius:.6rem;padding:.7rem;font:inherit}.uco-economy-grid button{border:0;border-radius:.7rem 0 .7rem 0;padding:.8rem;background:#232f5d;color:#fff;font-weight:800;cursor:pointer}.uco-economy-message{text-align:center;font-weight:800;color:#232f5d}@media(max-width:750px){.uco-economy-grid{grid-template-columns:1fr}}

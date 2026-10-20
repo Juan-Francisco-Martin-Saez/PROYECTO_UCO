@@ -463,3 +463,320 @@ uco-client-cart:not([hidden]){display:block;position:fixed;inset:0;z-index:10000
 
 /* Reserva activa: mismo azul corporativo que la cabecera y botones. */
 #cart-view .uco-reservation-banner{background:#232F5D!important;background-color:#232F5D!important}
+
+
+/* Fase 4D: selector de pago, integrado con el diseño UCO */
+#cart-view .uco-payment-open,#cart-view .uco-payment-save{display:block;width:100%;border:0;background:#232f5d;color:#fff;border-radius:.9rem 0 .9rem 0;padding:.85rem 1rem;font:800 .88rem 'Manrope',sans-serif;cursor:pointer}
+#cart-view .uco-payment-open:hover,#cart-view .uco-payment-save:hover{background:#304178}
+#cart-view .uco-payment-step{display:flex;flex-direction:column;gap:1rem;min-width:0;color:#232f5d}
+#cart-view .uco-payment-step h3{margin:0;font-size:clamp(1.2rem,2.2vw,1.65rem);line-height:1.2;color:#232f5d}
+#cart-view .uco-payment-step>p{font-size:.82rem;line-height:1.5;color:#232f5d;text-align:center;text-wrap:balance}
+#cart-view .uco-payment-form{display:flex;flex-direction:column;gap:.75rem}
+#cart-view .uco-payment-option{display:flex;align-items:center;gap:.8rem;border:1px solid hsl(211 20% 83%);border-radius:.8rem 0 .8rem 0;padding:1rem;cursor:pointer;background:#fff;min-width:0}
+#cart-view .uco-payment-option:has(input:checked){border-color:#a9df39;background:hsl(83 60% 96%);box-shadow:inset .22rem 0 #a9df39}
+#cart-view .uco-payment-option input{accent-color:#232f5d;width:1.1rem;height:1.1rem;flex:none}
+#cart-view .uco-payment-option span{display:grid;gap:.25rem;min-width:0}
+#cart-view .uco-payment-option strong{font-size:.85rem;color:#232f5d}
+#cart-view .uco-payment-option small{font-size:.73rem;color:hsl(211 15% 40%);line-height:1.45}
+#cart-view .uco-payment-feedback{font-size:.8rem;line-height:1.5;text-align:center;text-wrap:balance;font-weight:800;color:#232f5d}
+#cart-view .uco-payment-back{width:100%;background:#fff;color:#232f5d;border:1px solid #232f5d;padding:.75rem;border-radius:.8rem 0 .8rem 0;cursor:pointer}
+@media(max-width:900px){#cart-view .uco-payment-step{padding:.25rem}#cart-view .uco-payment-option{padding:.8rem}}
+
+/* Desglose económico: conservar el carrito y la jerarquía actual */
+#cart-view .uco-economy-quote{display:grid;gap:.3rem;padding:.45rem .2rem;color:#232f5d;font-size:.8rem}#cart-view .uco-economy-quote>div{display:flex;justify-content:space-between;align-items:center;gap:.7rem}#cart-view .uco-economy-grand{border-top:1px solid #d7deea;margin-top:.25rem;padding-top:.5rem;font-size:1rem;font-weight:900}#cart-view .uco-economy-grand strong{color:#628d19;font-size:1.1rem}#cart-view .uco-economy-pending{font-weight:800;text-align:center;text-wrap:balance;color:#232f5d;line-height:1.4;margin:.2rem auto}
+
+/* Pulido del carrito Fase 4E: jerarquía económica y tres productos visibles.
+   Solo presentación: no altera precios, reservas ni la lógica de pedidos. */
+#cart-view .uco-cart-total{gap:.6rem!important;min-height:1.25rem!important}
+#cart-view .uco-cart-total span{font-size:clamp(.79rem,1.2vw,.87rem)!important;font-weight:750!important}
+#cart-view .uco-cart-total strong{font-size:clamp(.95rem,1.6vw,1.05rem)!important;font-weight:900!important;color:#232f5d!important}
+#cart-view .uco-economy-quote{gap:.25rem;padding:.25rem .2rem .1rem}
+#cart-view .uco-economy-grand{margin-top:.2rem;padding-top:.5rem;align-items:center}
+#cart-view .uco-economy-grand span{font-size:clamp(.91rem,1.6vw,1.03rem);font-weight:900}
+#cart-view .uco-economy-grand strong{font:900 clamp(1.3rem,2.4vw,1.55rem)/1.15 'Space Grotesk',sans-serif!important;color:#628d19!important;white-space:nowrap}
+#cart-view .uco-cart-content{min-height:0!important;overflow:hidden!important}
+#cart-view .uco-cart-lines,
+#cart-view .uco-cart-checkout-active .uco-cart-lines{
+ flex:0 1 auto!important;min-height:0!important;
+ height:auto!important;max-height:16.8rem!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+ display:grid;grid-auto-rows:minmax(5.55rem,auto);
+ align-content:start;scrollbar-gutter:stable;
+}
+#cart-view .uco-cart-line,
+#cart-view .uco-cart-checkout-active .uco-cart-line{
+ min-width:0;min-height:5.55rem!important;
+ grid-template-columns:4.5rem minmax(0,1fr) 2.4rem;
+ align-items:center;gap:.65rem;padding:.35rem 0!important;
+}
+#cart-view .uco-cart-product{min-width:0;align-self:center}
+#cart-view .uco-cart-product>strong{font-size:clamp(.74rem,1.15vw,.84rem);line-height:1.25}
+#cart-view .uco-cart-product>small{font-size:.67rem;line-height:1.2;margin:.12rem 0}
+#cart-view .uco-cart-line-bottom{margin:.15rem 0 0!important;align-items:end;min-width:0}
+#cart-view .uco-cart-price{white-space:nowrap;align-self:end;font-size:.82rem}
+#cart-view .uco-cart-remove{align-self:center}
+@media(max-width:900px){
+ #cart-view .uco-cart-lines,
+ #cart-view .uco-cart-checkout-active .uco-cart-lines{
+  max-height:15.3rem!important;grid-auto-rows:minmax(5.05rem,auto);
+ }
+ #cart-view .uco-cart-line,
+ #cart-view .uco-cart-checkout-active .uco-cart-line{
+  min-height:5.05rem!important;
+  grid-template-columns:3.65rem minmax(0,1fr) 2rem;
+  gap:.45rem;padding:.3rem 0!important;
+ }
+ #cart-view .uco-cart-product>strong{font-size:.76rem}
+ #cart-view .uco-cart-price{font-size:.77rem}
+}
+@media(max-width:390px){
+ #cart-view .uco-cart-lines,
+ #cart-view .uco-cart-checkout-active .uco-cart-lines{
+  max-height:15rem!important;grid-auto-rows:minmax(4.95rem,auto);
+ }
+ #cart-view .uco-cart-line,
+ #cart-view .uco-cart-checkout-active .uco-cart-line{
+  min-height:4.95rem!important;
+  grid-template-columns:3.35rem minmax(0,1fr) 1.8rem;
+  gap:.35rem;
+ }
+ #cart-view .uco-cart-price{font-size:.73rem}
+ #cart-view .uco-economy-grand strong{font-size:1.25rem!important}
+}
+
+
+/* Ajuste definitivo: acciones en una fila en escritorio; móvil sin cambios de estructura. */
+#cart-view .uco-cart-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.75rem;align-items:stretch}
+#cart-view .uco-cart-actions>button{width:100%;min-width:0;min-height:3rem;margin:0!important;padding:.65rem .8rem!important;white-space:normal}
+#cart-view .uco-order-feedback:empty{display:none}
+#cart-view .uco-order-feedback:not(:empty){margin:.5rem auto!important}
+#cart-view .uco-cart-lines,#cart-view .uco-cart-checkout-active .uco-cart-lines{
+ max-height:clamp(19.5rem,37dvh,21.6rem)!important;
+ grid-auto-rows:minmax(6.45rem,auto)!important;gap:.15rem!important;
+}
+#cart-view .uco-cart-line,#cart-view .uco-cart-checkout-active .uco-cart-line{
+ min-height:6.45rem!important;padding:.65rem 0!important;align-items:center!important;
+}
+#cart-view .uco-cart-thumb{align-self:center}
+#cart-view .uco-cart-content{flex:0 0 auto!important}
+@media(max-width:900px){
+ #cart-view .uco-cart-actions{display:flex;flex-direction:column;gap:.55rem}
+ #cart-view .uco-cart-actions>button{min-height:2.8rem}
+ #cart-view .uco-cart-lines,#cart-view .uco-cart-checkout-active .uco-cart-lines{
+  max-height:clamp(15.9rem,34dvh,18rem)!important;
+  grid-auto-rows:minmax(5.25rem,auto)!important;gap:.2rem!important;
+ }
+ #cart-view .uco-cart-line,#cart-view .uco-cart-checkout-active .uco-cart-line{
+  min-height:5.25rem!important;padding:.48rem 0!important;
+ }
+}
+@media(max-width:390px){
+ #cart-view .uco-cart-lines,#cart-view .uco-cart-checkout-active .uco-cart-lines{
+  max-height:15.9rem!important;grid-auto-rows:minmax(5.2rem,auto)!important;
+ }
+ #cart-view .uco-cart-line,#cart-view .uco-cart-checkout-active .uco-cart-line{
+  min-height:5.2rem!important;padding:.45rem 0!important;
+ }
+}
+
+
+/* Ajuste final: altura dinámica y cuatro productos antes del scroll. */
+@media(min-width:901px){
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active){
+  height:auto!important;max-height:calc(100dvh - 2rem)!important;overflow-y:auto!important;
+ }
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-content{
+  flex:0 0 auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+ }
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-lines{
+  flex:0 1 auto!important;height:auto!important;min-height:0!important;
+  max-height:29.2rem!important;overflow-y:auto!important;overflow-x:hidden!important;
+  grid-auto-rows:minmax(7.15rem,auto)!important;gap:.2rem!important;
+ }
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-line{
+  min-height:7.15rem!important;padding:.8rem 0!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-lines{
+  max-height:none!important;overflow:visible!important;display:block!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-empty{min-height:8rem!important;padding:1rem!important}
+}
+@media(max-width:900px){
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-lines{
+  max-height:22.8rem!important;grid-auto-rows:minmax(5.65rem,auto)!important;gap:.2rem!important;
+ }
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-line{
+  min-height:5.65rem!important;padding:.65rem 0!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-lines{
+  max-height:none!important;overflow:visible!important;display:block!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-content{flex:none!important}
+ #cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-empty{min-height:8rem!important}
+}
+
+
+/* Fase 4F: modal de altura intrínseca y animada, sin área azul residual. */
+#cart-view .uco-cart-panel,
+#cart-view .uco-cart-panel:not(.uco-cart-checkout-active),
+#cart-view .uco-cart-panel.uco-cart-empty-state{
+ box-sizing:border-box!important;
+ height:var(--uco-cart-natural-height,auto)!important;
+ min-height:0!important;
+ max-height:calc(100dvh - 1.5rem)!important;
+ overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;
+ background:#fff!important;
+ transition:height .28s cubic-bezier(.2,.75,.3,1)!important;
+}
+#cart-view .uco-cart-content,
+#cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-content{
+ flex:0 0 auto!important;min-height:0!important;max-height:none!important;
+ height:auto!important;overflow:visible!important;
+}
+#cart-view .uco-cart-footer{
+ flex:0 0 auto!important;height:auto!important;min-height:0!important;
+ max-height:none!important;overflow:visible!important;
+}
+#cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-lines{
+ display:grid!important;grid-auto-rows:minmax(7rem,auto)!important;
+ max-height:21.6rem!important;overflow-y:auto!important;overflow-x:hidden!important;
+ align-content:start!important;gap:.2rem!important;scrollbar-gutter:stable;
+}
+#cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-line{
+ min-height:7rem!important;padding:.8rem 0!important;
+}
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-lines{
+ max-height:none!important;overflow:visible!important;display:block!important;
+}
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-empty{
+ min-height:0!important;padding:1.1rem .75rem!important;gap:.4rem!important;
+}
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-total,
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-economy-quote,
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-note,
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-actions,
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-order-feedback,
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-reservation-status,
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-checkout-view,
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-payment-open{
+ display:none!important;
+}
+#cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-footer{display:none!important}
+#cart-view .uco-order-feedback:empty,
+#cart-view .uco-reservation-status:empty,
+#cart-view .uco-checkout-view:empty,
+#cart-view .uco-payment-feedback:empty{display:none!important}
+#cart-view .uco-cart-checkout-active .uco-cart-layout{
+ flex:0 1 auto!important;min-height:0!important;height:auto!important;
+ max-height:calc(100dvh - 7rem)!important;overflow:auto!important;
+}
+#cart-view .uco-cart-checkout-active .uco-cart-left,
+#cart-view .uco-cart-checkout-active .uco-cart-right{
+ min-height:0!important;height:auto!important;
+}
+#cart-view .uco-payment-step{gap:.65rem!important}
+#cart-view .uco-payment-form{gap:.55rem!important}
+#cart-view .uco-payment-back{margin-top:.2rem!important}
+@media(max-width:900px){
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-lines{
+  grid-auto-rows:minmax(6.1rem,auto)!important;max-height:18.7rem!important;gap:.2rem!important;
+ }
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-line{
+  min-height:6.1rem!important;padding:.75rem 0!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-empty-state .uco-cart-content{flex:none!important}
+ #cart-view .uco-cart-checkout-active .uco-cart-layout{
+  display:flex!important;flex-direction:column!important;
+  max-height:calc(100dvh - 7rem)!important;overflow-y:auto!important;
+ }
+ #cart-view .uco-cart-checkout-active .uco-cart-right{padding-top:.5rem!important}
+ #cart-view .uco-payment-back{margin-top:0!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #cart-view .uco-cart-panel{transition:none!important}
+}
+
+
+/* Fase 4F.1: evita el recorte inicial del pie al añadir el cuarto producto.
+   El panel se desplaza verticalmente si el contenido excede la pantalla;
+   el listado mantiene su propio scroll desde el cuarto elemento. */
+#cart-view .uco-cart-panel,
+#cart-view .uco-cart-panel:not(.uco-cart-checkout-active),
+#cart-view .uco-cart-panel.uco-cart-empty-state{
+ background:#232f5d!important;
+ border:0!important;outline:0!important;
+ box-shadow:0 2rem 6rem hsla(207 62% 10%/.35)!important;
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+ overscroll-behavior:contain;
+ scrollbar-width:none;
+}
+#cart-view .uco-cart-panel::-webkit-scrollbar{width:0;height:0}
+#cart-view .uco-cart-header,
+#cart-view .uco-cart-content,
+#cart-view .uco-cart-footer,
+#cart-view .uco-cart-layout{
+ flex-shrink:0!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+}
+#cart-view .uco-cart-header{background:#232f5d!important}
+#cart-view .uco-cart-content{background:#fff!important}
+#cart-view .uco-cart-footer{background:hsl(205 25% 98%)!important}
+#cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-lines{
+ max-height:21.6rem!important;overflow-y:auto!important;
+}
+#cart-view .uco-cart-panel.uco-cart-height-limited .uco-cart-footer{
+ overflow:visible!important;max-height:none!important;
+}
+@media(max-width:900px){
+ #cart-view .uco-cart-panel:not(.uco-cart-checkout-active) .uco-cart-lines{
+  max-height:18.7rem!important;
+ }
+}
+
+
+/* Fase 4F.2: exclusivamente maquetación del paso de preparación en móvil. */
+@media(max-width:900px){
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-layout{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  gap:0!important;min-width:0!important;min-height:0!important;
+  height:auto!important;overflow-y:auto!important;overflow-x:hidden!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-left,
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-right{
+  display:block!important;position:relative!important;inset:auto!important;
+  transform:none!important;float:none!important;flex:none!important;
+  width:100%!important;min-width:0!important;min-height:0!important;
+  height:auto!important;max-height:none!important;overflow:visible!important;
+  box-sizing:border-box!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-right{
+  padding:1rem!important;margin:0!important;clear:both!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-content,
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-footer{
+  position:relative!important;inset:auto!important;transform:none!important;
+  height:auto!important;max-height:none!important;flex:none!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-lines{
+  max-height:18.7rem!important;overflow-y:auto!important;overflow-x:hidden!important;
+  display:grid!important;grid-auto-rows:minmax(6.1rem,auto)!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-cart-line{
+  min-height:6.1rem!important;padding:.75rem 0!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-checkout-view,
+ #cart-view .uco-cart-panel.uco-cart-checkout-active .uco-checkout-box{
+  position:static!important;display:block!important;width:100%!important;
+  min-width:0!important;height:auto!important;max-height:none!important;
+  margin:0!important;box-sizing:border-box!important;
+ }
+ #cart-view .uco-cart-panel.uco-cart-checkout-active [data-order-reserve],
+ #cart-view .uco-cart-panel.uco-cart-checkout-active [data-order-back]{
+  position:static!important;display:block!important;width:100%!important;
+  margin:.7rem 0 0!important;transform:none!important;
+ }
+ #cart-view .uco-payment-back{margin:.35rem 0 0!important}
+}
