@@ -1142,3 +1142,20 @@ uco-confirm-change{display:block;min-width:0}.uco-confirm-change{display:grid;ga
 
 /* Configuración económica UCO */
 uco-economy-settings{display:block;width:100%;min-width:0}.uco-economy-panel{padding:clamp(1rem,2vw,1.5rem);color:#232f5d}.uco-economy-panel h3{margin:0 0 .4rem;font-size:1.35rem}.uco-economy-panel p{line-height:1.5}.uco-economy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1.2rem}.uco-economy-grid form{display:flex;flex-direction:column;gap:.9rem;padding:1.15rem;background:#fff;border:1px solid #dce2ec;border-radius:1rem 0 1rem 0;min-width:0}.uco-economy-grid h4{margin:0;color:#232f5d}.uco-economy-grid label{display:grid;gap:.35rem;font-size:.84rem;font-weight:700}.uco-economy-grid input,.uco-economy-grid select{width:100%;min-width:0;box-sizing:border-box;border:1px solid #c9d2de;border-radius:.6rem;padding:.7rem;font:inherit}.uco-economy-grid button{border:0;border-radius:.7rem 0 .7rem 0;padding:.8rem;background:#232f5d;color:#fff;font-weight:800;cursor:pointer}.uco-economy-message{text-align:center;font-weight:800;color:#232f5d}@media(max-width:750px){.uco-economy-grid{grid-template-columns:1fr}}
+
+/* Pulido de administración: pestañas de tarifas y cabecera vinculada al panel. */
+@media(min-width:751px){
+ .tariff-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:.5rem!important;align-items:stretch!important;margin:.65rem 0 1.15rem!important;padding:0!important;overflow:visible!important}
+ .tariff-tabs button{min-width:0!important;width:100%!important;min-height:3rem!important;padding:.65rem .3rem!important;font-size:clamp(.77rem,1vw,.92rem)!important;line-height:1.25!important;white-space:normal!important;text-wrap:balance!important}
+ .tariff-title{margin:0 0 .55rem!important;padding:0!important;gap:.25rem!important}
+ .tariff-title h3{margin:.15rem 0!important}
+ .tariff-title p{margin:.15rem 0!important}
+}
+@media(max-width:750px){
+ .tariff-tabs{display:grid!important;grid-template-columns:1fr!important;gap:.45rem!important;margin:.6rem 0 1rem!important;overflow:visible!important;padding:0!important}
+ .tariff-tabs button{width:100%!important;min-width:0!important;min-height:2.9rem!important;padding:.65rem .7rem!important;white-space:normal!important;font-size:.88rem!important}
+ .tariff-title{margin:0 0 .55rem!important;padding:0!important;gap:.2rem!important;text-align:center!important}
+ .tariff-title h3{font-size:clamp(1.45rem,6vw,1.85rem)!important;line-height:1.15!important;margin:.15rem 0!important}
+ .tariff-title .eyebrow{font-size:.75rem!important;letter-spacing:.08em!important}
+ .tariff-title p{font-size:.85rem!important;line-height:1.4!important;margin:.15rem 0!important}
+}
