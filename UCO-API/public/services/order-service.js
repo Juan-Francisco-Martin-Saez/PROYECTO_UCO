@@ -1,0 +1,2 @@
+import {createApiClient} from './api-client.js';
+export const createOrderService=getToken=>{const api=createApiClient('../api/orders.php',getToken,'No se pudo comprobar el pedido');return {preview:()=>api('preview'),methods:()=>api('methods'),status:()=>api('status'),reserve:()=>api('reserve',{method:'POST',body:new URLSearchParams()}),cancel:order_id=>api('cancel',{method:'POST',body:new URLSearchParams({order_id})})}};

@@ -43,9 +43,7 @@ class UcoFooter extends HTMLElement {
                 rel="noopener noreferrer">política de privacidad</a> y acepto que se utilicen mis datos para responder a
               esta consulta.</span>
           </label>
-          <button class="pill primary contact-submit" type="submit">Preparar envío</button>
-          <p class="contact-hint" role="status">El envío se prepara en tu aplicación de correo. No se almacenan los datos en
-            este prototipo.</p>
+          <button class="pill primary contact-submit" type="submit">Enviar formulario</button>
         </form>
         <div class="contact-location">
           <div class="map-frame">
@@ -70,7 +68,7 @@ class UcoFooter extends HTMLElement {
       <div class="footer-main">
         <div class="footer-brand">
           <a href="#inicio" aria-label="UCO, volver al inicio">
-            <img src="./img/uco-logo.svg" alt="UCO">
+            <img src="./img/uco-logo-pie.svg" alt="UCO">
           </a>
           <p>Alimentación para profesionales.<br>Sa Pobla · Mallorca</p>
         </div>

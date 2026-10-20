@@ -40,7 +40,7 @@ a {
 }
 
 .top {
-  background: hsl(207 62% 13%);
+  background: #232f5d;
   color: white
 }
 
@@ -1135,3 +1135,7 @@ uco-product-table{min-width:0}
 /* Confirmación unificada UCO · integrada en los diálogos existentes */
 uco-confirm-change{display:block;min-width:0}.uco-confirm-change{display:grid;gap:.85rem;margin:.85rem 0 0;padding:clamp(.9rem,2.5vw,1.3rem);background:hsl(76 45% 97%);border:1px solid hsl(78 54% 72%);border-radius:1.1rem 0 1.1rem 0;color:hsl(207 52% 17%);overflow-wrap:anywhere}.uco-confirm-heading{display:flex;align-items:center;gap:.65rem;font-size:1.05rem}.uco-confirm-heading span{display:grid;place-items:center;flex:0 0 1.7rem;height:1.7rem;border-radius:50%;background:hsl(78 75% 54%);font-weight:800}.uco-confirm-change p{margin:0;line-height:1.5}.uco-confirm-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}.uco-confirm-values>div{display:grid;gap:.25rem;min-width:0;padding:.8rem;background:#fff;border:1px solid hsl(205 20% 85%);border-radius:.8rem 0 .8rem 0}.uco-confirm-values small{font-size:.78rem;color:hsl(205 22% 40%)}.uco-confirm-values strong{font-size:clamp(1rem,2.5vw,1.3rem);overflow-wrap:anywhere}.uco-confirm-actions{display:flex;gap:.7rem;flex-wrap:wrap}.uco-confirm-actions button{flex:1 1 11rem;min-height:2.9rem;white-space:normal;text-align:center}.uco-confirm-actions .danger-confirm{background:hsl(4 65% 40%);color:white}@media(max-width:560px){dialog:has(uco-confirm-change){width:calc(100% - 1.5rem);max-width:calc(100vw - 1.5rem)}dialog:has(uco-confirm-change) .modal{padding:clamp(.85rem,4vw,1.15rem);max-height:calc(100dvh - 1.5rem);overflow:auto}.uco-confirm-change{gap:.75rem;padding:.9rem}.uco-confirm-values{gap:.5rem}.uco-confirm-values>div{padding:.65rem}.uco-confirm-actions{flex-direction:column}.uco-confirm-actions button{width:100%;flex-basis:auto;min-height:3rem}}
 .uco-standalone-confirm{width:min(31rem,calc(100vw - 2rem));max-width:calc(100vw - 2rem);padding:clamp(.7rem,3vw,1.1rem);border:0;border-radius:1.1rem 0 1.1rem 0;box-shadow:0 1.5rem 4rem hsl(207 40% 10% / .3)}.uco-standalone-confirm::backdrop{background:hsl(207 35% 8% / .55)}.uco-standalone-confirm form{margin:0}
+
+/* Contorno blanco uniforme para las imágenes de usuario. */
+.avatar-mini{border:1px solid #fff;box-sizing:border-box}
+.avatar-mini.avatar-logo{background:transparent;padding:0}
