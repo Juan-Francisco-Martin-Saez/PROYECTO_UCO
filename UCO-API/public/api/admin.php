@@ -6,6 +6,7 @@ function respond($v,int $code=200):never{http_response_code($code);echo json_enc
 function norm(string $s):string{$s=mb_strtolower($s,'UTF-8');if(class_exists('Normalizer'))$s=Normalizer::normalize($s,Normalizer::FORM_D);return strtr($s,['á'=>'a','à'=>'a','ä'=>'a','â'=>'a','é'=>'e','è'=>'e','ë'=>'e','ê'=>'e','í'=>'i','ì'=>'i','ï'=>'i','î'=>'i','ó'=>'o','ò'=>'o','ö'=>'o','ô'=>'o','ú'=>'u','ù'=>'u','ü'=>'u','û'=>'u']);}
 function db():PDO{$db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=5000');return $db;}
 require_once __DIR__.'/commercial.php';
+require_once dirname(__DIR__,2).'/private/identity.php';
 function authorized():bool{return (int)($_SESSION['uco_user_id']??0)>0;}
 function usersDb():PDO{$db=db();$db->exec("CREATE TABLE IF NOT EXISTS admin_users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL COLLATE NOCASE UNIQUE, display_name TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'manager' CHECK(role IN ('admin','manager')), active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");$columns=$db->query('PRAGMA table_info(admin_users)')->fetchAll();if(!in_array('avatar',array_column($columns,'name'),true))$db->exec("ALTER TABLE admin_users ADD COLUMN avatar TEXT NOT NULL DEFAULT ''");return $db;}
 function adminOnly():void{if(($_SESSION['uco_role']??'')!=='admin')respond(['error'=>'Solo el administrador principal puede gestionar usuarios.'],403);}
@@ -29,7 +30,8 @@ if($action==='login'&&$method==='POST'){
  $st=$db->prepare('SELECT * FROM admin_users WHERE username=? COLLATE NOCASE LIMIT 1');$st->execute([$username]);$u=$st->fetch();
  if(!$u||!(int)$u['active']||!password_verify($password,$u['password_hash'])){usleep(450000);respond(['error'=>'Usuario o contraseña incorrectos.'],401);}
  if(password_needs_rehash($u['password_hash'],PASSWORD_DEFAULT)){$db->prepare('UPDATE admin_users SET password_hash=? WHERE id=?')->execute([password_hash($password,PASSWORD_DEFAULT),$u['id']]);}
- session_regenerate_id(true);$_SESSION['uco_user_id']=(int)$u['id'];$_SESSION['uco_role']=$u['role'];$_SESSION['uco_user']=userInfo($u);$_SESSION['uco_auth_stamp']=hash('sha256',$u['password_hash']);$_SESSION['csrf']=bin2hex(random_bytes(32));respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf'],'user'=>$_SESSION['uco_user']]);
+ $identityId=ucoIdentityResolve($db,'staff',(int)$u['id'],true);if($identityId===null)respond(['error'=>'No se pudo vincular la identidad.'],503);
+ session_regenerate_id(true);$_SESSION['uco_user_id']=(int)$u['id'];$_SESSION['uco_identity_id']=$identityId;$_SESSION['uco_role']=$u['role'];$_SESSION['uco_user']=userInfo($u);$_SESSION['uco_auth_stamp']=hash('sha256',$u['password_hash']);$_SESSION['csrf']=bin2hex(random_bytes(32));respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf'],'user'=>$_SESSION['uco_user']]);
 }
 if(!authorized())respond(['error'=>'Acceso no autorizado'],401);
 if($action==='logout'&&$method==='POST'){csrf();$_SESSION=[];session_destroy();respond(['ok'=>true]);}
@@ -37,7 +39,7 @@ $db=usersDb();
 $cols=array_column($db->query('PRAGMA table_info(products)')->fetchAll(),'name');if(!in_array('description',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN description TEXT NOT NULL DEFAULT ''");if(!in_array('unit',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN unit TEXT NOT NULL DEFAULT 'unidad'");
 // Si una cuenta se desactiva o cambia de rol, las sesiones anteriores dejan de autorizarse.
 $check=$db->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');$check->execute([$_SESSION['uco_user_id']]);$current=$check->fetch();
-if(!$current||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){$_SESSION=[];session_destroy();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
+if(!$current||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){$_SESSION=[];session_destroy();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
 $_SESSION['uco_role']=$current['role'];$_SESSION['uco_user']=userInfo($current);
 if($action==='account_history_index'&&$method==='GET'){
  adminOnly();
@@ -71,6 +73,43 @@ if($action==='account_history'&&$method==='GET'){
  $lines=$db->prepare('SELECT name,unit,quantity,line_cents FROM uco_order_lines WHERE order_id=? ORDER BY id');
  foreach($orders as &$order){$lines->execute([$order['id']]);$order['lines']=$lines->fetchAll();}unset($order);
  respond(['orders'=>$orders]);
+}
+// Fase 1C: vínculo explícito empleado-cliente, sin compartir sesiones ni contraseñas.
+if($action==='identity_links'&&$method==='GET'){
+ adminOnly();
+ $rows=$db->query("SELECT a.legacy_id AS staff_id,l.customer_id FROM identity_customer_links l JOIN identity_accounts a ON a.id=l.identity_id WHERE a.kind='staff' ORDER BY a.legacy_id,l.customer_id")->fetchAll();
+ respond(['links'=>$rows]);
+}
+if($action==='identity_link'&&$method==='POST'){
+ csrf();adminOnly();
+ $staffId=filter_var($_POST['staff_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ $customerId=filter_var($_POST['customer_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ $proof=(string)($_POST['customer_password']??'');
+ if(!$staffId||!$customerId||$proof==='')respond(['error'=>'Selecciona ambas cuentas y acredita el acceso comercial.'],422);
+ $st=$db->prepare('SELECT id,active FROM admin_users WHERE id=?');$st->execute([$staffId]);$staff=$st->fetch();
+ $st=$db->prepare('SELECT id,active,password_hash FROM customers WHERE id=?');$st->execute([$customerId]);$customer=$st->fetch();
+ if(!$staff||!$customer||(int)$staff['active']!==1||(int)$customer['active']!==1||!password_verify($proof,(string)$customer['password_hash'])){
+  usleep(450000);respond(['error'=>'No se pudo verificar la vinculación. Comprueba que ambas cuentas estén activas y la contraseña comercial.'],422);
+ }
+ $identityId=ucoIdentityResolve($db,'staff',(int)$staffId,true);
+ if($identityId===null)respond(['error'=>'Identidad interna no disponible.'],409);
+ $existing=$db->prepare("SELECT customer_id FROM identity_customer_links WHERE identity_id=? AND customer_id<>?");$existing->execute([$identityId,$customerId]);
+ if($existing->fetchColumn()!==false)respond(['error'=>'Esta identidad interna ya está vinculada a otro cliente. Desvincúlala primero.'],409);
+ $existing=$db->prepare("SELECT a.legacy_id FROM identity_customer_links l JOIN identity_accounts a ON a.id=l.identity_id WHERE a.kind='staff' AND l.customer_id=? AND a.id<>?");$existing->execute([$customerId,$identityId]);
+ if($existing->fetchColumn()!==false)respond(['error'=>'Este cliente ya está vinculado a otra cuenta interna.'],409);
+ $db->prepare('INSERT OR IGNORE INTO identity_customer_links(identity_id,customer_id) VALUES(?,?)')->execute([$identityId,$customerId]);
+ error_log('UCO identity link staff_id='.(int)$staffId.' customer_id='.(int)$customerId.' by_admin='.(int)$_SESSION['uco_user_id']);
+ respond(['ok'=>true]);
+}
+if($action==='identity_unlink'&&$method==='POST'){
+ csrf();adminOnly();
+ $staffId=filter_var($_POST['staff_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ $customerId=filter_var($_POST['customer_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ if(!$staffId||!$customerId)respond(['error'=>'Vínculo no válido.'],422);
+ $st=$db->prepare("DELETE FROM identity_customer_links WHERE customer_id=? AND identity_id IN (SELECT id FROM identity_accounts WHERE kind='staff' AND legacy_id=?)");
+ $st->execute([$customerId,$staffId]);
+ error_log('UCO identity unlink staff_id='.(int)$staffId.' customer_id='.(int)$customerId.' by_admin='.(int)$_SESSION['uco_user_id']);
+ respond(['ok'=>true]);
 }
 if($action==='users'&&$method==='GET'){adminOnly();respond(['users'=>array_map('userInfo',$db->query('SELECT * FROM admin_users ORDER BY id')->fetchAll())]);}
 if($action==='user_save'&&$method==='POST'){

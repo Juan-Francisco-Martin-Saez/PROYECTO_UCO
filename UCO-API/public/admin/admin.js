@@ -72,7 +72,7 @@ function editPrice(r){
 
 
 /* UCO · Usuarios / Clientes: vista consolidada. Roles y credenciales permanecen aislados. */
-let unifiedAccounts=[],unifiedOrders={};
+let unifiedAccounts=[],unifiedOrders={},unifiedLinks=[];
 const safeImage=x=>/^\.\.\/img\/[a-zA-Z0-9_/-]+\.(?:webp|png|jpg|svg)$/.test(x||'')?x:'../img/00.webp';
 function mountUnifiedAccounts(target){
  const section=document.createElement('section');section.className='uco-unified panel';section.id='uco-unified';
@@ -85,14 +85,16 @@ function mountUnifiedAccounts(target){
   const kind=b.dataset.unifiedKind,id=Number(b.dataset.unifiedId);
   if(b.dataset.unifiedAction==='edit'){if(kind==='customer')editCustomer(commercial.customers.find(x=>+x.id===id));else userDialog(users.find(x=>+x.id===id));return}
   if(b.dataset.unifiedAction==='orders'&&kind==='customer'){await openUnifiedHistory(id);return}
+  if(b.dataset.unifiedAction==='profile'){openUnifiedProfile(kind,id);return}
+  if(b.dataset.unifiedAction==='link'&&kind==='user'){await openIdentityLinkDialog(id);return}
  });
  refreshUnifiedAccounts();
 }
 async function refreshUnifiedAccounts(){
  const el=document.querySelector('#uco-unified');if(!el)return;
  try{
-  const [u,h]=await Promise.all([services.users.list(),req('account_history_index')]);
-  users=u.users;unifiedOrders=h.counts||{};
+  const [u,h,l]=await Promise.all([services.users.list(),req('account_history_index'),req('identity_links')]);
+  users=u.users;unifiedOrders=h.counts||{};unifiedLinks=l.links||[];
   unifiedAccounts=[
    ...users.map(x=>({kind:x.role==='admin'?'admin':'staff',source:'user',id:x.id,name:x.display_name||x.username,email:x.email||'',active:+x.active,group:'',avatar:validAvatar(x.avatar)?x.avatar:'',role:x.role==='admin'?'Administrador':'Empleado'})),
    ...commercial.customers.map(x=>({kind:'customer',source:'customer',id:x.id,name:x.company,email:x.email||'',active:+x.active,group:commercial.groups.find(g=>+g.id===+x.group_id)?.name||'Sin grupo',avatar:'',role:'Cliente'}))
@@ -114,6 +116,9 @@ function renderUnifiedAccounts(){
   const name=document.createElement('strong');name.textContent=x.name;
   const email=document.createElement('small');email.textContent=x.email;
   details.append(name,email);
+  const linkedCustomer=x.source==='user'?unifiedLinks.find(l=>+l.staff_id===+x.id):null;
+  const linkedStaff=x.source==='customer'?unifiedLinks.find(l=>+l.customer_id===+x.id):null;
+  if(linkedCustomer||linkedStaff){const label=document.createElement('small');label.className='uco-profile-link-label';label.textContent=linkedCustomer?'Perfil comercial vinculado':'Cuenta interna vinculada';details.append(label)}
   const role=document.createElement('span');role.className='uco-account-meta';role.textContent=x.role;
   const group=document.createElement('span');group.className='uco-account-meta';group.textContent=x.group||'—';
   const active=document.createElement('span');active.className='uco-account-status '+(x.active?'is-active':'');active.textContent=x.active?'Activo':'Inactivo';
@@ -121,10 +126,70 @@ function renderUnifiedAccounts(){
   const actions=document.createElement('div');actions.className='uco-account-actions';
   const edit=document.createElement('button');edit.type='button';edit.textContent='Editar';edit.dataset.unifiedAction='edit';
   actions.append(edit);
+  const profile=document.createElement('button');profile.type='button';profile.textContent='Perfil';profile.dataset.unifiedAction='profile';actions.append(profile);
+  if(x.source==='user'){const link=document.createElement('button');link.type='button';const linked=unifiedLinks.find(l=>+l.staff_id===+x.id);link.textContent=linked?'Vínculo comercial':'Vincular';link.dataset.unifiedAction='link';actions.append(link)}
   if(x.source==='customer'){const orders=document.createElement('button');orders.type='button';orders.textContent='Historial';orders.dataset.unifiedAction='orders';actions.append(orders)}
   for(const b of actions.querySelectorAll('button')){b.dataset.unifiedKind=x.source;b.dataset.unifiedId=x.id}
   row.append(photo,details,role,group,active,count,actions);list.append(row);
  }
+}
+function openUnifiedProfile(kind,id){
+ const account=unifiedAccounts.find(x=>x.source===kind&&+x.id===+id);if(!account)return;
+ const staff=kind==='user'?users.find(x=>+x.id===+id):null;
+ const customer=kind==='customer'?commercial.customers.find(x=>+x.id===+id):null;
+ const link=kind==='user'?unifiedLinks.find(x=>+x.staff_id===+id):unifiedLinks.find(x=>+x.customer_id===+id);
+ const related=link?(kind==='user'?commercial.customers.find(x=>+x.id===+link.customer_id):users.find(x=>+x.id===+link.staff_id)):null;
+ const dialog=document.createElement('dialog');dialog.className='uco-history-dialog uco-profile-dialog';
+ dialog.innerHTML='<div class="modal"><header><h2>Perfil de cuenta</h2><button type="button" class="close" aria-label="Cerrar">×</button></header><div class="uco-history-content"></div></div>';
+ const body=dialog.querySelector('.uco-history-content');
+ const hero=document.createElement('div');hero.className='uco-profile-hero';
+ const photo=document.createElement('img');photo.className='uco-profile-avatar';photo.alt='Imagen de perfil';photo.src=account.avatar&&validAvatar(account.avatar)?validAvatar(account.avatar):'../img/00.webp';photo.onerror=()=>{photo.onerror=null;photo.src='../img/00.webp'};
+ const identity=document.createElement('div');identity.className='uco-profile-identity';
+ const eyebrow=document.createElement('span');eyebrow.className='uco-profile-eyebrow';eyebrow.textContent=kind==='customer'?'PERFIL COMERCIAL':'CUENTA INTERNA';
+ const heading=document.createElement('h3');heading.textContent=account.name;
+ const summary=document.createElement('p');summary.textContent=account.email||'Correo no informado';
+ const tags=document.createElement('div');tags.className='uco-profile-tags';
+ const roleTag=document.createElement('span');roleTag.textContent=account.role;
+ const statusTag=document.createElement('span');statusTag.className=account.active?'uco-profile-tag-active':'uco-profile-tag-inactive';statusTag.textContent=account.active?'Activo':'Inactivo';
+ tags.append(roleTag,statusTag);identity.append(eyebrow,heading,summary,tags);hero.append(photo,identity);body.append(hero);
+ const rows=[['Tipo',account.role],['Estado',account.active?'Activo':'Inactivo'],['Correo',account.email||'No informado']];
+ if(staff){rows.push(['Usuario de acceso',staff.username||'—'],['Permiso interno',staff.role==='admin'?'Administrador principal':'Gestor de catálogo']);}
+ if(customer){rows.push(['Grupo comercial',account.group],['Pedidos registrados',String(unifiedOrders[id]??0)]);}
+ rows.push(['Vinculación',related?(kind==='user'?(related.company||'Cliente vinculado'):(related.display_name||related.username||'Usuario vinculado')):'Sin vinculación adicional']);
+ const dl=document.createElement('dl');dl.className='uco-profile-details';
+ for(const [label,value] of rows){const dt=document.createElement('dt');dt.textContent=label;const dd=document.createElement('dd');dd.textContent=value;dl.append(dt,dd)}body.append(dl);
+ const note=document.createElement('p');note.className='tip';note.textContent='Consulta de solo lectura. Los accesos y permisos internos y comerciales permanecen independientes.';body.append(note);
+ const actions=document.createElement('div');actions.className='uco-profile-actions';
+ const edit=document.createElement('button');edit.type='button';edit.textContent='Editar datos';edit.addEventListener('click',()=>{dialog.close();kind==='customer'?editCustomer(customer):userDialog(staff)});actions.append(edit);
+ if(kind==='user'){const manage=document.createElement('button');manage.type='button';manage.textContent='Gestionar vínculo';manage.addEventListener('click',()=>{dialog.close();openIdentityLinkDialog(id)});actions.append(manage)}
+ if(kind==='customer'){const history=document.createElement('button');history.type='button';history.textContent='Ver historial';history.addEventListener('click',()=>{dialog.close();openUnifiedHistory(id)});actions.append(history)}
+ body.append(actions);document.body.append(dialog);
+ dialog.querySelector('.close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.showModal();
+}
+async function openIdentityLinkDialog(staffId){
+ const staff=users.find(x=>+x.id===+staffId);if(!staff)return;
+ const linked=unifiedLinks.find(x=>+x.staff_id===+staffId);
+ const d=document.createElement('dialog');d.className='uco-history-dialog uco-link-dialog';
+ d.innerHTML='<div class="modal"><header><h2>Vinculación comercial</h2><button type="button" class="close" aria-label="Cerrar">×</button></header><div class="uco-history-content"></div></div>';
+ const body=d.querySelector('.uco-history-content');
+ const p=document.createElement('p');p.textContent='Usuario interno: '+(staff.display_name||staff.username)+'. Los accesos y permisos continuarán siendo independientes.';p.className='uco-link-intro';body.append(p);
+ const form=document.createElement('form');form.method='dialog';form.className='uco-link-form';
+ if(linked){
+  const c=commercial.customers.find(x=>+x.id===+linked.customer_id);
+  const info=document.createElement('p');info.textContent='Cliente vinculado: '+(c?.company||('#'+linked.customer_id));info.className='uco-link-current';form.append(info);
+  const unlink=document.createElement('button');unlink.type='button';unlink.className='uco-link-unlink';unlink.textContent='Desvincular cliente';
+  unlink.addEventListener('click',async()=>{if(!await confirmStandalone({title:'Desvincular cuenta',message:'Se quitará únicamente el vínculo. Las dos cuentas, sus contraseñas y pedidos permanecerán intactos.',confirm:'Desvincular',danger:true}))return;try{await req('identity_unlink',{method:'POST',body:formOf({staff_id:staffId,customer_id:linked.customer_id})});d.close();await refreshUnifiedAccounts()}catch(e){alert(e.message)}});form.append(unlink);
+ }else{
+  const label=document.createElement('label');label.className='uco-link-field';label.textContent='Cliente comercial';
+  const select=document.createElement('select');select.required=true;select.name='customer_id';
+  const first=document.createElement('option');first.value='';first.textContent='Selecciona un cliente';select.append(first);
+  for(const c of commercial.customers){const opt=document.createElement('option');opt.value=c.id;opt.textContent=c.company+' · '+(c.email||'sin correo');select.append(opt)}label.append(select);form.append(label);
+  const passLabel=document.createElement('label');passLabel.className='uco-link-field';passLabel.textContent='Contraseña actual de la cuenta comercial (verificación obligatoria)';
+  const pass=document.createElement('input');pass.type='password';pass.name='customer_password';pass.autocomplete='off';pass.required=true;passLabel.append(pass);form.append(passLabel);
+  const save=document.createElement('button');save.type='submit';save.className='primary uco-link-submit';save.textContent='Verificar y vincular';form.append(save);
+  form.addEventListener('submit',async e=>{e.preventDefault();save.disabled=true;try{await req('identity_link',{method:'POST',body:formOf({staff_id:staffId,customer_id:select.value,customer_password:pass.value})});pass.value='';d.close();await refreshUnifiedAccounts()}catch(err){pass.value='';alert(err.message)}finally{save.disabled=false}});
+ }
+ body.append(form);document.body.append(d);d.querySelector('.close').onclick=()=>d.close();d.addEventListener('close',()=>d.remove(),{once:true});d.showModal();
 }
 async function openUnifiedHistory(id){
  const c=commercial.customers.find(x=>+x.id===id);if(!c)return;
