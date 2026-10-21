@@ -77,8 +77,9 @@ async function buildPdf(d){
  next(15);pdf.setFontSize(9);pdf.setTextColor(130,65,30);pdf.text('OPERACION FICTICIA. NO ACREDITA NINGUN PAGO REAL.',L,y+5);footer();
  return pdf;
 }
-export async function openUcoReceipt(orderId){
- const r=await fetch('../api/order-receipt.php?order_id='+encodeURIComponent(orderId),{credentials:'same-origin',cache:'no-store'});
+export async function openUcoReceipt(orderId,source='customer'){
+ const endpoint=source==='admin'?'../api/admin.php?action=account_receipt&order_id=':'../api/order-receipt.php?order_id=';
+ const r=await fetch(endpoint+encodeURIComponent(orderId),{credentials:'same-origin',cache:'no-store'});
  const raw=await r.text();let d;try{d=JSON.parse(raw)}catch{throw Error('El servidor no ha devuelto JSON válido (HTTP '+r.status+'). Comprueba el registro de errores PHP de order-receipt.php.')}if(!r.ok)throw Error((d.error||'No se pudo recuperar el justificante')+' (HTTP '+r.status+')');
  let url=null;let fallback=false;
  try{const PDF=await buildPdf(d);const blob=PDF.output('blob');url=URL.createObjectURL(blob)}

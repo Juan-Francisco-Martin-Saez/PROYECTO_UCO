@@ -39,6 +39,39 @@ $cols=array_column($db->query('PRAGMA table_info(products)')->fetchAll(),'name')
 $check=$db->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');$check->execute([$_SESSION['uco_user_id']]);$current=$check->fetch();
 if(!$current||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){$_SESSION=[];session_destroy();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
 $_SESSION['uco_role']=$current['role'];$_SESSION['uco_user']=userInfo($current);
+if($action==='account_history_index'&&$method==='GET'){
+ adminOnly();
+ $counts=[];
+ $q=$db->query('SELECT customer_id,COUNT(*) AS n FROM uco_orders GROUP BY customer_id');
+ foreach($q->fetchAll() as $r)$counts[(string)$r['customer_id']]=(int)$r['n'];
+ respond(['counts'=>$counts]);
+}
+if($action==='account_receipt'&&$method==='GET'){
+ adminOnly();
+ $oid=filter_var($_GET['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ if(!$oid)respond(['error'=>'Pedido no válido'],422);
+ $st=$db->prepare('SELECT o.id,o.customer_id,o.status,o.payment_status,o.created_at,p.method,p.state,p.reference,p.subtotal_cents,p.tax_cents,p.shipping_cents,p.total_cents,p.delivery_json,p.tax_json,p.updated_at AS operation_at FROM uco_orders o JOIN uco_simulated_payments p ON p.order_id=o.id WHERE o.id=?');
+ $st->execute([$oid]);$order=$st->fetch();
+ if(!$order)respond(['error'=>'Justificante no encontrado'],404);
+ if($order['state']!=='approved'||$order['payment_status']!=='simulated_approved')respond(['error'=>'Solo disponible para pagos simulados aprobados'],409);
+ $st=$db->prepare('SELECT l.product_id,l.sku,l.name,l.unit,l.quantity,l.unit_price_cents,l.line_cents,p.image FROM uco_order_lines l LEFT JOIN products p ON p.id=l.product_id WHERE l.order_id=? ORDER BY l.id');
+ $st->execute([$oid]);$items=$st->fetchAll();if(!$items)respond(['error'=>'El pedido no tiene líneas'],409);
+ foreach($items as &$item){$src=(string)($item['image']??'');$item['image']=preg_match('~^\./img/(?:productos/[a-f0-9]+|[0-9]{2})\.webp$~',$src)?'../'.substr($src,2):null;}unset($item);
+ $delivery=json_decode((string)$order['delivery_json'],true);$tax=json_decode((string)$order['tax_json'],true);
+ respond(['simulation'=>true,'order_id'=>(int)$order['id'],'status'=>$order['status'],'method'=>$order['method'],'state'=>$order['state'],'reference'=>$order['reference'],'created_at'=>$order['created_at'],'operation_at'=>$order['operation_at'],'delivery'=>is_array($delivery)?$delivery:[],'tax_lines'=>is_array($tax)?$tax:[],'items'=>$items,'subtotal_cents'=>(int)$order['subtotal_cents'],'tax_cents'=>(int)$order['tax_cents'],'shipping_cents'=>(int)$order['shipping_cents'],'total_cents'=>(int)$order['total_cents']]);
+}
+if($action==='account_history'&&$method==='GET'){
+ adminOnly();
+ $cid=filter_var($_GET['customer_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ if(!$cid)respond(['error'=>'Cliente inválido'],422);
+ $check=$db->prepare('SELECT id FROM customers WHERE id=?');$check->execute([$cid]);
+ if(!$check->fetchColumn())respond(['error'=>'Cliente inexistente'],404);
+ $st=$db->prepare('SELECT o.id,o.created_at,o.status,o.payment_status,o.subtotal_cents,p.state AS payment_state,p.reference AS payment_reference FROM uco_orders o LEFT JOIN uco_simulated_payments p ON p.order_id=o.id WHERE o.customer_id=? ORDER BY o.id DESC LIMIT 200');
+ $st->execute([$cid]);$orders=$st->fetchAll();
+ $lines=$db->prepare('SELECT name,unit,quantity,line_cents FROM uco_order_lines WHERE order_id=? ORDER BY id');
+ foreach($orders as &$order){$lines->execute([$order['id']]);$order['lines']=$lines->fetchAll();}unset($order);
+ respond(['orders'=>$orders]);
+}
 if($action==='users'&&$method==='GET'){adminOnly();respond(['users'=>array_map('userInfo',$db->query('SELECT * FROM admin_users ORDER BY id')->fetchAll())]);}
 if($action==='user_save'&&$method==='POST'){
  csrf();adminOnly();$id=(int)($_POST['id']??0);$username=trim((string)($_POST['username']??''));$display=trim((string)($_POST['display_name']??''));$email=trim((string)($_POST['email']??''));$role=(string)($_POST['role']??'manager');$active=(string)($_POST['active']??'1')==='1'?1:0;$pass=(string)($_POST['password']??'');
@@ -120,7 +153,12 @@ if(in_array($action,['commercial_list','customer_save','customer_delete','group_
   else{$db->prepare('INSERT INTO customers(company,tax_id,contact,email,group_id,active,password_hash) VALUES(?,?,?,?,?,?,?)')->execute([$company,$tax,$contact,$email,$group,$active,password_hash($pass,PASSWORD_DEFAULT)]);}
   respond(['ok'=>true]);
  }
- if($action==='customer_delete'){$db->prepare('DELETE FROM customers WHERE id=?')->execute([(int)($_POST['id']??0)]);respond(['ok'=>true]);}
+ if($action==='customer_delete'){
+  $id=(int)($_POST['id']??0);
+  $count=$db->prepare('SELECT COUNT(*) FROM uco_orders WHERE customer_id=?');$count->execute([$id]);
+  if((int)$count->fetchColumn()>0)respond(['error'=>'Este cliente tiene pedidos históricos. Desactiva la cuenta en lugar de eliminarla.'],409);
+  $db->prepare('DELETE FROM customers WHERE id=?')->execute([$id]);respond(['ok'=>true]);
+ }
   if($action==='price_update'||$action==='price_save'){
    $kind=(string)($_POST['kind']??'');$owner=(int)($_POST['owner_id']??0);$product=(int)($_POST['product_id']??0);
    $cents=priceCents(trim((string)($_POST['price']??'')));
