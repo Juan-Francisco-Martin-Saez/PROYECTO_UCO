@@ -101,7 +101,12 @@ async function openPurchaseHistory(){
   for(const o of d.orders){
    const card=document.createElement('details');card.className='uco-client-history-order';
    const summary=document.createElement('summary');const name=document.createElement('strong');name.textContent='PED-'+String(o.id).padStart(2,'0');const date=document.createElement('span');date.textContent=String(o.created_at||'').slice(0,16);const amount=document.createElement('b');amount.textContent=money(o.subtotal_cents);summary.append(name,date,amount);card.append(summary);
-   const info=document.createElement('p');info.textContent='Estado: '+String(o.status||'—')+' · Pago: '+String(o.payment_status||'—');card.append(info);
+   const info=document.createElement('p');info.className='uco-client-order-status';
+   const paid=o.status==='paid'&&o.payment_status==='simulated_approved';
+   const stateNames={pending_preparation:'Pendiente de preparación',preparing:'En preparación',prepared:'Preparado',dispatched:'Enviado',delivered:'Entregado',incident:'Incidencia',cancelled:'Cancelado'};
+   const payment=document.createElement('span');payment.textContent='Pago: '+(paid?'Aprobado (simulación)':String(o.payment_status||'Pendiente'));
+   const progress=document.createElement('span');progress.className='uco-client-order-progress';progress.textContent='Preparación: '+(stateNames[o.fulfillment_state]||'Sin iniciar');
+   info.append(payment,progress);card.append(info);
    const ul=document.createElement('ul');for(const line of o.items||[]){const li=document.createElement('li');li.textContent=line.name+' · '+line.quantity+' '+line.unit+' · '+money(line.line_cents);ul.append(li)}card.append(ul);
    if(o.payment_status==='simulated_approved'){const pdf=document.createElement('button');pdf.type='button';pdf.className='uco-history-receipt';pdf.textContent='Ver justificante PDF';pdf.onclick=async()=>{try{await openUcoReceipt(o.id)}catch(e){alert('No se pudo abrir el justificante: '+e.message)}};card.append(pdf)}
    body.append(card);

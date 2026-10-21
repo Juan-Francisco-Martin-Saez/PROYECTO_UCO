@@ -35,7 +35,7 @@ try{
   if($action==='methods'){$db->commit();orderReply(['methods'=>[['id'=>'redsys','name'=>'Tarjeta bancaria (TPV multibanco)','enabled'=>false],['id'=>'transfer','name'=>'Transferencia bancaria','enabled'=>false],['id'=>'paypal','name'=>'PayPal','enabled'=>false],['id'=>'bizum','name'=>'Bizum','enabled'=>false]],'notice'=>'Las pasarelas todavía no están activadas; no se aceptan pagos.']);}
   if($action==='preview'){$result=orderCart($db,$id,(int)($user['group_id']??0));$db->commit();orderReply($result);}
   if($action==='history'){
-   $q=$db->prepare('SELECT id,status,payment_status,subtotal_cents,created_at FROM uco_orders WHERE customer_id=? ORDER BY id DESC LIMIT 100');
+   $q=$db->prepare('SELECT o.id,o.status,o.payment_status,o.subtotal_cents,o.created_at,f.state AS fulfillment_state,f.updated_at AS fulfillment_updated_at FROM uco_orders o LEFT JOIN uco_order_fulfillment f ON f.order_id=o.id WHERE o.customer_id=? ORDER BY o.id DESC LIMIT 100');
    $q->execute([$id]);$rows=$q->fetchAll();
    $lines=$db->prepare('SELECT name,sku,unit,quantity,line_cents FROM uco_order_lines WHERE order_id=? ORDER BY id');
    foreach($rows as &$row){$lines->execute([(int)$row['id']]);$row['items']=$lines->fetchAll();}unset($row);
