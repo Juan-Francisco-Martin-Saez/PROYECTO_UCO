@@ -87,9 +87,13 @@ try{
  LEFT JOIN uco_order_fulfillment f ON f.order_id=o.id
  ORDER BY o.id DESC LIMIT 300");
  $rows=$q->fetchAll();
+ $events=$db->prepare("SELECT e.previous_state,e.new_state,e.note,e.created_at,COALESCE(a.display_name, 'Usuario no disponible') AS actor FROM uco_order_fulfillment_events e LEFT JOIN admin_users a ON a.id=e.actor_staff_id WHERE e.order_id=? ORDER BY e.id ASC");
+ $resets=$db->prepare("SELECT r.previous_state,r.reason,r.verification_method,r.created_at,COALESCE(a.display_name, 'Usuario no disponible') AS actor FROM uco_order_fulfillment_resets r LEFT JOIN admin_users a ON a.id=r.actor_staff_id WHERE r.order_id=? ORDER BY r.id ASC");
  $lines=$db->prepare('SELECT sku,name,unit,quantity,unit_price_cents,line_cents FROM uco_order_lines WHERE order_id=? ORDER BY id');
  foreach($rows as &$row){
   $lines->execute([(int)$row['id']]);$row['lines']=$lines->fetchAll();
+  $events->execute([(int)$row['id']]);$row['events']=$events->fetchAll();
+  $resets->execute([(int)$row['id']]);$row['resets']=$resets->fetchAll();
   $row['payment_confirmed']=($row['payment_order_state']==='paid'&&$row['payment_status']==='simulated_approved'&&$row['simulation_state']==='approved');
  }unset($row);
  replyOrders(['orders'=>$rows,'read_only'=>$staff['role']!=='admin']);

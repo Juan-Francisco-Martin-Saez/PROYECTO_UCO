@@ -1395,3 +1395,16 @@ dialog.uco-order-dialog::backdrop{background:#07132ab8;backdrop-filter:blur(3px)
 .uco-order-confirm{background:#a9df39;border:1px solid #a9df39;color:#232f5d}
 .uco-order-actions .uco-order-reset{background:transparent;color:#527c19;border:1px solid #8abf2b}
 @media(max-width:36rem){dialog.uco-order-dialog{width:calc(100vw - 1.5rem);max-width:calc(100vw - 1.5rem)}.uco-order-dialog-body{padding:1rem}.uco-order-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.uco-order-dialog-actions:has(> :only-child){grid-template-columns:1fr}.uco-order-dialog-actions button{min-width:0}}
+
+/* Fase 2G: historial de preparación y reinicios auditados */
+.uco-order-history{margin:1.1rem 0;padding:1rem 1.15rem;background:#f7f9fd;border:1px solid #dce4ef;border-radius:.85rem 0 .85rem 0}
+.uco-order-history h3{font-size:1.04rem;color:#232f5d;margin:0 0 .9rem;font-weight:800}
+.uco-order-history ol{list-style:none;margin:0;padding:0 0 0 .9rem;border-left:2px solid #a9df39;display:grid;gap:.9rem}
+.uco-order-history li{position:relative;padding:.2rem .15rem .2rem .9rem;color:#283a61}
+.uco-order-history li::before{content:'';position:absolute;left:-1.28rem;top:.45rem;width:.62rem;height:.62rem;border-radius:50%;background:#a9df39;border:2px solid #fff;box-shadow:0 0 0 1px #8caf40}
+.uco-order-history li.uco-history-reset::before{background:#232f5d;box-shadow:0 0 0 1px #232f5d}
+.uco-history-top{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.uco-history-top time,.uco-order-history small{font-size:.79rem;color:#64748b}
+.uco-order-history li p{margin:.25rem 0;font-size:.9rem}
+.uco-order-history .uco-history-note{background:#fff;border-left:3px solid #a9df39;padding:.55rem .7rem;border-radius:0 .45rem .45rem 0;overflow-wrap:anywhere}
+@media(max-width:36rem){.uco-order-history{padding:.9rem .75rem}.uco-history-top{flex-direction:column;gap:.2rem}}
