@@ -27,13 +27,20 @@ function orderCart(PDO $db,int $customerId,int $groupId):array{
 try{
  $db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=10000');commercialDb($db);
  $id=(int)($_SESSION['customer_id']??0);if(!$id)orderReply(['error'=>'Inicia sesión'],401);$q=$db->prepare('SELECT password_hash,group_id FROM customers WHERE id=? AND active=1');$q->execute([$id]);$user=$q->fetch();if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$user['password_hash'])))orderReply(['error'=>'Sesión caducada'],401);
- $action=(string)($_GET['action']??'preview');$method=$_SERVER['REQUEST_METHOD'];if(!in_array($action,['preview','reserve','cancel','status','methods'],true))orderReply(['error'=>'Operación desconocida'],404);
+ $action=(string)($_GET['action']??'preview');$method=$_SERVER['REQUEST_METHOD'];if(!in_array($action,['preview','reserve','cancel','status','history','methods'],true))orderReply(['error'=>'Operación desconocida'],404);
  if(in_array($action,['reserve','cancel'],true)&&($method!=='POST'||!hash_equals((string)($_SESSION['customer_csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??''))))orderReply(['error'=>'Solicitud no válida'],403);
- if(in_array($action,['preview','status','methods'],true)&&$method!=='GET')orderReply(['error'=>'Método no permitido'],405);
+ if(in_array($action,['preview','status','history','methods'],true)&&$method!=='GET')orderReply(['error'=>'Método no permitido'],405);
  $db->exec('BEGIN IMMEDIATE');try{
   orderSchema($db);orderExpire($db);
   if($action==='methods'){$db->commit();orderReply(['methods'=>[['id'=>'redsys','name'=>'Tarjeta bancaria (TPV multibanco)','enabled'=>false],['id'=>'transfer','name'=>'Transferencia bancaria','enabled'=>false],['id'=>'paypal','name'=>'PayPal','enabled'=>false],['id'=>'bizum','name'=>'Bizum','enabled'=>false]],'notice'=>'Las pasarelas todavía no están activadas; no se aceptan pagos.']);}
   if($action==='preview'){$result=orderCart($db,$id,(int)($user['group_id']??0));$db->commit();orderReply($result);}
+  if($action==='history'){
+   $q=$db->prepare('SELECT id,status,payment_status,subtotal_cents,created_at FROM uco_orders WHERE customer_id=? ORDER BY id DESC LIMIT 100');
+   $q->execute([$id]);$rows=$q->fetchAll();
+   $lines=$db->prepare('SELECT name,sku,unit,quantity,line_cents FROM uco_order_lines WHERE order_id=? ORDER BY id');
+   foreach($rows as &$row){$lines->execute([(int)$row['id']]);$row['items']=$lines->fetchAll();}unset($row);
+   $db->commit();orderReply(['orders'=>$rows]);
+  }
   if($action==='status'){$q=$db->prepare('SELECT id,status,payment_status,subtotal_cents,expires_at FROM uco_orders WHERE customer_id=? ORDER BY id DESC LIMIT 20');$q->execute([$id]);$rows=$q->fetchAll();$db->commit();orderReply(['orders'=>$rows]);}
   if($action==='cancel'){$oid=filter_var($_POST['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);if(!$oid){$db->rollBack();orderReply(['error'=>'Pedido inválido'],422);}$q=$db->prepare("UPDATE uco_orders SET status='cancelled',updated_at=CURRENT_TIMESTAMP WHERE id=? AND customer_id=? AND status='reserved'");$q->execute([$oid,$id]);$changed=$q->rowCount();$db->commit();orderReply(['cancelled'=>(bool)$changed]);}
   // La reserva es interna: no habilita ventas ni inicia pagos hasta la siguiente fase.

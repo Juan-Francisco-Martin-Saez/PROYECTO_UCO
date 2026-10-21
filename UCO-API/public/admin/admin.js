@@ -127,7 +127,7 @@ function renderUnifiedAccounts(){
   const edit=document.createElement('button');edit.type='button';edit.textContent='Editar';edit.dataset.unifiedAction='edit';
   actions.append(edit);
   const profile=document.createElement('button');profile.type='button';profile.textContent='Perfil';profile.dataset.unifiedAction='profile';actions.append(profile);
-  if(x.source==='user'){const link=document.createElement('button');link.type='button';const linked=unifiedLinks.find(l=>+l.staff_id===+x.id);link.textContent=linked?'Vínculo comercial':'Vincular';link.dataset.unifiedAction='link';actions.append(link)}
+  if(x.source==='user'){const link=document.createElement('button');link.type='button';const linked=unifiedLinks.find(l=>+l.staff_id===+x.id);link.textContent=linked?'Vínculo':'Vincular';link.dataset.unifiedAction='link';if(linked)link.classList.add('uco-link-active');actions.append(link)}
   if(x.source==='customer'){const orders=document.createElement('button');orders.type='button';orders.textContent='Historial';orders.dataset.unifiedAction='orders';actions.append(orders)}
   for(const b of actions.querySelectorAll('button')){b.dataset.unifiedKind=x.source;b.dataset.unifiedId=x.id}
   row.append(photo,details,role,group,active,count,actions);list.append(row);

@@ -1337,3 +1337,16 @@ dialog.uco-link-dialog .uco-link-current{margin:0;padding:1rem;background:#f6f8f
 dialog.uco-link-dialog .uco-link-unlink{background:#fbe9e9;color:#a32b35}
 @media(max-width:48rem){dialog.uco-link-dialog{width:min(95vw,35rem);max-height:94dvh}dialog.uco-link-dialog>.modal{padding:1.2rem}}
 @media(max-width:35rem){dialog.uco-link-dialog{width:calc(100vw - 1rem);max-width:calc(100vw - 1rem);max-height:96dvh;border-radius:1rem 0 1rem 0}dialog.uco-link-dialog>.modal{padding:1rem}dialog.uco-link-dialog .modal header{margin-bottom:.85rem}dialog.uco-link-dialog .uco-link-intro{padding:.85rem;font-size:.84rem;margin-bottom:1rem}dialog.uco-link-dialog .uco-link-form{gap:.9rem}dialog.uco-link-dialog .uco-link-field{font-size:.83rem}dialog.uco-link-dialog .uco-link-field select,dialog.uco-link-dialog .uco-link-field input{font-size:1rem}}
+
+/* Cuenta vinculada: botón compacto con contorno verde, sin alterar el estado sin vincular. */
+.uco-account-actions button.uco-link-active,.uco-account-actions button.uco-link-active:last-child:not(:first-child){background:transparent;color:#689e17;border:2px solid #a9df39;padding:calc(.55rem - 2px) calc(.75rem - 2px)}
+.uco-account-actions button.uco-link-active:hover,.uco-account-actions button.uco-link-active:focus-visible{background:#f3fae6;color:#4f8010}
+
+/* Misma anchura para Vincular y Vínculo; sin cambiar la apariencia ni las acciones. */
+.uco-account-actions button[data-unified-action="link"]{box-sizing:border-box;min-width:5.65rem;text-align:center;white-space:nowrap}
+
+/* Usuarios / Clientes: centrar el bloque de titulares solo en móvil y tableta pequeña. */
+@media (max-width:720px){
+ .uco-unified-head > :first-child{width:100%;text-align:center}
+ .uco-unified-head > :first-child h2,.uco-unified-head > :first-child p{text-align:center}
+}

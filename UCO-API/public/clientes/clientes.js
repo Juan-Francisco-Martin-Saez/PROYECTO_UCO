@@ -90,7 +90,39 @@ let cartReturnFocus=null;
 function closeCart(){cartSizeObserver?.disconnect();cartMutationObserver?.disconnect();const el=document.querySelector('#cart-view');if(el)el.hidden=true;document.body.classList.remove('uco-cart-open');if(cartReturnFocus?.isConnected)cartReturnFocus.focus({preventScroll:true});cartReturnFocus=null;}
 function openCart(){const el=document.querySelector('#cart-view');if(!el)return;cartReturnFocus=document.activeElement;el.hidden=false;document.body.classList.add('uco-cart-open');refreshCart().then(syncReservation).catch(e=>{const m=el.querySelector('.uco-cart-message');if(m)m.textContent=e.message});el.querySelector('.uco-cart-close')?.focus({preventScroll:true});}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.querySelector('#cart-view')?.hidden)closeCart();});
-function panel(){startReservationClock();app.innerHTML=`<uco-client-panel></uco-client-panel>`;document.querySelector('#customer-name').textContent=customer.username||customer.company||'cliente';document.querySelector('#logout').onclick=async()=>{try{await request('logout',{method:'POST'})}finally{csrf='';customer=null;reservationEnds=0;reservationId=null;closeCart();login()}};document.querySelector('#password').onclick=changePassword;document.querySelector('#cart-toggle').onclick=()=>{const el=document.querySelector('#cart-view');if(el.hidden)openCart();else closeCart();};function showCheckoutNotice(message){
+async function openPurchaseHistory(){
+ let dialog=document.querySelector('#uco-client-history');
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='uco-client-history';dialog.className='uco-client-history-dialog';dialog.innerHTML='<div class="uco-client-history-head"><h2>Historial de compras</h2><button type="button" data-history-close aria-label="Cerrar">×</button></div><div class="uco-client-history-body" role="status"></div>';document.body.append(dialog);dialog.querySelector('[data-history-close]').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});}
+ const body=dialog.querySelector('.uco-client-history-body');body.textContent='Cargando pedidos…';dialog.showModal();
+ try{
+  const r=await fetch('../api/orders.php?action=history',{credentials:'same-origin',cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo consultar el historial');
+  body.replaceChildren();if(!d.orders?.length){body.textContent='Todavía no tienes pedidos registrados.';return;}
+  const money=v=>(Number(v||0)/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+  for(const o of d.orders){
+   const card=document.createElement('details');card.className='uco-client-history-order';
+   const summary=document.createElement('summary');const name=document.createElement('strong');name.textContent='PED-'+String(o.id).padStart(2,'0');const date=document.createElement('span');date.textContent=String(o.created_at||'').slice(0,16);const amount=document.createElement('b');amount.textContent=money(o.subtotal_cents);summary.append(name,date,amount);card.append(summary);
+   const info=document.createElement('p');info.textContent='Estado: '+String(o.status||'—')+' · Pago: '+String(o.payment_status||'—');card.append(info);
+   const ul=document.createElement('ul');for(const line of o.items||[]){const li=document.createElement('li');li.textContent=line.name+' · '+line.quantity+' '+line.unit+' · '+money(line.line_cents);ul.append(li)}card.append(ul);
+   if(o.payment_status==='simulated_approved'){const pdf=document.createElement('button');pdf.type='button';pdf.className='uco-history-receipt';pdf.textContent='Ver justificante PDF';pdf.onclick=async()=>{try{await openUcoReceipt(o.id)}catch(e){alert('No se pudo abrir el justificante: '+e.message)}};card.append(pdf)}
+   body.append(card);
+  }
+ }catch(e){body.textContent='No se pudo cargar el historial: '+e.message;}
+}
+function panel(){startReservationClock();app.innerHTML=`<uco-client-panel></uco-client-panel>`;document.querySelector('#customer-name').textContent=customer.username||customer.company||'cliente';document.querySelector('#logout').onclick=async()=>{try{await request('logout',{method:'POST'})}finally{csrf='';customer=null;reservationEnds=0;reservationId=null;closeCart();login()}};document.querySelector('#password').onclick=changePassword;
+const purchaseToggle=document.querySelector('#uco-purchases-toggle');
+const purchases=document.querySelector('.uco-purchases');
+const optionsToggle=document.querySelector('#uco-options-toggle');
+const optionsMenu=document.querySelector('.uco-options');
+const setHeaderMenu=(node,button,open)=>{node.classList.toggle('is-open',open);button.setAttribute('aria-expanded',String(open));};
+purchaseToggle.onclick=()=>{const open=!purchases.classList.contains('is-open');setHeaderMenu(optionsMenu,optionsToggle,false);setHeaderMenu(purchases,purchaseToggle,open);};
+optionsToggle.onclick=()=>{const open=!optionsMenu.classList.contains('is-open');setHeaderMenu(purchases,purchaseToggle,false);setHeaderMenu(optionsMenu,optionsToggle,open);};
+document.addEventListener('pointerdown',event=>{if(!purchases.contains(event.target))setHeaderMenu(purchases,purchaseToggle,false);if(!optionsMenu.contains(event.target))setHeaderMenu(optionsMenu,optionsToggle,false);});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){setHeaderMenu(purchases,purchaseToggle,false);setHeaderMenu(optionsMenu,optionsToggle,false);}});
+const cartCount=document.querySelector('#cart-count');const headerCartCount=document.querySelector('#uco-head-cart-count');
+const syncHeaderCartCount=()=>{headerCartCount.textContent=cartCount.textContent;};syncHeaderCartCount();
+new MutationObserver(syncHeaderCartCount).observe(cartCount,{childList:true,characterData:true,subtree:true});
+document.querySelector('#uco-purchase-history').onclick=()=>{setHeaderMenu(purchases,purchaseToggle,false);openPurchaseHistory();};
+document.querySelector('#cart-toggle').onclick=()=>{setHeaderMenu(purchases,purchaseToggle,false);const el=document.querySelector('#cart-view');if(el.hidden)openCart();else closeCart();};function showCheckoutNotice(message){
  const panel=document.querySelector('#cart-view .uco-cart-panel');
  if(!panel)return;
  panel.classList.remove('uco-cart-checkout-active');scheduleCartFit();

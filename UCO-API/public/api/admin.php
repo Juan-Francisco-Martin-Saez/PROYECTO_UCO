@@ -16,7 +16,18 @@ function activeAdmins(PDO $db):int{return (int)$db->query("SELECT COUNT(*) FROM 
 function csrf():void{if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))respond(['error'=>'Sesión no válida. Actualiza la página.'],403);}
 $action=(string)($_GET['action']??'session');$method=$_SERVER['REQUEST_METHOD'];
 try{
-if($action==='session'&&$method==='GET')respond(['authenticated'=>authorized(),'csrf'=>authorized()?($_SESSION['csrf']??''):null,'user'=>authorized()?($_SESSION['uco_user']??null):null]);
+if($action==='session'&&$method==='GET'){
+ if(!authorized())respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
+ $sessionDb=db();
+ $sessionCheck=$sessionDb->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');
+ $sessionCheck->execute([(int)$_SESSION['uco_user_id']]);
+ $sessionUser=$sessionCheck->fetch();
+ if(!$sessionUser||!ucoIdentitySessionValid($sessionDb,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',(string)$sessionUser['password_hash']))){
+  $_SESSION=[];session_destroy();respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
+ }
+ $_SESSION['uco_role']=$sessionUser['role'];$_SESSION['uco_user']=userInfo($sessionUser);
+ respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf']??null,'user'=>$_SESSION['uco_user']]);
+}
 if($action==='login'&&$method==='POST'){
  $username=trim((string)($_POST['username']??''));$password=(string)($_POST['password']??'');
  $db=usersDb();$existing=(int)$db->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();

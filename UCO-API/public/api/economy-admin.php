@@ -5,8 +5,14 @@ ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cook
 require_once dirname(__DIR__,2).'/private/economy.php';
 function reply(array $a,int $status=200):never{http_response_code($status);echo json_encode($a,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 try{
- if((int)($_SESSION['uco_user_id']??0)<1||($_SESSION['uco_role']??'')!=='admin')reply(['error'=>'Acceso restringido a administración'],403);
- $db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=10000');ucoEconomySchema($db);
+ if((int)($_SESSION['uco_user_id']??0)<1)reply(['error'=>'Acceso restringido a administración'],403);
+ $db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=10000');
+ require_once dirname(__DIR__,2).'/private/identity.php';
+ $check=$db->prepare('SELECT role,password_hash FROM admin_users WHERE id=? AND active=1');
+ $check->execute([(int)$_SESSION['uco_user_id']]);
+ $current=$check->fetch();
+ if(!$current||$current['role']!=='admin'||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',(string)$current['password_hash'])))reply(['error'=>'Sesión o permisos no válidos. Vuelve a iniciar sesión.'],403);
+ ucoEconomySchema($db);
  if($_SERVER['REQUEST_METHOD']==='POST'){
   if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))reply(['error'=>'Sesión no válida'],403);
   $db->exec('BEGIN IMMEDIATE');
