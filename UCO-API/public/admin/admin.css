@@ -1350,3 +1350,48 @@ dialog.uco-link-dialog .uco-link-unlink{background:#fbe9e9;color:#a32b35}
  .uco-unified-head > :first-child{width:100%;text-align:center}
  .uco-unified-head > :first-child h2,.uco-unified-head > :first-child p{text-align:center}
 }
+
+
+/* UCO Pedidos 2B — consulta responsive */
+.uco-orders{padding-bottom:3rem}.uco-orders-intro{margin:1.5rem 0}.uco-orders-intro h1{margin:.35rem 0;color:#232f5d}.uco-orders-intro p{color:#62748c}
+.uco-orders-filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:.8rem;margin-bottom:1.2rem}.uco-orders-filters label{display:grid;gap:.35rem;font-weight:700;color:#232f5d;font-size:.85rem}.uco-orders-filters input,.uco-orders-filters select{min-width:0;width:100%;padding:.75rem;border:1px solid #d6dfeb;border-radius:.65rem;background:#fff;color:#232f5d}
+.uco-orders-count{color:#667790;font-size:.85rem;margin-bottom:.75rem}.uco-orders-list{display:grid;gap:.65rem}.uco-order-card{border:1px solid #dce4ee;border-radius:1rem 0 1rem 0;background:white;overflow:hidden}.uco-order-card summary{cursor:pointer;display:grid;grid-template-columns:.8fr 1.4fr 1fr .8fr 1fr 1fr;align-items:center;gap:.6rem;padding:1rem;color:#232f5d;list-style:none}.uco-order-card summary::-webkit-details-marker{display:none}.uco-order-card[open] summary{background:#f4f7fb}.uco-order-status,.uco-order-state{font-size:.77rem;font-weight:700}.uco-order-status{color:#47751a}.uco-order-state{color:#67768a}.uco-order-detail{padding:1rem;border-top:1px solid #e1e7ef}.uco-order-detail p{margin:.4rem 0 1rem}.uco-order-lines{display:grid;gap:.5rem}.uco-order-lines>div{display:grid;grid-template-columns:1fr auto auto;gap:1rem;border-bottom:1px solid #edf1f5;padding:.6rem 0;align-items:center}.uco-order-lines small{display:block;color:#718099}.uco-order-notice{font-size:.8rem;color:#62748c}.uco-order-empty{padding:1.2rem;color:#62748c}
+@media(max-width:60rem){.uco-order-card summary{grid-template-columns:1fr 1fr 1fr}.uco-orders-filters{grid-template-columns:1fr 1fr}.uco-orders-filters label:first-child{grid-column:1/-1}}
+@media(max-width:36rem){.uco-orders-intro{text-align:center}.uco-orders-filters{grid-template-columns:1fr}.uco-orders-filters label:first-child{grid-column:auto}.uco-order-card summary{grid-template-columns:1fr 1fr;gap:.6rem}.uco-order-card summary>*:nth-child(even){text-align:right}.uco-order-lines>div{grid-template-columns:1fr auto}.uco-order-lines>div strong{grid-column:2}}
+
+/* Fase 2B: cabecera centrada y próxima a las pestañas, en todas las resoluciones. */
+#orders-area.uco-orders .uco-orders-intro{margin:.45rem auto 1.1rem;text-align:center}
+#orders-area.uco-orders .uco-orders-intro>div{width:100%;max-width:100%;text-align:center}
+#orders-area.uco-orders .uco-orders-intro .eyebrow{display:block;font-size:clamp(.78rem,1vw,.95rem);font-weight:800;letter-spacing:.11em}
+#orders-area.uco-orders .uco-orders-intro h1{font-size:clamp(2rem,4vw,3.5rem);line-height:1.12;text-align:center;margin:.5rem 0 .75rem}
+#orders-area.uco-orders .uco-orders-intro p{max-width:60rem;margin:0 auto;text-align:center}
+@media(max-width:36rem){#orders-area.uco-orders .uco-orders-intro{margin:.35rem auto .85rem}#orders-area.uco-orders .uco-orders-intro h1{font-size:clamp(1.85rem,8vw,2.5rem)}}
+
+/* Ajuste de cortes del subtítulo de Pedidos en pantallas estrechas. */
+@media(max-width:36rem){#orders-area.uco-orders .uco-orders-intro p{max-width:29ch;margin-inline:auto;text-align:center;text-wrap:balance;line-height:1.5}}
+
+/* Fase 2C: controles de estado operativos */
+.uco-order-actions{display:flex;gap:.8rem;align-items:end;justify-content:flex-end;flex-wrap:wrap;margin-top:1rem}
+.uco-order-actions label{display:grid;gap:.3rem;font-size:.8rem;font-weight:700;color:#232f5d}
+.uco-order-actions select{border:1px solid #cdd8e7;border-radius:.5rem;padding:.65rem;min-width:12rem;background:#fff}
+.uco-order-actions button{background:#a9df39;color:#232f5d;border:0;border-radius:.7rem 0 .7rem 0;padding:.8rem 1rem;font-weight:800;cursor:pointer}
+.uco-order-actions button:disabled{opacity:.5;cursor:default}
+@media(max-width:36rem){.uco-order-actions,.uco-order-actions label,.uco-order-actions select,.uco-order-actions button{width:100%}}
+
+/* UCO: confirmaciones propias, escritorio y móvil */
+dialog.uco-order-dialog{position:fixed;inset:0;margin:auto;padding:0;width:min(92vw,35rem);max-width:92vw;max-height:90dvh;overflow:auto;border:0;border-radius:1.1rem 0 1.1rem 0;background:#fff;color:#232f5d;box-shadow:0 1.5rem 5rem #0a193555}
+dialog.uco-order-dialog::backdrop{background:#07132ab8;backdrop-filter:blur(3px)}
+.uco-order-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#232f5d;color:#fff;padding:1.15rem 1.35rem}
+.uco-order-dialog-head h2{font-size:clamp(1.15rem,3vw,1.45rem);margin:0;color:#fff}
+.uco-order-x{border:0;background:#a9df39;color:#232f5d;width:2.2rem;height:2.2rem;border-radius:.5rem 0 .5rem 0;font-size:1.4rem;cursor:pointer}
+.uco-order-dialog-body{padding:1.4rem;display:grid;gap:1rem}
+.uco-order-dialog-body p{margin:0;line-height:1.55}
+.uco-order-dialog-body label{display:grid;gap:.45rem;font-weight:700;font-size:.88rem}
+.uco-order-dialog-body textarea,.uco-order-dialog-body input{width:100%;min-width:0;box-sizing:border-box;border:1px solid #ccd8e6;border-radius:.65rem;padding:.8rem;font:inherit;color:#232f5d}
+.uco-order-dialog-body small{color:#60738b;line-height:1.45}
+.uco-order-dialog-actions{display:flex;justify-content:flex-end;gap:.65rem;flex-wrap:wrap}
+.uco-order-dialog-actions button{border-radius:.7rem 0 .7rem 0;padding:.8rem 1rem;font-weight:800;cursor:pointer}
+.uco-order-cancel{background:#fff;border:1px solid #b9c8d8;color:#232f5d}
+.uco-order-confirm{background:#a9df39;border:1px solid #a9df39;color:#232f5d}
+.uco-order-actions .uco-order-reset{background:transparent;color:#527c19;border:1px solid #8abf2b}
+@media(max-width:36rem){dialog.uco-order-dialog{width:calc(100vw - 1.5rem);max-width:calc(100vw - 1.5rem)}.uco-order-dialog-body{padding:1rem}.uco-order-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.uco-order-dialog-actions:has(> :only-child){grid-template-columns:1fr}.uco-order-dialog-actions button{min-width:0}}
