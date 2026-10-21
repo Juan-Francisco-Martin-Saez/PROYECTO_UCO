@@ -1,3 +1,4 @@
+import {openUcoReceipt} from './receipt.js';
 import {createOrderService} from '../services/order-service.js';
 import {createCartService} from '../services/cart-service.js';
 import './components/cart-elements.js';
@@ -101,6 +102,115 @@ function panel(){startReservationClock();app.innerHTML=`<uco-client-panel></uco-
  if(!notice){notice=document.createElement('p');notice.className='uco-checkout-notice';notice.setAttribute('role','status');footer.append(notice);}
  notice.textContent=message;
 }
+
+const ucoMoney=c=>(Number(c||0)/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+let ucoOrderDialog=null;
+async function showOrderConfirmation(orderId,chosenMethod){
+ const r=await fetch('../api/order-review.php?order_id='+encodeURIComponent(orderId),{credentials:'same-origin',cache:'no-store'});
+ const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo revisar el pedido');
+ // No sale del carrito si la revisión no puede mostrar importes fiables.
+ if(!d.ready||!d.economy?.ready||d.economy.total_cents===null)
+  throw Error('No se puede confirmar todavía: '+(d.issues||d.economy?.issues||[]).join(' · '));
+ const pm={redsys:'Tarjeta bancaria',transfer:'Transferencia bancaria',paypal:'PayPal',bizum:'Bizum'};
+ const dialog=document.createElement('dialog');dialog.className='uco-order-dialog';
+ dialog.setAttribute('aria-labelledby','uco-order-dialog-title');
+ const head=document.createElement('header');head.className='uco-order-dialog-head';
+ head.innerHTML='<img src="../img/uco-logo-cabecera.svg" alt="UCO"><div><small>CONFIRMACIÓN DEL PEDIDO</small><h2 id="uco-order-dialog-title">Revisa tu pedido</h2></div>';
+ const close=document.createElement('button');close.type='button';close.className='uco-order-dialog-close';close.textContent='×';close.setAttribute('aria-label','Cerrar confirmación');
+ head.append(close);
+ const scroll=document.createElement('div');scroll.className='uco-order-dialog-scroll';
+ const section=(title)=>{const el=document.createElement('section');el.className='uco-order-review-section';const h=document.createElement('h3');h.textContent=title;el.append(h);scroll.append(el);return el};
+ const meta=section('Datos del pedido');
+ const info=document.createElement('p');info.textContent='Reserva n.º '+d.order_id+' · '+(pm[chosenMethod]||'Método de pago');
+ meta.append(info);
+ const delivery=section('Entrega');
+ const addr=d.delivery||{};
+ for(const text of [addr.contact,addr.phone,addr.address,[addr.postal_code,addr.city].filter(Boolean).join(' '),addr.province,addr.notes].filter(Boolean)){
+  const p=document.createElement('p');p.textContent=text;delivery.append(p);
+ }
+ const items=section('Productos');
+ const list=document.createElement('div');list.className='uco-order-review-items';
+ for(const item of d.items){
+  const line=document.createElement('article');line.className='uco-order-review-item';
+  const img=document.createElement('img');img.alt='';img.loading='lazy';
+  const src=String(item.image||'');
+  img.src=/^\.\/img\/(?:productos\/[a-zA-Z0-9_-]+\.webp|[0-9]{2}\.webp)$/.test(src)?'../'+src.slice(2):'../img/00.webp';
+  const content=document.createElement('div');
+  const name=document.createElement('strong');name.textContent=item.name;
+  const detail=document.createElement('small');detail.textContent=item.sku+' · '+item.quantity+' × '+ucoMoney(item.unit_price_cents)+' · '+(item.unit||'');
+  content.append(name,detail);
+  const price=document.createElement('b');price.textContent=ucoMoney(item.line_cents);
+  line.append(img,content,price);list.append(line);
+ }
+ items.append(list);
+ const costs=section('Desglose económico');
+ const amounts=[['Subtotal',d.economy.subtotal_cents],['IVA',d.economy.tax_cents],['Transporte',d.economy.shipping_cents],['TOTAL DEFINITIVO',d.economy.total_cents]];
+ for(const [label,cents] of amounts){
+  const line=document.createElement('div');line.className='uco-order-review-amount'+(label==='TOTAL DEFINITIVO'?' total':'');
+  const l=document.createElement('span');l.textContent=label;
+  const v=document.createElement('strong');v.textContent=ucoMoney(cents);line.append(l,v);costs.append(line);
+ }
+ const foot=document.createElement('footer');foot.className='uco-order-dialog-foot';
+ const note=document.createElement('p');note.textContent='ENTORNO DE PRUEBAS · Aún no se ha confirmado el pedido ni realizado ningún cobro.';
+ const actions=document.createElement('div');actions.className='uco-order-dialog-actions';
+ const back=document.createElement('button');back.type='button';back.className='uco-order-review-back';back.textContent='Volver a forma de pago';
+ const confirm=document.createElement('button');confirm.type='button';confirm.className='uco-order-review-confirm';confirm.textContent='Continuar al pago simulado';confirm.disabled=false;
+ const explanation=document.createElement('small');explanation.textContent='ENTORNO DE PRUEBAS. Ningún método realiza cobros reales.';
+ actions.append(back,confirm);foot.append(note,actions,explanation);
+ const simulation=document.createElement('div');simulation.className='uco-simulation-controls';simulation.hidden=true;
+ const simText=document.createElement('p');simText.textContent='SIMULADOR DE PAGO · No se realizará ningún cobro real.';
+ const approved=document.createElement('button');approved.type='button';approved.textContent='Simular aprobación';
+ const rejected=document.createElement('button');rejected.type='button';rejected.textContent='Simular rechazo';
+ const cancelled=document.createElement('button');cancelled.type='button';cancelled.textContent='Cancelar operación';
+ simulation.append(simText,approved,rejected,cancelled);foot.append(simulation);
+ const simPost=async(action)=>{
+  const formData=new FormData();formData.set('action',action);formData.set('order_id',String(orderId));formData.set('method',chosenMethod);
+  const response=await fetch('../api/payment-simulator.php',{method:'POST',credentials:'same-origin',headers:{'X-CSRF-Token':csrf},body:formData});
+  const result=await response.json();if(!response.ok)throw Error(result.error||'Error al procesar la simulación');
+  return result;
+ };
+ confirm.addEventListener('click',async()=>{
+  confirm.disabled=true;
+  try{
+   const result=await simPost('start');
+   if(result.state!=='pending')throw Error('Esta operación ya está '+result.state+'. Consulta el historial de pedidos.');
+   simulation.hidden=false;close.disabled=true;
+   simText.textContent='PASARELA SIMULADA · '+result.reference+' · '+ucoMoney(result.total_cents)+' · Ningún cobro real.';
+   confirm.hidden=true;back.disabled=true;
+  }catch(e){confirm.disabled=false;alert(e.message);}
+ });
+ for(const [button,action] of [[approved,'approve'],[rejected,'reject'],[cancelled,'cancel']]){
+  button.addEventListener('click',async()=>{
+   approved.disabled=rejected.disabled=cancelled.disabled=true;
+   try{
+    const result=await simPost(action);
+    simulation.replaceChildren();
+    const status=document.createElement('p');status.textContent=(result.state==='approved'?'PAGO SIMULADO APROBADO':result.state==='rejected'?'PAGO SIMULADO RECHAZADO':'OPERACIÓN SIMULADA CANCELADA')+' · '+result.reference;
+    simulation.append(status);
+    note.textContent='OPERACIÓN DE PRUEBA. No se ha realizado ningún cobro real.';
+    explanation.textContent=result.state==='approved'?'Puedes consultar, imprimir o descargar el justificante de prueba.':'La operación no ha sido aprobada; no se emitirá justificante.';
+    if(result.state==='approved'){
+     const receipt=document.createElement('button');receipt.type='button';receipt.textContent='Ver justificante del pedido';receipt.className='uco-order-review-confirm';
+     receipt.onclick=()=>openUcoReceipt(orderId).catch(e=>alert('Justificante: '+e.message));
+     simulation.append(receipt);
+     openUcoReceipt(orderId).catch(e=>alert(e.message));
+    }
+    back.disabled=false;close.disabled=false;back.textContent='Cerrar y volver al carrito';
+   }catch(e){alert(e.message);approved.disabled=rejected.disabled=cancelled.disabled=false;}
+  });
+ }
+
+ dialog.append(head,scroll,foot);
+ document.body.append(dialog);
+ const cartWasOpen=!document.querySelector('#cart-view')?.hidden;
+ if(cartWasOpen)closeCart();
+ ucoOrderDialog=dialog;
+ const exit=()=>{dialog.close();dialog.remove();ucoOrderDialog=null;if(cartWasOpen)openCart()};
+ back.onclick=exit;close.onclick=exit;
+ dialog.addEventListener('cancel',e=>{e.preventDefault();exit()});
+ dialog.showModal();
+}
+
 function ensureCheckoutLayout(){
  const panel=document.querySelector('#cart-view .uco-cart-panel');
  if(!panel)return null;
@@ -131,7 +241,7 @@ document.querySelector('#cart-view').onclick=async e=>{if(e.target.closest('[dat
  if(!structure||!structure.out){showCheckoutNotice('No se pudo abrir el formulario de pago. Vuelve a intentarlo.');return;}
  const {panel,out}=structure;
  panel.classList.add('uco-cart-checkout-active');scheduleCartFit();
- out.innerHTML='<section class="uco-payment-step"><span class="uco-checkout-kicker">SIGUIENTE PASO</span><h3>Forma de pago</h3><p>Selecciona cómo deseas pagar. Ningún cobro se realizará todavía.</p><div class="uco-payment-loading">Comprobando la reserva y los datos de entrega…</div></section>';
+ out.innerHTML='<section class="uco-payment-step"><h3 class="uco-payment-main-title">Forma de pago</h3><p>Selecciona cómo deseas pagar. Ningún cobro se realizará todavía.</p><div class="uco-payment-loading">Comprobando la reserva y los datos de entrega…</div></section>';
  try{
   const r=await fetch('../api/payment-selection.php',{credentials:'same-origin',cache:'no-store'});
   const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudieron consultar los pagos');
@@ -151,19 +261,56 @@ document.querySelector('#cart-view').onclick=async e=>{if(e.target.closest('[dat
   const button=document.createElement('button');button.type='submit';button.className='uco-payment-save';button.textContent='Guardar forma de pago';
   form.append(button,msg);step.append(form);scheduleCartFit();
   const back=document.createElement('button');back.type='button';back.className='uco-payment-back';back.dataset.orderBack='';back.textContent='Volver al carrito';step.append(back);
+  const brands=document.createElement('div');brands.className='uco-payment-brands';
+  const caption=document.createElement('p');caption.textContent='MÉTODOS DE PAGO';brands.append(caption);
+  const row=document.createElement('div');row.className='uco-payment-brands-row';
+  const logoChoices=[['visa','Visa','redsys'],['mastercard','Mastercard','redsys'],['paypal','PayPal','paypal'],['bizum','Bizum','bizum']];
+  const logoButtons=[];
+  const syncPaymentLogos=()=>{
+   const selected=form.querySelector('input[name="payment_method"]:checked')?.value||'';
+   for(const b of logoButtons){
+    const active=b.dataset.method===selected;
+    b.classList.toggle('is-selected',active);
+    b.setAttribute('aria-pressed',String(active));
+   }
+   scheduleCartFit();
+  };
+  for(const [key,name,method] of logoChoices){
+   const tile=document.createElement('button');tile.type='button';tile.className='uco-payment-brand';
+   tile.dataset.method=method;tile.setAttribute('aria-label','Seleccionar pago con '+name);
+   tile.setAttribute('aria-pressed','false');tile.title='Seleccionar '+name;
+   const logo=document.createElement('img');logo.alt=name;logo.loading='lazy';
+   logo.src='https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/'+key+'.svg';
+   logo.onerror=()=>{logo.remove();tile.textContent=name};
+   tile.append(logo);
+   tile.addEventListener('click',()=>{
+    const radio=Array.from(form.querySelectorAll('input[name="payment_method"]')).find(i=>i.value===method);
+    if(!radio)return;
+    radio.checked=true;radio.dispatchEvent(new Event('change',{bubbles:true}));
+    syncPaymentLogos();
+   });
+   logoButtons.push(tile);row.append(tile);
+  }
+  brands.append(row);
+  // Los logos se muestran ANTES del listado; el formulario y su envio siguen intactos.
+  step.insertBefore(brands,form);
+  form.addEventListener('change',e=>{if(e.target.matches('input[name="payment_method"]'))syncPaymentLogos()});
+  syncPaymentLogos();
+  scheduleCartFit();
+
   form.onsubmit=async ev=>{
    ev.preventDefault();button.disabled=true;msg.textContent='Guardando selección…';
    try{
     const fd=new FormData(form);
     const resp=await fetch('../api/payment-selection.php',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'X-CSRF-Token':csrf},body:fd});
     const result=await resp.json();if(!resp.ok)throw Error(result.error||'No se pudo guardar el método');
-    msg.textContent='Forma de pago guardada. La confirmación definitiva y el cobro se habilitarán cuando estén configurados los impuestos, el transporte y la pasarela.';
+    await showOrderConfirmation(result.order_id,fd.get('payment_method'));
    }catch(err){msg.textContent=err.message}finally{button.disabled=false}
   };
  }catch(err){out.querySelector('.uco-payment-step').innerHTML='<h3>Forma de pago</h3><p class="uco-payment-feedback"></p>';out.querySelector('.uco-payment-feedback').textContent=err.message;scheduleCartFit();}
  return;
 }
-if(e.target.closest('[data-order-preview]')){const out=document.querySelector('.uco-order-feedback');out.textContent='Comprobando existencias…';orders.preview().then(d=>{out.textContent=d.valid?'Todos los productos están disponibles en este momento. Se verificarán de nuevo antes del cobro.':d.issues.length?d.issues.map(i=>`${i.name}: solicitadas ${i.requested}, disponibles ${i.available}${i.reason==='sin_precio'?' (sin precio)':''}`).join(' · '):'El carrito está vacío.'}).catch(err=>{out.textContent=err.message});return;}if(e.target.closest('[data-cart-close]')){closeCart();return;}const b=e.target.closest('[data-cart-remove]');if(b)cartAction(()=>cart.set(b.dataset.cartRemove,0))};document.querySelector('#cart-view').onchange=e=>{const input=e.target.closest('[data-cart-quantity]');if(input)cartAction(()=>cart.set(input.dataset.cartQuantity,input.value))};document.querySelector('uco-client-product-list').onclick=e=>{const b=e.target.closest('[data-cart-add]');if(!b)return;cartAction(async()=>{const d=await cart.list();const existing=d.items.find(i=>i.product_id===Number(b.dataset.cartAdd));await cart.set(b.dataset.cartAdd,(existing?.quantity||0)+1)});};refreshCart().catch(()=>{});let t;document.querySelector('#q').oninput=e=>{clearTimeout(t);t=setTimeout(()=>{query=e.target.value.trim();page=1;load()},250)};document.querySelector('#prev').onclick=()=>{page--;load()};document.querySelector('#next').onclick=()=>{page++;load()};load()}
+if(e.target.closest('[data-order-preview]')){const out=document.querySelector('.uco-order-feedback');out.textContent='Comprobando existencias…';orders.preview().then(d=>{out.textContent=d.valid?'Todos los productos están disponibles en este momento. Se verificarán de nuevo antes del cobro.':d.issues.length?d.issues.map(i=>`${i.name}: solicitadas ${i.requested}, disponibles ${i.available}${i.reason==='sin_precio'?' (sin precio)':''}`).join(' · '):'El carrito está vacío.'}).catch(err=>{out.textContent=err.message});return;}if(e.target.closest('[data-cart-close]')){closeCart();return;}const b=e.target.closest('[data-cart-remove]');if(b)cartAction(()=>cart.set(b.dataset.cartRemove,0))};document.querySelector('#cart-view').onchange=e=>{const input=e.target.closest('[data-cart-quantity]');if(input)cartAction(()=>cart.set(input.dataset.cartQuantity,input.value))};document.querySelector('uco-client-product-list').onclick=e=>{const b=e.target.closest('[data-cart-add]');if(!b)return;const field=b.closest('.client-card')?.querySelector('[data-product-units]');const raw=field?.value.trim()||'1';const amount=Number(raw);if(!/^\d+$/.test(raw)||!Number.isSafeInteger(amount)||amount<1||amount>99999){if(field){field.setCustomValidity('Introduce una cantidad entera entre 1 y 99999.');field.reportValidity();field.addEventListener('input',()=>field.setCustomValidity(''),{once:true})}return;}cartAction(async()=>{const d=await cart.list();const existing=d.items.find(i=>i.product_id===Number(b.dataset.cartAdd));await cart.set(b.dataset.cartAdd,(existing?.quantity||0)+amount);if(field)field.value='1'});};refreshCart().catch(()=>{});let t;document.querySelector('#q').oninput=e=>{clearTimeout(t);t=setTimeout(()=>{query=e.target.value.trim();page=1;load()},250)};document.querySelector('#prev').onclick=()=>{page--;load()};document.querySelector('#next').onclick=()=>{page++;load()};load()}
 async function load(){const msg=document.querySelector('#msg');msg.textContent='Cargando productos…';try{const d=await services.catalog.list({page,q:query});msg.textContent='';document.querySelector('#count').textContent=`${d.total} productos`;document.querySelector('uco-client-product-list').renderProducts(d.products,esc);document.querySelector('#paging').textContent=`Página ${d.page} de ${Math.max(1,Math.ceil(d.total/d.limit))}`;document.querySelector('#prev').disabled=d.page<=1;document.querySelector('#next').disabled=d.page*d.limit>=d.total}catch(err){msg.textContent=err.message}}
 function changePassword(){const d=document.createElement('dialog');d.className='password-dialog';d.append(document.createElement('uco-client-password-content'));document.body.append(d);d.querySelector('#close').onclick=d.querySelector('#cancel').onclick=()=>d.close();d.addEventListener('close',()=>d.remove());d.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);if(f.get('new_password')!==f.get('confirm')){d.querySelector('#err').textContent='Las contraseñas no coinciden';return}try{await request('change_password',{method:'POST',body:f});d.close();alert('Contraseña actualizada.')}catch(err){d.querySelector('#err').textContent=err.message}};d.showModal()}
 (async()=>{try{const d=await request('session');if(d.authenticated){csrf=d.csrf;customer=d.customer;panel()}else login()}catch(err){login()}})();

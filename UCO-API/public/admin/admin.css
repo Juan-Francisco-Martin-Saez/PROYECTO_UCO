@@ -1159,3 +1159,67 @@ uco-economy-settings{display:block;width:100%;min-width:0}.uco-economy-panel{pad
  .tariff-title .eyebrow{font-size:.75rem!important;letter-spacing:.08em!important}
  .tariff-title p{font-size:.85rem!important;line-height:1.4!important;margin:.15rem 0!important}
 }
+
+
+/* Ajuste específico de la cabecera de catálogo; no altera títulos de otras secciones. */
+#catalog-area>.intro{margin-top:clamp(.3rem,1vw,.7rem)!important;text-align:center!important;align-items:center!important;position:relative}
+#catalog-area>.intro>div{margin-inline:auto!important;text-align:center!important}
+#catalog-area>.intro .eyebrow{font-size:clamp(.9rem,1.2vw,1rem)!important}
+#catalog-area>.intro h1,#catalog-area>.intro p{text-align:center!important}
+@media(min-width:761px){#catalog-area>.intro #new{position:absolute;right:0;bottom:0}}
+@media(max-width:760px){#catalog-area>.intro{display:flex!important;flex-direction:column!important;gap:.7rem!important}#catalog-area>.intro #new{position:static!important;margin-inline:auto!important}}
+
+/* IVA: selección múltiple, estado permanente y confirmación corporativa */
+.uco-tax-multi{display:grid;gap:.45rem;min-width:0}.uco-tax-label{font-size:.84rem;font-weight:800}
+.uco-economy-grid .uco-tax-trigger{width:100%;text-align:left;background:#fff;color:#232f5d;border:1px solid #c9d2de;border-radius:.65rem;padding:.8rem;font:700 .85rem Manrope,sans-serif}
+.uco-tax-dropdown{border:1px solid #c9d2de;border-radius:.8rem 0 .8rem 0;padding:.65rem;background:#fff}
+.uco-tax-dropdown[hidden],.uco-tax-confirm[hidden]{display:none!important}
+.uco-tax-options{display:grid;gap:.12rem;max-height:14rem;overflow-y:auto;margin-top:.55rem;scrollbar-gutter:stable}
+.uco-economy-grid .uco-tax-option{display:flex;align-items:center;gap:.6rem;padding:.45rem .5rem;font-size:.8rem;cursor:pointer;border-radius:.45rem}
+.uco-tax-option:hover{background:hsl(79 65% 96%)}
+.uco-economy-grid .uco-tax-option input{width:1rem;height:1rem;flex:none;accent-color:#6f9f26}
+.uco-tax-option span{overflow-wrap:anywhere}
+.uco-tax-status{min-height:2.65rem;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem .75rem;border:1px solid hsl(80 32% 78%/.5);border-radius:.7rem 0 .7rem 0;background:hsl(80 35% 96%/.5);color:hsl(205 16% 50%);opacity:.62;font-size:.78rem;font-weight:800;box-sizing:border-box}
+.uco-tax-status.pending{background:hsl(80 73% 91%);border-color:hsl(80 65% 54%);color:#355b14;opacity:1}
+.uco-tax-confirm{display:grid;gap:.65rem;padding:1rem;background:hsl(80 58% 96%);border:1px solid hsl(80 65% 65%);border-radius:1rem 0 1rem 0}
+.uco-tax-confirm h4{font-size:1rem}.uco-tax-confirm p{margin:0;font-size:.82rem}
+.uco-tax-confirm-list{max-height:12rem;overflow-y:auto;margin:0;padding-left:1.2rem;font-size:.8rem}
+.uco-tax-confirm-actions{display:flex;gap:.5rem}
+.uco-economy-grid .uco-tax-confirm-actions button{flex:1;min-width:0}
+.uco-economy-grid .uco-tax-confirm-actions button:first-child{background:#fff;color:#232f5d;border:1px solid #232f5d}
+@media(max-width:560px){.uco-tax-confirm-actions{flex-direction:column}}
+
+
+/* UCO · Pulido final de Impuestos y transporte (solo disposición visual).
+   No afecta a otras pestañas ni a la lógica de actualización del IVA. */
+#tariff-panel .uco-economy-panel{padding-bottom:clamp(.65rem,1.25vw,1rem)}
+#tariff-panel .uco-economy-grid{align-items:stretch;margin-top:1rem}
+#tariff-panel .uco-economy-grid>form{
+  height:100%;box-sizing:border-box;gap:.85rem;padding:1.05rem 1.15rem .95rem;
+}
+/* Ambos botones comparten la misma línea inferior aunque los campos difieran. */
+#tariff-panel #uco-shipping>button[type="submit"],
+#tariff-panel #uco-tax>button[type="submit"]{margin-top:auto;min-height:2.9rem;flex-shrink:0}
+/* El aviso ocupa espacio fijo y equilibra el lado del IVA. */
+#tariff-panel .uco-tax-status{min-height:3.25rem;padding:.6rem .8rem;line-height:1.4}
+/* Nota de prioridades: centrada y próxima a las dos cajas. */
+#tariff-view>.tariff-help{margin:.6rem auto 0;text-align:center;max-width:76rem;line-height:1.5}
+@media(max-width:750px){
+  #tariff-panel .uco-economy-panel{padding-bottom:.45rem}
+  #tariff-panel .uco-economy-grid{gap:.75rem;margin-top:.8rem}
+  #tariff-panel .uco-economy-grid>form{height:auto;gap:.7rem;padding:.95rem .9rem .8rem}
+  #tariff-panel .uco-economy-grid>form>button[type="submit"]{margin-top:.1rem}
+  #tariff-panel .uco-tax-status{min-height:2.9rem}
+  #tariff-view>.tariff-help{
+    margin:.35rem auto 0;padding:0 .35rem;text-align:center;
+    line-height:1.45;max-width:38rem;text-wrap:pretty;
+  }
+}
+
+/* Evitar viudas/huérfanas en la nota de tarifas.
+   La frase final baja completa si no cabe; en móvil fluye normalmente. */
+#tariff-view>.tariff-help{text-wrap:balance}
+#tariff-view>.tariff-help .uco-tariff-final-sentence{display:inline-block;white-space:nowrap}
+@media(max-width:750px){
+ #tariff-view>.tariff-help .uco-tariff-final-sentence{display:inline;white-space:normal}
+}

@@ -20,15 +20,77 @@ export function initTariffs({req,makeDialog,esc,refreshCommercial,getCommercial}
   const widget=panel.querySelector('uco-economy-settings'),msg=widget.querySelector('.uco-economy-message');
   const request=async(body=null)=>{const res=await fetch('../api/economy-admin.php',{method:body?'POST':'GET',credentials:'same-origin',headers:body?{'X-CSRF-Token':(await req('session')).csrf}:undefined,body});const d=await res.json();if(!res.ok)throw Error(d.error||'Error de configuración');return d};
   const cents=s=>Math.round(Number(s)*100);
-  request().then(d=>{
+  Promise.all([request(),req('session')]).then(([d,session])=>{
+   const sessionId=String(session.user?.id||session.user_id||'admin');
    const ship=widget.querySelector('#uco-shipping');ship.shipping.value=d.settings.shipping_cents!==undefined?(+d.settings.shipping_cents/100).toFixed(2):'';
    ship.free.value=d.settings.free_shipping_from_cents!==undefined?(+d.settings.free_shipping_from_cents/100).toFixed(2):'';
    ship.prefixes.value=d.settings.allowed_postal_prefixes||'';
-   const tax=widget.querySelector('#uco-tax'),sel=tax.product;
-   sel.innerHTML='<option value="">Selecciona un producto</option>'+d.products.map(p=>`<option value="${p.id}">${esc(p.sku+' · '+p.name)}</option>`).join('');
-   const rates=new Map(d.taxes.map(x=>[+x.product_id,+x.rate_bp]));sel.onchange=()=>{tax.rate.value=rates.has(+sel.value)?(rates.get(+sel.value)/100).toFixed(2):''};
+   const tax=widget.querySelector('#uco-tax'),multi=tax.querySelector('.uco-tax-multi');
+   const trigger=multi.querySelector('.uco-tax-trigger'),dropdown=multi.querySelector('.uco-tax-dropdown');
+   const search=multi.querySelector('.uco-tax-search'),options=multi.querySelector('.uco-tax-options');
+   const status=multi.querySelector('.uco-tax-status'),confirmation=tax.querySelector('.uco-tax-confirm');
+   const products=d.products||[],valid=new Set(products.map(p=>String(p.id)));
+   const rates=new Map(d.taxes.map(x=>[+x.product_id,+x.rate_bp]));
+   const userKey='uco-iva-pendiente-'+String(sessionId);
+   let saved={};
+   try{saved=JSON.parse(localStorage.getItem(userKey)||'{}')}catch{}
+   const selected=new Set((Array.isArray(saved.ids)?saved.ids:[]).map(String).filter(id=>valid.has(id)));
+   tax.rate.value=typeof saved.rate==='string'?saved.rate:'';
+   const persist=()=>{try{localStorage.setItem(userKey,JSON.stringify({ids:[...selected],rate:tax.rate.value}))}catch{}};
+   const refreshStatus=()=>{
+    const count=selected.size,rate=tax.rate.value.trim();
+    trigger.textContent=count?count+' productos seleccionados ▾':'Seleccionar productos ▾';
+    status.classList.toggle('pending',count>0);
+    status.textContent=count?`Actualización de IVA pendiente · ${count} producto${count===1?'':'s'} seleccionado${count===1?'':'s'}${rate?' · Nuevo IVA: '+rate.replace('.',',')+' %':''}`:'Ninguna operación pendiente';
+   };
+   const renderOptions=()=>{
+    const term=search.value.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const visible=products.filter(p=>(p.sku+' '+p.name).toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(term))
+      .sort((a,b)=>Number(selected.has(String(b.id)))-Number(selected.has(String(a.id)))||a.name.localeCompare(b.name,'es'));
+    options.replaceChildren();
+    for(const p of visible){
+     const label=document.createElement('label');label.className='uco-tax-option';
+     const input=document.createElement('input');input.type='checkbox';input.value=p.id;input.checked=selected.has(String(p.id));
+     const span=document.createElement('span');span.textContent=p.sku+' · '+p.name;
+     input.addEventListener('change',()=>{input.checked?selected.add(String(p.id)):selected.delete(String(p.id));persist();refreshStatus();renderOptions()});
+     label.append(input,span);options.append(label);
+    }
+    if(!visible.length){const p=document.createElement('p');p.textContent='No se encontraron referencias';options.append(p)}
+   };
+   trigger.onclick=()=>{dropdown.hidden=!dropdown.hidden;trigger.setAttribute('aria-expanded',String(!dropdown.hidden));if(!dropdown.hidden){renderOptions();search.focus()}};
+   search.oninput=renderOptions;
+   tax.rate.oninput=()=>{persist();refreshStatus()};
+   refreshStatus();renderOptions();
    ship.onsubmit=async e=>{e.preventDefault();const f=new FormData();f.set('type','shipping');f.set('shipping_cents',cents(ship.shipping.value));f.set('free_shipping_from_cents',cents(ship.free.value));f.set('allowed_postal_prefixes',ship.prefixes.value);try{await request(f);msg.textContent='Transporte guardado correctamente'}catch(err){msg.textContent=err.message}};
-   tax.onsubmit=async e=>{e.preventDefault();const f=new FormData();f.set('type','tax');f.set('product_id',sel.value);f.set('rate_bp',cents(tax.rate.value));try{await request(f);rates.set(+sel.value,+f.get('rate_bp'));msg.textContent='IVA del producto guardado'}catch(err){msg.textContent=err.message}};
+   tax.onsubmit=e=>{
+    e.preventDefault();
+    const value=tax.rate.value.trim(),rate=Number(value.replace(',','.'));
+    if(!selected.size){msg.textContent='Selecciona al menos una referencia';return}
+    if(!value||!Number.isFinite(rate)||rate<0||rate>100){msg.textContent='Introduce un IVA válido entre 0 y 100 %';return}
+    confirmation.hidden=false;confirmation.replaceChildren();
+    const heading=document.createElement('h4');heading.textContent='Confirmar actualización de IVA';
+    const summary=document.createElement('p');summary.textContent=`Se aplicará un IVA del ${rate.toLocaleString('es-ES')} % a ${selected.size} referencias:`;
+    const list=document.createElement('ul');list.className='uco-tax-confirm-list';
+    for(const p of products.filter(p=>selected.has(String(p.id)))){const li=document.createElement('li');li.textContent=p.sku+' · '+p.name;list.append(li)}
+    const actions=document.createElement('div');actions.className='uco-tax-confirm-actions';
+    const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancelar';
+    cancel.onclick=()=>{confirmation.hidden=true;persist()};
+    const accept=document.createElement('button');accept.type='button';accept.textContent='Confirmar actualización';
+    accept.onclick=async()=>{
+     accept.disabled=true;cancel.disabled=true;
+     const f=new FormData();f.set('type','tax_batch');f.set('product_ids',JSON.stringify([...selected].map(Number)));f.set('rate_bp',String(Math.round(rate*100)));
+     try{
+      await request(f);
+      for(const id of selected)rates.set(+id,Math.round(rate*100));
+      selected.clear();tax.rate.value='';persist();refreshStatus();renderOptions();
+      confirmation.hidden=true;dropdown.hidden=true;trigger.setAttribute('aria-expanded','false');
+      msg.textContent='IVA actualizado correctamente en todas las referencias seleccionadas';
+     }catch(err){msg.textContent=err.message;accept.disabled=false;cancel.disabled=false}
+    };
+    actions.append(cancel,accept);confirmation.append(heading,summary,list,actions);
+    confirmation.scrollIntoView({block:'nearest',behavior:'smooth'});
+   };
+
   }).catch(e=>{msg.textContent=e.message});
   return;
  }

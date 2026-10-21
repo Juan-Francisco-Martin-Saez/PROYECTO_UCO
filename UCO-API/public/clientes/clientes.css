@@ -780,3 +780,136 @@ uco-client-cart:not([hidden]){display:block;position:fixed;inset:0;z-index:10000
  }
  #cart-view .uco-payment-back{margin:.35rem 0 0!important}
 }
+
+
+/* Fase 5B: SOLO componentes nuevos. No altera las reglas del carrito 4F.2. */
+#cart-view .uco-payment-brands{margin-top:.65rem;padding:.8rem .65rem;border:1px solid hsl(219 20% 85%);border-radius:.85rem 0 .85rem 0;background:#fff}
+#cart-view .uco-payment-brands>p{margin:0 0 .65rem;text-align:center;font-size:.66rem;letter-spacing:.07em;font-weight:800;color:#657188}
+#cart-view .uco-payment-brands-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.45rem}
+#cart-view .uco-payment-brand{display:flex;align-items:center;justify-content:center;min-height:2.7rem;padding:.4rem;border:1px solid #e5eaf0;border-radius:.55rem;background:#f8fafc;color:#232f5d;font-size:.73rem;font-weight:800;text-align:center}
+#cart-view .uco-payment-brand img{width:100%;max-width:4.5rem;height:1.55rem;object-fit:contain}
+.uco-order-dialog{width:min(94vw,48rem);max-width:94vw;max-height:min(90dvh,55rem);margin:auto;padding:0;border:0;border-radius:1.2rem 0 1.2rem 0;box-shadow:0 1.5rem 5rem #07132c66;color:#232f5d;font-family:Manrope,sans-serif;overflow:hidden}
+.uco-order-dialog::backdrop{background:rgba(8,20,40,.75);backdrop-filter:blur(3px)}
+.uco-order-dialog[open]{display:flex;flex-direction:column}
+.uco-order-dialog-head{display:flex;align-items:center;gap:1rem;background:#232f5d;color:white;padding:1rem 1.25rem;flex:none}
+.uco-order-dialog-head img{width:3.5rem;height:3.5rem;object-fit:contain}
+.uco-order-dialog-head div{flex:1;min-width:0}
+.uco-order-dialog-head small{font-size:.68rem;letter-spacing:.07em;font-weight:800;color:#bde28a}
+.uco-order-dialog-head h2{font-size:clamp(1.15rem,2.2vw,1.55rem);margin:.2rem 0 0;color:white}
+.uco-order-dialog-close{background:transparent;border:1px solid #ffffff55;border-radius:.6rem;color:white;font-size:1.65rem;width:2.35rem;height:2.35rem;cursor:pointer}
+.uco-order-dialog-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:1.1rem 1.35rem;scrollbar-gutter:stable}
+.uco-order-review-section{padding:.75rem 0;border-bottom:1px solid #e3e9ef}
+.uco-order-review-section h3{font-size:.94rem;margin:0 0 .7rem}
+.uco-order-review-section p{margin:.25rem 0;font-size:.84rem;overflow-wrap:anywhere}
+.uco-order-review-items{display:grid;gap:.5rem}
+.uco-order-review-item{display:grid;grid-template-columns:3.4rem minmax(0,1fr) auto;align-items:center;gap:.75rem;padding:.5rem;border:1px solid #e6ebf1;border-radius:.7rem}
+.uco-order-review-item img{width:3.4rem;height:3.4rem;object-fit:contain}
+.uco-order-review-item strong,.uco-order-review-item small{display:block;overflow-wrap:anywhere}
+.uco-order-review-item strong{font-size:.81rem}.uco-order-review-item small{font-size:.69rem;color:#637187;margin-top:.2rem}
+.uco-order-review-item b{font-size:.82rem;white-space:nowrap}
+.uco-order-review-amount{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.3rem 0;font-size:.85rem}
+.uco-order-review-amount.total{margin-top:.45rem;border-top:1px solid #d7e0e8;padding-top:.85rem;font-weight:800}
+.uco-order-review-amount.total strong{font-size:1.35rem;color:#527e19}
+.uco-order-dialog-foot{padding:.8rem 1.35rem 1rem;background:#f6f8fa;flex:none}
+.uco-order-dialog-foot p{font-size:.7rem;font-weight:800;color:#51667c;text-align:center;margin:0 0 .7rem}
+.uco-order-dialog-actions{display:flex;gap:.6rem}
+.uco-order-dialog-actions button{flex:1;padding:.85rem;border-radius:.65rem 0 .65rem 0;font-family:inherit;font-weight:800;border:1px solid #232f5d}
+.uco-order-review-back{background:#fff;color:#232f5d;cursor:pointer}
+.uco-order-review-confirm{background:#232f5d;color:#fff}
+.uco-order-review-confirm:disabled{opacity:.45;cursor:not-allowed}
+.uco-order-dialog-foot>small{display:block;text-align:center;font-size:.69rem;color:#66768a;margin-top:.65rem}
+@media(max-width:600px){
+ .uco-order-dialog{width:100vw;max-width:100vw;max-height:100dvh;height:auto;border-radius:.8rem .8rem 0 0;margin:auto auto 0}
+ .uco-order-dialog-head{padding:.85rem 1rem}.uco-order-dialog-head img{width:2.8rem;height:2.8rem}
+ .uco-order-dialog-scroll{padding:.7rem .9rem}
+ .uco-order-dialog-foot{padding:.7rem .9rem max(.9rem,env(safe-area-inset-bottom))}
+ .uco-order-dialog-actions{flex-direction:column}
+ .uco-order-review-item{grid-template-columns:2.8rem minmax(0,1fr) auto;gap:.45rem}
+ .uco-order-review-item img{width:2.8rem;height:2.8rem}
+ #cart-view .uco-payment-brands-row{gap:.25rem}
+ #cart-view .uco-payment-brand{padding:.3rem;min-height:2.3rem}
+}
+
+/* Fase 5B: cabecera de forma de pago; no afecta al resto del carrito. */
+.uco-payment-step > h3.uco-payment-main-title{display:block;width:100%;margin:.25rem 0 1.15rem;text-align:center;color:#669a27;font-weight:800;font-size:clamp(1.75rem,2.6vw,2.25rem);line-height:1.2;letter-spacing:-.025em}
+@media(max-width:600px){.uco-payment-step > h3.uco-payment-main-title{font-size:clamp(1.55rem,6vw,1.95rem);margin:.2rem 0 1rem}}
+
+
+/* Fase 5B refinada: logos selectores antes de las opciones; sin alterar el carrito. */
+#cart-view .uco-payment-step .uco-payment-brands{
+ margin:.35rem 0 1.05rem;padding:1rem .85rem 1.1rem;
+ border:1px solid hsl(219 20% 85%);border-radius:1rem 0 1rem 0;
+ background:#fff;
+}
+#cart-view .uco-payment-step .uco-payment-brands>p{
+ margin:0 0 .85rem;color:#63952b;font-size:clamp(.88rem,1.4vw,1.02rem);
+ font-weight:900;letter-spacing:.055em;text-align:center;
+}
+#cart-view .uco-payment-step .uco-payment-brands-row{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;
+}
+#cart-view .uco-payment-step .uco-payment-brand{
+ display:flex;align-items:center;justify-content:center;
+ min-width:0;min-height:5.35rem;padding:.85rem .55rem;
+ border:2px solid #e0e6ee;border-radius:.85rem 0 .85rem 0;
+ background:#f8fafc;color:#232f5d;cursor:pointer;
+ font:800 .92rem Manrope,sans-serif;transition:border-color .16s,background .16s,box-shadow .16s;
+}
+#cart-view .uco-payment-step .uco-payment-brand img{
+ width:100%;max-width:7.5rem;height:2.75rem;object-fit:contain;
+}
+#cart-view .uco-payment-step .uco-payment-brand:hover{
+ border-color:#95be5b;background:#f5f9ec;
+}
+#cart-view .uco-payment-step .uco-payment-brand.is-selected{
+ border-color:#a9df39;background:hsl(83 60% 96%);
+ box-shadow:inset .24rem 0 #a9df39;
+}
+#cart-view .uco-payment-step .uco-payment-brand:focus-visible{
+ outline:2px solid #232f5d;outline-offset:2px;
+}
+#cart-view .uco-payment-step .uco-payment-form{gap:.65rem!important}
+#cart-view .uco-payment-step .uco-payment-option{min-height:4.6rem}
+@media(max-width:600px){
+ #cart-view .uco-payment-step .uco-payment-brands{padding:.7rem .5rem .8rem;margin:.25rem 0 .75rem}
+ #cart-view .uco-payment-step .uco-payment-brands-row{gap:.3rem}
+ #cart-view .uco-payment-step .uco-payment-brand{min-height:3.8rem;padding:.4rem .2rem;font-size:.66rem}
+ #cart-view .uco-payment-step .uco-payment-brand img{height:1.85rem}
+ #cart-view .uco-payment-step .uco-payment-option{min-height:0}
+}
+
+/* Fase 5C: simulador de pagos aislado */
+.uco-simulation-controls{margin-top:.8rem;padding:.7rem;border:1px solid #a9df39;border-radius:.75rem;background:#f4f9eb;text-align:center}
+.uco-simulation-controls[hidden]{display:none}
+.uco-simulation-controls p{font-size:.78rem;font-weight:800;color:#232f5d;margin:.2rem 0 .65rem}
+.uco-simulation-controls button{border:1px solid #232f5d;border-radius:.6rem;padding:.65rem .8rem;margin:.2rem;background:#232f5d;color:#fff;font:800 .75rem Manrope,sans-serif;cursor:pointer}
+.uco-simulation-controls button:disabled{opacity:.5;cursor:wait}
+
+/* Fase 5D: visor de justificantes independiente */
+.uco-receipt-dialog{width:min(96vw,920px);max-width:96vw;height:min(94dvh,1050px);max-height:94dvh;padding:0;border:0;border-radius:1rem 0 1rem 0;box-shadow:0 2rem 5rem #06112777;overflow:hidden;margin:auto}
+.uco-receipt-dialog[open]{display:flex;flex-direction:column}
+.uco-receipt-dialog::backdrop{background:#061127b8}
+.uco-receipt-head{background:#232f5d;color:white;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+.uco-receipt-head>div{display:flex;flex-wrap:wrap;gap:.4rem}
+.uco-receipt-head button,.uco-receipt-head a{background:#a9df39;color:#232f5d;border:0;border-radius:.55rem 0 .55rem 0;padding:.6rem .8rem;font:800 .8rem Manrope,sans-serif;text-decoration:none;cursor:pointer}
+.uco-receipt-dialog iframe{width:100%;flex:1;min-height:0;border:0;background:white}
+@media(max-width:600px){.uco-receipt-dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0}.uco-receipt-head{justify-content:center;text-align:center}}
+
+.uco-receipt-fallback-note{padding:.6rem 1rem;margin:0;background:#fff4d9;color:#744619;font-weight:700;font-size:.78rem}
+
+/* Ajuste de tarjetas: cantidad a la izquierda y precio a la derecha. */
+uco-client-product-list .uco-client-price-row{display:flex;align-items:center;justify-content:space-between;gap:.7rem;margin-top:auto;margin-bottom:.75rem;min-width:0}
+uco-client-product-list .uco-client-price-row .client-price{margin:0!important;white-space:nowrap;text-align:right;flex:0 0 auto}
+uco-client-product-list .uco-client-units{display:flex;align-items:center;gap:.5rem;min-width:0;color:#61728d;font-size:.82rem;font-weight:700}
+uco-client-product-list .uco-client-units input{box-sizing:border-box;width:5.1rem;max-width:100%;height:2.7rem;border:1px solid #c5d0df;border-radius:.55rem;background:#fff;color:#232f5d;text-align:center;font:800 1rem Manrope,sans-serif;padding:.25rem}
+uco-client-product-list .uco-client-units input:focus-visible{outline:2px solid #a9df39;outline-offset:2px}
+@media(max-width:410px){uco-client-product-list .uco-client-units{gap:.25rem;font-size:.73rem}uco-client-product-list .uco-client-units input{width:4rem;height:2.4rem}}
+
+/* Refinamiento catálogo: banda de compra equilibrada y alineación visual. */
+uco-client-product-list .client-card-content{display:flex;flex-direction:column}
+uco-client-product-list .uco-client-price-row{margin-top:auto!important;margin-bottom:.85rem!important;padding-top:.85rem;border-top:1px solid #e8edf2;align-items:end;gap:1rem;min-height:4.2rem}
+uco-client-product-list .uco-client-units{display:flex;flex-direction:column;align-items:flex-start;justify-content:end;gap:.28rem;font-size:.72rem;line-height:1.1;letter-spacing:.02em;color:#63738d;font-weight:800}
+uco-client-product-list .uco-client-units input{width:5.4rem;height:2.55rem;font-size:1.02rem;border-radius:.6rem 0 .6rem 0}
+uco-client-product-list .uco-client-price-row .client-price{font-size:clamp(1.35rem,2vw,1.55rem);line-height:1.15;padding-bottom:.3rem}
+uco-client-product-list .uco-add-cart{margin-top:0!important}
+@media(max-width:420px){uco-client-product-list .uco-client-price-row{gap:.5rem;min-height:3.8rem}uco-client-product-list .uco-client-units input{width:4.5rem;height:2.4rem}}

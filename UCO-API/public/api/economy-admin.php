@@ -17,6 +17,19 @@ try{
     $rate=filter_var($_POST['rate_bp']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>10000]]);
     if(!$pid||$rate===false||$rate===null){$db->rollBack();reply(['error'=>'Producto o IVA inválido'],422);}
     $s=$db->prepare('INSERT INTO uco_product_taxes(product_id,rate_bp) VALUES(?,?) ON CONFLICT(product_id) DO UPDATE SET rate_bp=excluded.rate_bp');$s->execute([$pid,$rate]);
+   }elseif($type==='tax_batch'){
+    $ids=json_decode((string)($_POST['product_ids']??''),true);
+    $rate=filter_var($_POST['rate_bp']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>10000]]);
+    if(!is_array($ids)||!count($ids)||count($ids)>5000||$rate===false||$rate===null){$db->rollBack();reply(['error'=>'Selección o IVA inválidos'],422);}
+    foreach($ids as $rawId){if(!is_int($rawId)||$rawId<1){$db->rollBack();reply(['error'=>'Referencias inválidas'],422);}}
+    $ids=array_values(array_unique($ids));
+    if(count($ids)>5000){$db->rollBack();reply(['error'=>'Referencias inválidas'],422);}
+    $check=$db->prepare('SELECT id FROM products WHERE id=? AND active=1');
+    $s=$db->prepare('INSERT INTO uco_product_taxes(product_id,rate_bp) VALUES(?,?) ON CONFLICT(product_id) DO UPDATE SET rate_bp=excluded.rate_bp');
+    foreach($ids as $pid){
+     $check->execute([$pid]);if(!$check->fetchColumn()){$db->rollBack();reply(['error'=>'Una referencia ya no está disponible'],422);}
+     $s->execute([$pid,$rate]);
+    }
    }elseif($type==='shipping'){
     $price=filter_var($_POST['shipping_cents']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>10000000]]);
     $free=filter_var($_POST['free_shipping_from_cents']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>100000000]]);
