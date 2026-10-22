@@ -92,6 +92,10 @@ function mountUnifiedAccounts(target){
  const section=document.createElement('section');section.className='uco-unified panel';section.id='uco-unified';
  section.innerHTML=`<div class="uco-unified-head"><div><span class="eyebrow">CUENTAS · ADMINISTRACIÓN</span><h2>Usuarios / Clientes</h2><p>Accesos internos, clientes y consulta protegida de pedidos.</p></div><div class="uco-unified-actions"><button class="primary" type="button" data-unified-new="user">+ Usuario</button><button class="primary" type="button" data-unified-new="customer">+ Cliente</button></div></div><div class="uco-unified-filters"><input type="search" aria-label="Buscar cuentas" placeholder="Buscar nombre, empresa o correo…" id="uco-account-search"><select aria-label="Filtrar tipo" id="uco-account-type"><option value="">Todos los tipos</option><option value="admin">Administradores</option><option value="staff">Empleados</option><option value="customer">Clientes</option></select><select aria-label="Filtrar estado" id="uco-account-status"><option value="">Todos los estados</option><option value="1">Activos</option><option value="0">Inactivos</option></select></div><div class="uco-unified-list" id="uco-unified-list" aria-live="polite"><p class="tip">Cargando cuentas…</p></div><p class="tip">El historial es de solo lectura. La edición de productos o stock no permite modificar pedidos ni cobros.</p>`;
  target.prepend(section);
+  if(currentUser?.role==='admin'){
+   const access=document.createElement('button');access.type='button';access.className='primary uco-access-launch';access.textContent='Perfiles y permisos';access.addEventListener('click',openAccessRolesDialog);
+   section.querySelector('.uco-unified-actions')?.append(access);
+  }
  section.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',renderUnifiedAccounts));
  section.addEventListener('click',async e=>{
   const newButton=e.target.closest('[data-unified-new]');if(newButton){newButton.dataset.unifiedNew==='user'?userDialog():editCustomer();return}
@@ -103,6 +107,25 @@ function mountUnifiedAccounts(target){
   if(b.dataset.unifiedAction==='link'&&kind==='user'){await openIdentityLinkDialog(id);return}
  });
  refreshUnifiedAccounts();
+}
+/* Fase 3E.2: panel de perfiles, sin modificar el control de acceso vigente. */
+async function openAccessRolesDialog(){
+ if(currentUser?.role!=='admin')return;
+ let data;try{data=await req('access_roles')}catch(err){await confirmStandalone({title:'Perfiles y permisos',message:err.message,confirm:'Cerrar'});return}
+ const assignments=new Map();for(const item of data.assignments||[]){const key=Number(item.staff_id);if(!assignments.has(key))assignments.set(key,new Set());assignments.get(key).add(Number(item.role_id))}
+ const staff=data.staff||[],roles=data.roles||[],perms=data.permissions||[];
+ const dialog=document.createElement('dialog');dialog.className='uco-access-dialog';
+ dialog.innerHTML=`<div class="uco-access-shell"><header class="uco-access-head"><div><span class="eyebrow">SEGURIDAD · ADMINISTRACIÓN</span><h2>Perfiles y permisos</h2><p>Asigna los perfiles que correspondan a cada empleado. Los permisos aún no restringen el acceso.</p></div><button type="button" class="uco-access-close" aria-label="Cerrar">×</button></header><div class="uco-access-content"><label class="uco-access-label" for="uco-access-staff">Usuario interno</label><select id="uco-access-staff">${staff.map(u=>`<option value="${Number(u.id)}">${esc(u.display_name||u.username)}${Number(u.active)?'':' · Inactivo'}</option>`).join('')}</select><div class="uco-access-roles"></div><div class="uco-access-permissions"></div><p class="uco-access-error" role="alert" aria-live="polite"></p></div><footer class="uco-access-actions"><button type="button" class="uco-access-cancel">Cerrar</button><button type="button" class="uco-access-save">Guardar perfiles</button></footer></div>`;
+ document.body.append(dialog);const select=dialog.querySelector('#uco-access-staff'),list=dialog.querySelector('.uco-access-roles'),detail=dialog.querySelector('.uco-access-permissions'),error=dialog.querySelector('.uco-access-error');
+ function render(){const selected=assignments.get(Number(select.value))||new Set();list.innerHTML=roles.map(r=>`<label class="uco-access-role"><input type="checkbox" value="${Number(r.id)}" ${selected.has(Number(r.id))?'checked':''}><span><strong>${esc(r.label)}</strong><small>${esc(r.description)}</small></span></label>`).join('');renderPermissions()}
+ function renderPermissions(){const chosen=new Set([...list.querySelectorAll('input:checked')].map(el=>Number(el.value)));const labels=roles.filter(r=>chosen.has(Number(r.id))).map(r=>esc(r.label));const allowed=new Set(perms.filter(p=>chosen.has(Number(p.role_id))).map(p=>p.code));detail.innerHTML=`<h3>Permisos incluidos</h3><p>${labels.length?labels.join(' · '):'Ningún perfil seleccionado'}</p><div class="uco-access-chips">${perms.filter(p=>allowed.has(p.code)).filter((p,i,a)=>a.findIndex(x=>x.code===p.code)===i).map(p=>`<span>${esc(p.label)}</span>`).join('')||'<small>Sin permisos asignados</small>'}</div>`}
+ select.addEventListener('change',()=>{error.textContent='';render()});list.addEventListener('change',renderPermissions);
+ const close=()=>dialog.close();dialog.querySelector('.uco-access-close').onclick=close;dialog.querySelector('.uco-access-cancel').onclick=close;dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+ dialog.querySelector('.uco-access-save').onclick=async()=>{const btn=dialog.querySelector('.uco-access-save'),id=Number(select.value),ids=[...list.querySelectorAll('input:checked')].map(el=>Number(el.value));if(!id)return;
+  if(!await confirmChange(dialog,{title:'Guardar perfiles',message:'Se actualizarán los perfiles de este empleado. Los permisos actuales seguirán funcionando como hasta ahora.',confirm:'Guardar asignación'}))return;
+  btn.disabled=true;error.textContent='';try{const f=new FormData();f.set('staff_id',String(id));f.set('role_ids',JSON.stringify(ids));await req('access_roles_save',{method:'POST',body:f});assignments.set(id,new Set(ids));error.textContent='Perfiles guardados correctamente. Los accesos actuales no cambian.';error.classList.add('is-success')}catch(e){error.classList.remove('is-success');error.textContent=e.message}finally{btn.disabled=false}
+ };
+ render();dialog.showModal();
 }
 async function refreshUnifiedAccounts(){
  const el=document.querySelector('#uco-unified');if(!el)return;

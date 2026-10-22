@@ -1619,3 +1619,30 @@ dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(
 #orders-area .uco-order-card.uco-order-card-delivered[open]>summary{background:#ecf7d9}
 #orders-area .uco-order-card.uco-order-card-delivered>summary .uco-order-state{display:inline-flex;align-items:center;justify-self:start;width:fit-content;max-width:100%;padding:.4rem .75rem;border-radius:.55rem 0 .55rem 0;background:#e0f2c9;color:#317514;font:800 .88rem Manrope,sans-serif;line-height:1.25}
 @media(max-width:36rem){#orders-area .uco-order-card.uco-order-card-delivered>summary .uco-order-state{font-size:.8rem;padding:.35rem .55rem;justify-self:end}}
+
+/* UCO 3E.2 · Panel responsive de perfiles y permisos */
+.uco-access-dialog{border:0;padding:0;width:min(94vw,55rem);max-height:90dvh;border-radius:1.4rem 0 1.4rem 0;box-shadow:0 1.4rem 4rem #17254b40;color:#232f5d;font-family:Manrope,sans-serif}
+.uco-access-dialog::backdrop{background:#17254b99}
+.uco-access-shell{display:flex;flex-direction:column;max-height:90dvh;min-height:0}
+.uco-access-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:1.45rem 1.7rem;background:#232f5d;color:white}
+.uco-access-head h2{margin:.25rem 0;font-size:clamp(1.35rem,3vw,1.8rem);color:white}
+.uco-access-head p{margin:0;font-size:.87rem;line-height:1.55;color:#e4e9f4}
+.uco-access-head .eyebrow{font-size:.7rem;color:#a9df39;font-weight:800;letter-spacing:.08em}
+.uco-access-close{border:0;background:#a9df39;color:#232f5d;border-radius:.6rem 0 .6rem 0;font-weight:900;font-size:1.2rem;width:2.4rem;height:2.4rem;cursor:pointer;flex-shrink:0}
+.uco-access-content{padding:1.4rem 1.7rem;overflow-y:auto;overscroll-behavior:contain;min-height:0}
+.uco-access-label{display:block;font-weight:800;font-size:.82rem;margin-bottom:.45rem}
+#uco-access-staff{width:100%;min-height:2.8rem;border:1px solid #cbd8ed;border-radius:.7rem 0 .7rem 0;padding:.6rem .8rem;color:#232f5d;background:#fff;font:600 .9rem Manrope,sans-serif}
+.uco-access-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:1.2rem 0}
+.uco-access-role{display:flex;align-items:flex-start;gap:.65rem;border:1px solid #d5e0ef;background:#f7f9fc;border-radius:.8rem 0 .8rem 0;padding:.85rem;cursor:pointer;min-width:0}
+.uco-access-role:has(input:checked){border-color:#a9df39;background:#f1fadf}
+.uco-access-role input{accent-color:#232f5d;width:1.15rem;height:1.15rem;flex-shrink:0;margin:.1rem 0 0}
+.uco-access-role span{min-width:0}.uco-access-role strong{display:block;font-size:.87rem}.uco-access-role small{display:block;margin-top:.3rem;color:#5f7190;font-size:.75rem;line-height:1.45}
+.uco-access-permissions{background:#f5f8fc;border:1px solid #d5e0ef;border-radius:.85rem 0 .85rem 0;padding:1rem}
+.uco-access-permissions h3{font-size:.95rem;margin:0 0 .3rem}.uco-access-permissions p{font-size:.78rem;color:#637695;margin:.2rem 0 .8rem}
+.uco-access-chips{display:flex;flex-wrap:wrap;gap:.4rem}.uco-access-chips span{font-size:.73rem;font-weight:700;color:#375e0f;background:#e7f7c8;border-radius:.5rem 0 .5rem 0;padding:.35rem .55rem}
+.uco-access-error{min-height:1.3rem;margin:.7rem 0 0;font-size:.83rem;color:#a32828}.uco-access-error.is-success{color:#377519}
+.uco-access-actions{display:flex;justify-content:flex-end;gap:.7rem;padding:1rem 1.7rem;border-top:1px solid #d5e0ef;background:white}
+.uco-access-actions button{min-height:2.75rem;padding:.65rem 1.15rem;border-radius:.7rem 0 .7rem 0;font:800 .84rem Manrope,sans-serif;cursor:pointer}
+.uco-access-cancel{border:1px solid #b6c8e2;background:white;color:#232f5d}.uco-access-save{border:0;background:#a9df39;color:#232f5d}.uco-access-save:disabled{opacity:.6;cursor:wait}
+.uco-access-launch{white-space:nowrap}
+@media(max-width:40rem){.uco-access-dialog{width:96vw;max-height:94dvh}.uco-access-shell{max-height:94dvh}.uco-access-head,.uco-access-content{padding:1rem}.uco-access-roles{grid-template-columns:1fr;gap:.5rem}.uco-access-actions{padding:.85rem 1rem}.uco-access-actions button{flex:1}.uco-access-head p{font-size:.8rem}}

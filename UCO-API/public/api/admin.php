@@ -122,6 +122,36 @@ if($action==='identity_unlink'&&$method==='POST'){
  error_log('UCO identity unlink staff_id='.(int)$staffId.' customer_id='.(int)$customerId.' by_admin='.(int)$_SESSION['uco_user_id']);
  respond(['ok'=>true]);
 }
+/* Fase 3E.2 · Perfiles configurables: solo lectura y asignación, sin activar autorización RBAC. */
+if($action==='access_roles'&&$method==='GET'){
+ adminOnly();
+ try{
+  $roles=$db->query('SELECT id,code,label,description FROM uco_access_roles ORDER BY id')->fetchAll();
+  $permissions=$db->query('SELECT p.code,p.label,p.area,rp.role_id FROM uco_access_permissions p JOIN uco_access_role_permissions rp ON rp.permission_code=p.code ORDER BY p.area,p.label')->fetchAll();
+  $assignments=$db->query('SELECT staff_id,role_id FROM uco_access_staff_roles ORDER BY staff_id,role_id')->fetchAll();
+  $staff=$db->query('SELECT id,display_name,username,role,active FROM admin_users ORDER BY display_name,id')->fetchAll();
+  respond(['roles'=>$roles,'permissions'=>$permissions,'assignments'=>$assignments,'staff'=>$staff,'enforced'=>false]);
+ }catch(Throwable $e){error_log('UCO 3E.2 read: '.$e->getMessage());respond(['error'=>'No se pudieron consultar los perfiles. Comprueba la migración 3E.1.'],500);}
+}
+if($action==='access_roles_save'&&$method==='POST'){
+ csrf();adminOnly();
+ $staffId=filter_var($_POST['staff_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ $raw=(string)($_POST['role_ids']??'');
+ if(!$staffId||strlen($raw)>1500)respond(['error'=>'Selección de empleado o perfiles incorrecta.'],422);
+ $ids=json_decode($raw,true);
+ if(!is_array($ids)||count($ids)>30||count($ids)!==count(array_unique(array_map('strval',$ids))))respond(['error'=>'Selección de perfiles incorrecta.'],422);
+ foreach($ids as $id){if(!is_int($id)||$id<1)respond(['error'=>'Perfil no válido.'],422);}
+ try{
+  $q=$db->prepare('SELECT id,role FROM admin_users WHERE id=?');$q->execute([$staffId]);$staff=$q->fetch();$q->closeCursor();
+  if(!$staff)respond(['error'=>'El usuario ya no existe.'],404);
+  if($ids){$marks=implode(',',array_fill(0,count($ids),'?'));$q=$db->prepare("SELECT COUNT(*) FROM uco_access_roles WHERE id IN ($marks)");$q->execute($ids);if((int)$q->fetchColumn()!==count($ids))respond(['error'=>'Hay perfiles inexistentes.'],422);$q->closeCursor();}
+  $db->exec('BEGIN IMMEDIATE');
+  $db->prepare('DELETE FROM uco_access_staff_roles WHERE staff_id=?')->execute([$staffId]);
+  $q=$db->prepare('INSERT INTO uco_access_staff_roles(staff_id,role_id) VALUES(?,?)');foreach($ids as $id)$q->execute([$staffId,$id]);
+  $db->commit();error_log('UCO 3E.2 perfiles staff_id='.$staffId.' role_ids='.implode(',',$ids).' actor='.(int)$_SESSION['uco_user_id']);
+  respond(['ok'=>true,'enforced'=>false]);
+ }catch(Throwable $e){if($db->inTransaction())$db->rollBack();error_log('UCO 3E.2 save: '.$e->getMessage());respond(['error'=>'No se pudo guardar la asignación de perfiles.'],500);}
+}
 if($action==='users'&&$method==='GET'){adminOnly();respond(['users'=>array_map('userInfo',$db->query('SELECT * FROM admin_users ORDER BY id')->fetchAll())]);}
 if($action==='user_save'&&$method==='POST'){
  csrf();adminOnly();$id=(int)($_POST['id']??0);$username=trim((string)($_POST['username']??''));$display=trim((string)($_POST['display_name']??''));$email=trim((string)($_POST['email']??''));$role=(string)($_POST['role']??'manager');$active=(string)($_POST['active']??'1')==='1'?1:0;$pass=(string)($_POST['password']??'');
