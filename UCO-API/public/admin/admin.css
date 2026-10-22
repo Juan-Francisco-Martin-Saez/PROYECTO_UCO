@@ -1470,3 +1470,66 @@ dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(
 #orders-area .uco-prep-card-bottom button{padding:.7rem 1rem;border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;font:inherit;font-weight:800;cursor:pointer}
 @media(max-width:48rem){#orders-area .uco-orders-prep-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:30rem){#orders-area .uco-orders-prep-filters{grid-template-columns:1fr}#orders-area .uco-prep-card-bottom{flex-direction:column;align-items:stretch}#orders-area .uco-prep-card-bottom button{width:100%}#orders-area .uco-prep-state{margin-left:0}}
+
+/* Fase 3C.1: responsable de preparación */
+#orders-area .uco-order-assign{display:flex;align-items:end;gap:1rem;flex-wrap:wrap;justify-content:space-between;padding:1.1rem 0;border-top:1px solid #dce4ee;margin-top:1rem}
+#orders-area .uco-order-assign>div{display:grid;gap:.3rem;color:#232f5d}
+#orders-area .uco-order-assign small,#orders-area .uco-prep-assigned{font-size:.82rem;color:#62748b}
+#orders-area .uco-order-assign label{display:grid;gap:.3rem;font-weight:700;font-size:.8rem;color:#232f5d;min-width:min(100%,14rem)}
+#orders-area .uco-order-assign select{border:1px solid #cad6e5;border-radius:.65rem;padding:.7rem;background:white;color:#232f5d}
+#orders-area .uco-order-assign button{border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;padding:.8rem 1.1rem;font-weight:800;cursor:pointer}
+#orders-area .uco-order-assign button:disabled{opacity:.5}
+@media(max-width:48rem){#orders-area .uco-order-assign{display:grid;gap:.85rem}#orders-area .uco-order-assign label,#orders-area .uco-order-assign button{width:100%}}
+
+/* Ajuste visual de controles de asignación y estado; sin cambios funcionales. */
+#orders-area .uco-order-assign,#orders-area .uco-order-actions{box-sizing:border-box;min-width:0;width:100%;display:grid;align-items:end;column-gap:1rem;row-gap:.85rem;padding:1.1rem 1.2rem;margin:0;background:#f7f9fc}
+#orders-area .uco-order-assign{grid-template-columns:minmax(0,1fr) minmax(13rem,18rem) auto;border:1px solid #dce4ee;border-radius:.85rem .85rem 0 0;margin-top:1.15rem}
+#orders-area .uco-order-assign>div{align-self:center;min-width:0;gap:.25rem}
+#orders-area .uco-order-assign>div strong{font-size:.92rem}
+#orders-area .uco-order-assign>div small{line-height:1.4}
+#orders-area .uco-order-assign label,#orders-area .uco-order-actions label{display:grid;gap:.4rem;min-width:0;width:100%;font-size:.8rem;font-weight:800;color:#232f5d}
+#orders-area .uco-order-assign select,#orders-area .uco-order-actions select{box-sizing:border-box;width:100%;min-width:0;min-height:2.85rem;padding:.65rem .85rem;border:1px solid #cbd8e8;border-radius:.7rem 0 .7rem 0;background:#fff;color:#232f5d;font:inherit;font-weight:600}
+#orders-area .uco-order-assign button,#orders-area .uco-order-actions button{box-sizing:border-box;min-height:2.85rem;padding:.7rem 1.1rem;white-space:nowrap;font:800 .86rem Manrope,sans-serif;border-radius:.7rem 0 .7rem 0;transition:background .2s ease}
+#orders-area .uco-order-assign button:hover:not(:disabled),#orders-area .uco-order-actions button:not(.uco-order-reset):hover:not(:disabled){background:#97cb29}
+#orders-area .uco-order-assign button:focus-visible,#orders-area .uco-order-actions button:focus-visible,#orders-area .uco-order-assign select:focus-visible,#orders-area .uco-order-actions select:focus-visible{outline:2px solid #527c19;outline-offset:2px}
+#orders-area .uco-order-actions{grid-template-columns:minmax(0,1fr) minmax(13rem,18rem) auto auto;border:1px solid #dce4ee;border-top:0;border-radius:0 0 .85rem .85rem;padding-top:.9rem;background:#fff}
+#orders-area .uco-order-actions label{grid-column:2}
+#orders-area .uco-order-actions .uco-order-reset{background:#fff;border:1px solid #8abf2b;color:#527c19}
+#orders-area .uco-order-actions .uco-order-reset:hover{background:#f1f7e5}
+@media(max-width:62rem){
+ #orders-area .uco-order-assign{grid-template-columns:minmax(0,1fr) minmax(12rem,1fr)}
+ #orders-area .uco-order-assign>div{grid-column:1/-1}
+ #orders-area .uco-order-assign button{width:100%}
+ #orders-area .uco-order-actions{grid-template-columns:minmax(0,1fr) minmax(12rem,1fr)}
+ #orders-area .uco-order-actions label{grid-column:1/-1}
+ #orders-area .uco-order-actions button{width:100%}
+}
+@media(max-width:36rem){
+ #orders-area .uco-order-assign,#orders-area .uco-order-actions{grid-template-columns:minmax(0,1fr);padding:.95rem;gap:.8rem}
+ #orders-area .uco-order-assign>div,#orders-area .uco-order-actions label{grid-column:1}
+ #orders-area .uco-order-assign label,#orders-area .uco-order-assign button,#orders-area .uco-order-actions label,#orders-area .uco-order-actions select,#orders-area .uco-order-actions button{width:100%;min-width:0}
+ #orders-area .uco-order-assign button,#orders-area .uco-order-actions button{min-height:3rem;white-space:normal}
+}
+
+
+/* Fase 3C.2: comprobación por artículos y cantidades. */
+#orders-area .uco-order-checks{margin:1.1rem 0;padding:1.15rem;border:1px solid #dce4ee;border-radius:.9rem 0 .9rem 0;background:#f7f9fc}
+#orders-area .uco-checks-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+#orders-area .uco-checks-head h3{margin:0 0 .3rem;color:#232f5d;font-size:1.05rem}
+#orders-area .uco-checks-head p{margin:0;color:#63758e;font-size:.83rem}
+#orders-area .uco-checks-head progress{width:min(11rem,35%);height:.75rem;accent-color:#9acb2b}
+#orders-area .uco-checks-list{display:grid;gap:.7rem}
+#orders-area .uco-check-line{display:grid;grid-template-columns:minmax(12rem,1fr) minmax(0,2fr);gap:1rem;align-items:center;background:#fff;border:1px solid #e1e8f1;border-radius:.7rem 0 .7rem 0;padding:.95rem}
+#orders-area .uco-check-product{display:grid;justify-items:start;gap:.3rem;min-width:0}
+#orders-area .uco-check-product strong{color:#232f5d;overflow-wrap:anywhere}
+#orders-area .uco-check-product small{color:#64758d}
+#orders-area .uco-check-status{font-size:.73rem;font-weight:800;padding:.25rem .55rem;background:#eef1f6;color:#61718b;border-radius:.45rem 0 .45rem 0}
+#orders-area .uco-check-status.is-complete{background:#e9f6d7;color:#4d7a19}
+#orders-area .uco-check-status.is-partial{background:#fff1d7;color:#95630c}
+#orders-area .uco-check-controls{display:grid;grid-template-columns:minmax(7rem,.7fr) minmax(10rem,1.5fr) auto;gap:.65rem;align-items:end}
+#orders-area .uco-check-controls label{display:grid;gap:.3rem;color:#232f5d;font-size:.76rem;font-weight:800;min-width:0}
+#orders-area .uco-check-controls input{width:100%;min-width:0;box-sizing:border-box;min-height:2.75rem;padding:.55rem .7rem;background:#fff;color:#232f5d;border:1px solid #cbd8e8;border-radius:.65rem 0 .65rem 0;font:inherit}
+#orders-area .uco-check-controls button{min-height:2.75rem;padding:.65rem .9rem;border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;font:800 .8rem Manrope,sans-serif;cursor:pointer}
+#orders-area .uco-check-controls button:disabled{opacity:.5}
+@media(max-width:66rem){#orders-area .uco-check-line{grid-template-columns:1fr}#orders-area .uco-check-controls{grid-template-columns:minmax(7rem,1fr) minmax(10rem,2fr) auto}}
+@media(max-width:42rem){#orders-area .uco-order-checks{padding:.8rem}#orders-area .uco-checks-head{align-items:stretch;flex-direction:column}#orders-area .uco-checks-head progress{width:100%}#orders-area .uco-check-controls{grid-template-columns:1fr}#orders-area .uco-check-controls button{width:100%}}
