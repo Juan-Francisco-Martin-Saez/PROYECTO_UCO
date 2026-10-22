@@ -1421,3 +1421,33 @@ dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(
 .uco-password-success-actions button{min-width:8.5rem;border:0;border-radius:.75rem 0 .75rem 0;background:#a9df39;color:#232f5d;padding:.8rem 1.2rem;font-weight:800;cursor:pointer}
 .uco-password-success-actions button:focus-visible{outline:3px solid #232f5d;outline-offset:3px}
 @media(max-width:36rem){dialog.uco-password-success{width:calc(100vw - 1.5rem);max-width:calc(100vw - 1.5rem)}.uco-password-success-head{padding:1rem}.uco-password-success-body{padding:1rem}.uco-password-success-actions button{width:100%}}
+
+/* Fase 3A: navegación interna de Pedidos, alineada con la identidad UCO. */
+#orders-area .uco-orders-subtabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;margin:0 0 .8rem}
+#orders-area .uco-orders-subtabs button{min-width:0;min-height:3.15rem;padding:.75rem .55rem;background:#fff;border:1px solid #b9cbe0;border-radius:.9rem 0 .9rem 0;color:#232f5d;font:inherit;font-size:.9rem;font-weight:800;cursor:pointer;transition:background .15s ease}
+#orders-area .uco-orders-subtabs button:hover{background:#f1f7e5}
+#orders-area .uco-orders-subtabs button[aria-selected="true"]{background:#a9df39;border-color:#a9df39;color:#18294d}
+#orders-area .uco-orders-subtabs button:focus-visible{outline:3px solid #6b9f21;outline-offset:2px}
+#orders-area .uco-orders-panels>[hidden]{display:none!important}
+#orders-area .uco-orders-workspace{padding:clamp(1.1rem,2.5vw,2rem)}
+#orders-area .uco-orders-workspace h2{margin:0 0 .6rem;font-size:clamp(1.3rem,2.2vw,1.8rem);color:#232f5d;text-align:center}
+#orders-area .uco-orders-workspace>p{margin:0 auto 1.35rem;max-width:55rem;color:#61748e;text-align:center;text-wrap:balance;line-height:1.5}
+#orders-area .uco-orders-work-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;border:1px solid #dce4ee;border-radius:.85rem 0 .85rem 0;padding:1rem;margin:.6rem 0;background:#fff}
+#orders-area .uco-orders-work-row>div{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem 1rem;min-width:0}
+#orders-area .uco-orders-work-row strong{color:#232f5d}
+#orders-area .uco-orders-work-row span{color:#32476b}
+#orders-area .uco-orders-work-row small{color:#6b7e96}
+#orders-area .uco-orders-work-row button{border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;padding:.7rem 1rem;font-weight:800;cursor:pointer;white-space:nowrap}
+#orders-area .uco-orders-work-empty{padding:1.25rem;text-align:center;color:#6b7e96}
+@media(max-width:48rem){#orders-area .uco-orders-subtabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}#orders-area .uco-orders-subtabs button{font-size:.84rem;min-height:3rem}}
+@media(max-width:30rem){#orders-area .uco-orders-work-row{align-items:stretch;flex-direction:column}#orders-area .uco-orders-work-row button{width:100%}}
+
+/* Restauración del estilo original del justificante PDF (Fase 3A) */
+#orders-area .uco-order-meta{display:flex;align-items:center;justify-content:space-between;gap:.85rem 1.25rem;margin-bottom:.9rem}
+#orders-area .uco-order-meta p{flex:1 1 auto;min-width:0;margin:0}
+#orders-area .uco-order-receipt-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:2.65rem;padding:.7rem 1.15rem;background:#a9df39;color:#232f5d;border:0;border-radius:.75rem 0 .75rem 0;font:800 .86rem Manrope,sans-serif;cursor:pointer;text-align:center;transition:background .2s ease}
+#orders-area .uco-order-receipt-button:hover{background:#97cb29}
+#orders-area .uco-order-receipt-button:focus-visible{outline:2px solid #232f5d;outline-offset:3px}
+#orders-area .uco-order-receipt-button:disabled{opacity:.65;cursor:wait}
+@media(max-width:60rem){#orders-area .uco-order-meta{flex-direction:column;align-items:stretch;gap:.7rem;margin-bottom:1rem}#orders-area .uco-order-receipt-button{align-self:flex-start;min-height:2.85rem}}
+@media(max-width:36rem){#orders-area .uco-order-meta{gap:.65rem}#orders-area .uco-order-receipt-button{align-self:stretch;width:100%}}

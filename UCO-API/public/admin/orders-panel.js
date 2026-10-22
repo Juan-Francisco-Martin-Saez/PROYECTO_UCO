@@ -31,7 +31,7 @@ function orderHistory(o){
 }
 export async function openAdminOrders(){
  const el=document.createElement('section');el.id='orders-area';el.className='wrap uco-orders';
- el.innerHTML=`<div class="uco-orders-intro"><div><span class="eyebrow">PEDIDOS · ADMINISTRACIÓN</span><h1>Gestión de <em>pedidos.</em></h1><p>Consulta de pagos, productos y preparación. Los pedidos históricos no entran automáticamente en almacén.</p></div></div><section class="panel"><div class="uco-orders-filters"><label>Buscar pedido o cliente<input type="search" id="uco-orders-search" placeholder="PED-08, Pepe..."></label><label>Pago<select id="uco-orders-payment"><option value="">Todos</option><option value="yes">Aprobado</option><option value="no">Sin confirmar</option></select></label><label>Preparación<select id="uco-orders-state"><option value="">Todos</option><option value="none">Sin iniciar</option>${Object.entries(states).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label></div><div class="uco-orders-count" aria-live="polite">Cargando pedidos…</div><div class="uco-orders-list"></div></section>`;
+ el.innerHTML=`<div class="uco-orders-intro"><div><span class="eyebrow">PEDIDOS · ADMINISTRACIÓN</span><h1>Gestión de <em>pedidos.</em></h1><p>Consulta de pagos, productos y preparación. Los pedidos históricos no entran automáticamente en almacén.</p></div></div><nav class="uco-orders-subtabs" aria-label="Secciones de gestión de pedidos" role="tablist"><button type="button" role="tab" id="uco-tab-all" aria-controls="uco-panel-all" aria-selected="true" data-orders-tab="all">Todos los pedidos</button><button type="button" role="tab" id="uco-tab-prep" aria-controls="uco-panel-prep" aria-selected="false" data-orders-tab="prep" tabindex="-1">Preparación</button><button type="button" role="tab" id="uco-tab-shipping" aria-controls="uco-panel-shipping" aria-selected="false" data-orders-tab="shipping" tabindex="-1">Expedición</button><button type="button" role="tab" id="uco-tab-history" aria-controls="uco-panel-history" aria-selected="false" data-orders-tab="history" tabindex="-1">Historial</button></nav><div class="uco-orders-panels"><section class="panel" id="uco-panel-all" role="tabpanel" aria-labelledby="uco-tab-all"><div class="uco-orders-filters"><label>Buscar pedido o cliente<input type="search" id="uco-orders-search" placeholder="PED-08, Pepe..."></label><label>Pago<select id="uco-orders-payment"><option value="">Todos</option><option value="yes">Aprobado</option><option value="no">Sin confirmar</option></select></label><label>Preparación<select id="uco-orders-state"><option value="">Todos</option><option value="none">Sin iniciar</option>${Object.entries(states).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label></div><div class="uco-orders-count" aria-live="polite">Cargando pedidos…</div><div class="uco-orders-list"></div></section><section class="panel uco-orders-workspace" id="uco-panel-prep" role="tabpanel" aria-labelledby="uco-tab-prep" hidden><h2>Preparación de pedidos</h2><p>Pedidos pendientes o en proceso de preparación. La verificación por productos y la asignación a empleados se incorporarán en las próximas etapas.</p><div class="uco-orders-prep-list"></div></section><section class="panel uco-orders-workspace" id="uco-panel-shipping" role="tabpanel" aria-labelledby="uco-tab-shipping" hidden><h2>Expedición y entregas</h2><p>Consulta de pedidos preparados, enviados o entregados. El registro de expediciones se incorporará en una etapa posterior.</p><div class="uco-orders-shipping-list"></div></section><section class="panel uco-orders-workspace" id="uco-panel-history" role="tabpanel" aria-labelledby="uco-tab-history" hidden><h2>Historial de operaciones</h2><p>Consulta de los cambios de estado y reinicios registrados en los pedidos. La cronología detallada permanece disponible dentro de cada pedido.</p><div class="uco-orders-history-list"></div></section></div>`;
  document.querySelector('.admin-section-nav').after(el);
  const list=el.querySelector('.uco-orders-list'),count=el.querySelector('.uco-orders-count');
  try{
@@ -40,6 +40,35 @@ export async function openAdminOrders(){
   if(!response.ok)throw Error(data.error||'Error de consulta');
   const orders=data.orders||[];const canManage=!data.read_only;
   const allowed={none:['pending_preparation'],pending_preparation:['preparing','incident','cancelled'],preparing:['prepared','incident'],prepared:['dispatched','incident'],dispatched:['delivered','incident'],incident:['pending_preparation','cancelled']};
+  const renderWorkspace=()=>{
+   const num=o=>'PED-'+String(o.id).padStart(2,'0');
+   const row=(o,subtitle)=>`<div class="uco-orders-work-row"><div><strong>${esc(num(o))}</strong><span>${esc(o.customer)}</span><small>${esc(subtitle)}</small></div><button type="button" data-view-order="${Number(o.id)}">Ver pedido</button></div>`;
+   const prep=orders.filter(o=>o.payment_confirmed&&['pending_preparation','preparing','incident'].includes(o.fulfillment_state));
+   const shipping=orders.filter(o=>o.payment_confirmed&&['prepared','dispatched','delivered'].includes(o.fulfillment_state));
+   const history=orders.filter(o=>(o.events||[]).length||(o.resets||[]).length);
+   el.querySelector('.uco-orders-prep-list').innerHTML=prep.length?prep.map(o=>row(o,states[o.fulfillment_state])).join(''):'<p class="uco-orders-work-empty">No hay pedidos en preparación actualmente.</p>';
+   el.querySelector('.uco-orders-shipping-list').innerHTML=shipping.length?shipping.map(o=>row(o,states[o.fulfillment_state])).join(''):'<p class="uco-orders-work-empty">No hay pedidos preparados o expedidos actualmente.</p>';
+   el.querySelector('.uco-orders-history-list').innerHTML=history.length?history.map(o=>row(o,`${(o.events||[]).length} cambios · ${(o.resets||[]).length} reinicios`)).join(''):'<p class="uco-orders-work-empty">No hay movimientos registrados todavía.</p>';
+  };
+  const selectTab=tab=>{
+   el.querySelectorAll('[data-orders-tab]').forEach(b=>{const active=b.dataset.ordersTab===tab;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1});
+   for(const name of ['all','prep','shipping','history'])el.querySelector('#uco-panel-'+name).hidden=name!==tab;
+  };
+  el.querySelector('.uco-orders-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-orders-tab]');if(b)selectTab(b.dataset.ordersTab)});
+  el.querySelector('.uco-orders-subtabs').addEventListener('keydown',e=>{
+   if(!['ArrowRight','ArrowLeft','Home','End'].includes(e.key))return;
+   const tabs=[...el.querySelectorAll('[data-orders-tab]')],current=tabs.findIndex(b=>b.getAttribute('aria-selected')==='true');
+   const index=e.key==='Home'?0:e.key==='End'?tabs.length-1:(current+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+   e.preventDefault();selectTab(tabs[index].dataset.ordersTab);tabs[index].focus();
+  });
+  el.querySelector('.uco-orders-panels').addEventListener('click',e=>{
+   const b=e.target.closest('[data-view-order]');if(!b)return;
+   const id=Number(b.dataset.viewOrder);
+   el.querySelector('#uco-orders-search').value='PED-'+String(id).padStart(2,'0');
+   el.querySelector('#uco-orders-payment').value='';el.querySelector('#uco-orders-state').value='';
+   selectTab('all');render();
+   const details=list.querySelector('.uco-order-card');if(details){details.open=true;details.scrollIntoView({behavior:'smooth',block:'nearest'})}
+  });
   const render=()=>{
    const search=el.querySelector('#uco-orders-search').value.trim().toLocaleLowerCase('es');
    const payment=el.querySelector('#uco-orders-payment').value,state=el.querySelector('#uco-orders-state').value;
@@ -78,9 +107,9 @@ export async function openAdminOrders(){
     const refreshed=await fetch('../api/admin-orders.php',{credentials:'same-origin',cache:'no-store'});
     if(refreshed.ok){const latest=await refreshed.json();orders.splice(0,orders.length,...(latest.orders||[]));}
     else{order.fulfillment_state=reset?null:state;}
-    render();await orderDialog({title:reset?'Preparación reiniciada':'Estado actualizado',body:reset?'El pedido vuelve a Sin iniciar. Se ha registrado el motivo y la verificación administrativa.':'El nuevo estado se ha guardado correctamente.',success:true});
+    render();renderWorkspace();await orderDialog({title:reset?'Preparación reiniciada':'Estado actualizado',body:reset?'El pedido vuelve a Sin iniciar. Se ha registrado el motivo y la verificación administrativa.':'El nuevo estado se ha guardado correctamente.',success:true});
    }catch(error){await orderDialog({title:'No se pudo completar',body:error.message,success:true});button.disabled=false;}
   });
-  render();
+  render();renderWorkspace();
  }catch(e){count.textContent='No se pudo cargar el listado';list.textContent=e.message}
 }
