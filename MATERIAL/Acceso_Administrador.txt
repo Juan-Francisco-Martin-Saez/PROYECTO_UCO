@@ -1,8 +1,8 @@
 Administrador
-UCO_Admin_General_1982
+UCO_Admin_General_1982 (ACCEDER POR /ADMIN)
 $2y$12$ldRRQQsKbcFt4u0pyD8oReaEJPE7wjtVg.1Qn3c1RaZQgUcVxeAnK
 
-Pepe (cliente/colaborador)
+Pepe (cliente (ACCEDER POR AREA DE CLIENTES) /colaborador (ACCEDER POR /ADMIN))
 UCO_Pepe_cliente_1982
 
 
