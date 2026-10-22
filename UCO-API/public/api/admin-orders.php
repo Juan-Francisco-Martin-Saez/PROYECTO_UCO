@@ -19,13 +19,23 @@ try{
  $q=$db->prepare('SELECT id,role,active,password_hash FROM admin_users WHERE id=?');
  $q->execute([$staffId]);$staff=$q->fetch();
  if(!$staff||(int)$staff['active']!==1||!in_array($staff['role'],['admin','manager'],true)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',(string)$staff['password_hash']))||!ucoIdentitySessionValid($db,'staff',$staffId,$_SESSION['uco_identity_id']??null))replyOrders(['error'=>'Sesión no válida'],403);
+ require_once dirname(__DIR__,2).'/private/access-permissions.php';
+ $caps=ucoOrderCapabilities($db,$staffId,(string)$staff['role']);
+ if(!ucoOrderCan($caps,'orders.view'))replyOrders(['error'=>'No tienes acceso a los pedidos'],403);
  if($_SERVER['REQUEST_METHOD']==='POST'){
-  if($staff['role']!=='admin')replyOrders(['error'=>'Solo administración puede cambiar estados de preparación'],403);
+  // El administrador conserva el control completo; el resto necesita autorización por operación.
   if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))replyOrders(['error'=>'Token de seguridad no válido'],403);
   $data=json_decode(file_get_contents('php://input'),true);
   if(!is_array($data))replyOrders(['error'=>'Solicitud no válida'],400);
   $orderId=filter_var($data['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
   $action=(string)($data['action']??'');
+  $required=match($action){
+   'verify_line'=>'orders.prepare.manage',
+   'shipping_update'=>'orders.ship.manage',
+   'assign_staff'=>'orders.assign',
+   default=>'orders.prepare.manage'
+  };
+  if(!ucoOrderCan($caps,$required))replyOrders(['error'=>'Tu perfil no autoriza esta operación'],403);
   if($action==='verify_line'){
    $lineId=filter_var($data['line_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
    $quantity=$data['prepared_quantity']??null;
@@ -99,6 +109,8 @@ try{
   }
   $next=(string)($data['state']??'');
   $reset=($next==='__reset__');
+  if($reset&&$staff['role']!=='admin')replyOrders(['error'=>'El reinicio requiere administración principal'],403);
+  if($staff['role']!=='admin'&&!in_array($next,['pending_preparation','preparing','prepared','incident'],true))replyOrders(['error'=>'Transición reservada al administrador'],403);
   $note=trim((string)($data['note']??''));
   if(!$orderId||strlen($note)>500)replyOrders(['error'=>'Datos no válidos'],400);
   $allowed=[
@@ -179,5 +191,5 @@ try{
   $shipping->execute([(int)$row['id']]);$row['shipping_events']=$shipping->fetchAll();
   $row['payment_confirmed']=($row['payment_order_state']==='paid'&&$row['payment_status']==='simulated_approved'&&$row['simulation_state']==='approved');
  }unset($row);
- replyOrders(['orders'=>$rows,'staff'=>$staffList,'read_only'=>$staff['role']!=='admin']);
+ replyOrders(['orders'=>$rows,'staff'=>$staffList,'read_only'=>!ucoOrderCan($caps,'orders.prepare.manage')&&!ucoOrderCan($caps,'orders.ship.manage')&&!ucoOrderCan($caps,'orders.assign'),'capabilities'=>$caps]);
 }catch(Throwable $e){error_log('UCO Pedidos 2B: '.$e->getMessage());replyOrders(['error'=>'No se pudo consultar el listado de pedidos. Comprueba que has aplicado la Fase 2A.'],500);}
