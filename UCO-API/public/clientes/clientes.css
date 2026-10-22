@@ -1071,3 +1071,21 @@ dialog.uco-client-history-dialog .uco-client-history-body{flex:1 1 auto;min-heig
 .uco-client-order-status{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;align-items:center;margin:.7rem 0;color:#52647c;font-size:.88rem}
 .uco-client-order-progress{display:inline-flex;align-items:center;max-width:100%;padding:.4rem .75rem;background:#f1f7e5;border:1px solid #d7e8b8;border-radius:.6rem 0 .6rem 0;color:#365d1b;font-weight:750}
 @media(max-width:36rem){.uco-client-order-status{flex-direction:column;align-items:flex-start;gap:.45rem}.uco-client-order-progress{font-size:.82rem}}
+
+/* Historial: estado entregado, sin alterar la geometría de las tarjetas */
+.uco-client-history-order .uco-client-order-progress.is-delivered{background:hsl(112 49% 91%);border-color:hsl(112 43% 61%);color:hsl(119 59% 24%);font-weight:900;letter-spacing:.025em}
+
+/* Historial: borde verde para todo el acordeón de pedidos entregados. */
+.uco-client-history-order.is-delivered{border-color:hsl(112 43% 48%);border-width:2px}
+
+/* Estado visible junto a la fecha, sin cambiar el diseño del acordeón. */
+.uco-client-history-order summary .uco-history-date-group{display:flex;align-items:center;justify-content:center;gap:.55rem;flex-wrap:wrap;min-width:0;color:#64748b;font-size:.88rem}
+.uco-client-history-order summary .uco-history-date-group time{white-space:nowrap}
+.uco-client-history-order summary .uco-history-summary-state{display:inline-flex;align-items:center;max-width:100%;padding:.25rem .55rem;font-size:.74rem;line-height:1.25;white-space:normal;text-align:center;overflow-wrap:anywhere}
+.uco-client-history-order summary .uco-history-summary-state.is-delivered{background:hsl(112 49% 91%);border-color:hsl(112 43% 61%);color:hsl(119 59% 24%)}
+@media(max-width:42rem){
+ .uco-client-history-order summary{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:.5rem;row-gap:.45rem;align-items:center}
+ .uco-client-history-order summary>strong{grid-column:1;grid-row:1}
+ .uco-client-history-order summary>b{grid-column:2;grid-row:1;white-space:nowrap;text-align:right}
+ .uco-client-history-order summary .uco-history-date-group{grid-column:1/-1;grid-row:2;justify-content:flex-start;gap:.35rem .55rem}
+}

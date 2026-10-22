@@ -15,12 +15,8 @@ function commercialDb(PDO $db):void{
  if(!in_array('verification_expires',$cols,true))$db->exec("ALTER TABLE customers ADD COLUMN verification_expires TEXT");
  $db->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_username ON customers(username) WHERE username IS NOT NULL');
  $db->exec("CREATE INDEX IF NOT EXISTS idx_customers_group ON customers(group_id)");
- // Cuenta inicial de prueba: se crea solo si no existe. Contraseña almacenada exclusivamente como hash bcrypt.
- $seed=$db->prepare('SELECT 1 FROM customers WHERE username=? COLLATE NOCASE LIMIT 1');$seed->execute(['Pepe']);
- if(!$seed->fetchColumn()){
-  $seed=$db->prepare('SELECT 1 FROM customers WHERE email=? COLLATE NOCASE LIMIT 1');$seed->execute(['pepe@pendiente.invalid']);
-  if(!$seed->fetchColumn())$db->prepare('INSERT INTO customers(company,contact,email,password_hash,username,email_verified,active) VALUES(?,?,?,?,?,1,1)')->execute(['Pepe','Pepe','pepe@pendiente.invalid','$2y$12$BBFsNke7nI6V5e65awES/OuwjcQdGpCXlLcb9B4IY/s3/1qg.A6L2','Pepe']);
- }
+ // Producción: nunca crear cuentas de prueba durante una solicitud.
+
 
 }
 function customerPublic(array $c):array{return ['id'=>(int)$c['id'],'company'=>$c['company'],'tax_id'=>$c['tax_id'],'contact'=>$c['contact'],'email'=>$c['email'],'username'=>$c['username']??null,'email_verified'=>(int)($c['email_verified']??0),'group_id'=>$c['group_id']===null?null:(int)$c['group_id'],'active'=>(int)$c['active']];}
