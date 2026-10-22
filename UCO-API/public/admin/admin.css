@@ -1408,3 +1408,13 @@ dialog.uco-order-dialog::backdrop{background:#07132ab8;backdrop-filter:blur(3px)
 .uco-order-history li p{margin:.25rem 0;font-size:.9rem}
 .uco-order-history .uco-history-note{background:#fff;border-left:3px solid #a9df39;padding:.55rem .7rem;border-radius:0 .45rem .45rem 0;overflow-wrap:anywhere}
 @media(max-width:36rem){.uco-order-history{padding:.9rem .75rem}.uco-history-top{flex-direction:column;gap:.2rem}}
+
+/* Pedidos: acceso al justificante simulado junto a los datos comerciales. */
+#orders-area .uco-order-meta{display:flex;align-items:center;justify-content:space-between;gap:.85rem 1.25rem;margin-bottom:.9rem}
+#orders-area .uco-order-meta p{flex:1 1 auto;min-width:0;margin:0}
+#orders-area .uco-order-receipt-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:2.65rem;padding:.7rem 1.15rem;background:#a9df39;color:#232f5d;border:0;border-radius:.75rem 0 .75rem 0;font:800 .86rem Manrope,sans-serif;cursor:pointer;text-align:center;transition:background .2s ease}
+#orders-area .uco-order-receipt-button:hover{background:#97cb29}
+#orders-area .uco-order-receipt-button:focus-visible{outline:2px solid #232f5d;outline-offset:3px}
+#orders-area .uco-order-receipt-button:disabled{opacity:.65;cursor:wait}
+@media(max-width:60rem){#orders-area .uco-order-meta{flex-direction:column;align-items:stretch;gap:.7rem;margin-bottom:1rem}#orders-area .uco-order-receipt-button{align-self:flex-start;min-height:2.85rem}}
+@media(max-width:36rem){#orders-area .uco-order-meta{gap:.65rem}#orders-area .uco-order-receipt-button{align-self:stretch;width:100%}}
