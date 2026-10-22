@@ -3,19 +3,20 @@ import {confirmChange,confirmStandalone} from './components/confirm-elements.js'
 import {mountPager} from './components/list-pager.js';
 /* v1.9.6 fase 2: controlador de tarifas separado de la interfaz Web Component. */
 import './components/commercial-elements.js';
-export function initTariffs({req,makeDialog,esc,refreshCommercial,getCommercial}){
+export function initTariffs({req,makeDialog,esc,refreshCommercial,getCommercial,readOnly=false}){
  const root=document.querySelector('#commercial-area');if(!root)return;
  const money=v=>(v/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
  const pct=v=>(v/100).toLocaleString('es-ES',{maximumFractionDigits:2})+' %';
  const options=(items,value,caption)=>'<option value="">'+caption+'</option>'+items.map(x=>`<option value="${x.id}" ${String(x.id)===String(value)?'selected':''}>${esc(x.name||x.sku+' · '+x.name)}</option>`).join('');
  let tab='base',query='';
  function show(){const area=root.querySelector('#commercial-content');if(!area)return;area.hidden=true;let view=root.querySelector('#tariff-view');if(!view){view=document.createElement('uco-tariff-view');view.id='tariff-view';area.after(view);}view.hidden=false;render();}
- async function save(action,data){await req(action,{method:'POST',body:new URLSearchParams(data)});await refreshCommercial();render();}
+ async function save(action,data){if(readOnly)throw Error('Solo administración puede modificar las tarifas');await req(action,{method:'POST',body:new URLSearchParams(data)});await refreshCommercial();render();}
  function render(){const c=getCommercial(),view=root.querySelector('#tariff-view');if(!view||view.hidden)return;
- const tabs=[['base','Tarifa general'],['groups','Descuentos por grupo'],['promos','Promociones'],['economy','Impuestos y transporte']];
+ const tabs=[['base','Tarifa general'],['groups','Descuentos por grupo'],['promos','Promociones'],...(readOnly?[]:[['economy','Impuestos y transporte']])];
  view.renderFrame(tabs,tab);
+ if(readOnly)queueMicrotask(()=>{view.querySelectorAll('button[type=submit],button[data-action],button[data-delete],input[type=submit]').forEach(b=>b.remove());view.querySelectorAll('input:not([type=search]),textarea,select').forEach(e=>e.disabled=true)});
  view.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});const panel=view.querySelector('#tariff-panel');
- if(tab==='economy'){
+ if(tab==='economy'&&!readOnly){
   panel.innerHTML='<uco-economy-settings></uco-economy-settings>';
   const widget=panel.querySelector('uco-economy-settings'),msg=widget.querySelector('.uco-economy-message');
   const request=async(body=null)=>{const res=await fetch('../api/economy-admin.php',{method:body?'POST':'GET',credentials:'same-origin',headers:body?{'X-CSRF-Token':(await req('session')).csrf}:undefined,body});const d=await res.json();if(!res.ok)throw Error(d.error||'Error de configuración');return d};
