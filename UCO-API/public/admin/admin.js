@@ -122,7 +122,7 @@ async function openAccessRolesDialog(){
  select.addEventListener('change',()=>{error.textContent='';render()});list.addEventListener('change',renderPermissions);
  const close=()=>dialog.close();dialog.querySelector('.uco-access-close').onclick=close;dialog.querySelector('.uco-access-cancel').onclick=close;dialog.addEventListener('close',()=>dialog.remove(),{once:true});
  dialog.querySelector('.uco-access-save').onclick=async()=>{const btn=dialog.querySelector('.uco-access-save'),id=Number(select.value),ids=[...list.querySelectorAll('input:checked')].map(el=>Number(el.value));if(!id)return;
-  if(!await confirmChange(dialog,{title:'Guardar perfiles',message:'Se actualizarán los perfiles de este empleado. Los permisos actuales seguirán funcionando como hasta ahora.',confirm:'Guardar asignación'}))return;
+  if(!await confirmStandalone({title:'Guardar perfiles',message:'Se actualizarán los perfiles de este empleado. Los permisos actuales seguirán funcionando como hasta ahora.',confirm:'Guardar asignación'}))return;
   btn.disabled=true;error.textContent='';try{const f=new FormData();f.set('staff_id',String(id));f.set('role_ids',JSON.stringify(ids));await req('access_roles_save',{method:'POST',body:f});assignments.set(id,new Set(ids));error.textContent='Perfiles guardados correctamente. Los accesos actuales no cambian.';error.classList.add('is-success')}catch(e){error.classList.remove('is-success');error.textContent=e.message}finally{btn.disabled=false}
  };
  render();dialog.showModal();
