@@ -1511,6 +1511,33 @@ dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(
  #orders-area .uco-order-assign button,#orders-area .uco-order-actions button{min-height:3rem;white-space:normal}
 }
 
+/* Fase 3D: expedición. Se conservan intactos los estilos de las otras pestañas. */
+#orders-area .uco-orders-shipping-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin:0 0 1.2rem}
+#orders-area .uco-orders-shipping-filters{display:grid;grid-template-columns:2fr 1fr;gap:.85rem;margin:0 0 1rem}
+#orders-area .uco-orders-shipping-filters label,#orders-area .uco-shipping-form label{display:grid;gap:.4rem;min-width:0;color:#232f5d;font-size:.8rem;font-weight:800}
+#orders-area .uco-orders-shipping-filters input,#orders-area .uco-orders-shipping-filters select,#orders-area .uco-shipping-form input{box-sizing:border-box;min-width:0;width:100%;min-height:2.85rem;padding:.7rem .85rem;border:1px solid #cbd8e8;border-radius:.7rem 0 .7rem 0;background:white;color:#232f5d;font:600 .9rem Manrope,sans-serif}
+#orders-area .uco-shipping-card{min-width:0;padding:1.15rem;margin:.7rem 0;background:#fff;border:1px solid #dce4ee;border-radius:.9rem 0 .9rem 0}
+#orders-area .uco-shipping-card-head,#orders-area .uco-shipping-bottom{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+#orders-area .uco-shipping-card-head>div{display:flex;align-items:center;gap:.5rem 1rem;flex-wrap:wrap;min-width:0}
+#orders-area .uco-shipping-card-head strong{color:#232f5d}
+#orders-area .uco-shipping-card-head span{color:#32476b}
+#orders-area .uco-shipping-card-head small,.uco-shipping-info small{color:#708199}
+#orders-area .uco-shipping-info{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem;padding:.8rem;background:#f5f8fc;color:#32476b;border-radius:.6rem 0 .6rem 0;font-size:.85rem}
+#orders-area .uco-shipping-info small{width:100%}
+#orders-area .uco-shipping-form{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-top:1rem;padding:1rem;background:#f7f9fc;border:1px solid #e1e9f2;border-radius:.8rem 0 .8rem 0}
+#orders-area .uco-shipping-note{grid-column:1/-1}
+#orders-area .uco-shipping-form button{justify-self:end;grid-column:1/-1;min-height:2.85rem;padding:.75rem 1.2rem;background:#a9df39;border:0;border-radius:.75rem 0 .75rem 0;color:#232f5d;font:800 .87rem Manrope,sans-serif;cursor:pointer}
+#orders-area .uco-shipping-form button:hover:not(:disabled){background:#97cb29}
+#orders-area .uco-shipping-form button:disabled{opacity:.6;cursor:wait}
+#orders-area .uco-shipping-bottom{margin-top:1rem;padding-top:.85rem;border-top:1px solid #e5ebf2;color:#62748b;font-size:.85rem}
+#orders-area .uco-shipping-bottom button{min-height:2.65rem;padding:.65rem 1rem;border:1px solid #a9df39;border-radius:.7rem 0 .7rem 0;background:#fff;color:#232f5d;font-weight:800;cursor:pointer}
+#orders-area .uco-shipping-history{margin-top:.85rem;color:#32476b;font-size:.85rem}
+#orders-area .uco-shipping-history summary{cursor:pointer;font-weight:800;color:#232f5d}
+#orders-area .uco-shipping-history li{padding:.35rem 0}
+#orders-area .uco-shipping-history li p{margin:.2rem 0}
+@media(max-width:48rem){#orders-area .uco-orders-shipping-filters{grid-template-columns:1fr 1fr}}
+@media(max-width:36rem){#orders-area .uco-orders-shipping-summary{gap:.4rem}#orders-area .uco-orders-shipping-filters,#orders-area .uco-shipping-form{grid-template-columns:1fr}#orders-area .uco-shipping-form button{width:100%}#orders-area .uco-shipping-card-head{align-items:flex-start}#orders-area .uco-shipping-card-head .uco-prep-state{margin-left:0}#orders-area .uco-shipping-bottom button{width:100%}}
+
 
 /* Fase 3C.2: comprobación por artículos y cantidades. */
 #orders-area .uco-order-checks{margin:1.1rem 0;padding:1.15rem;border:1px solid #dce4ee;border-radius:.9rem 0 .9rem 0;background:#f7f9fc}
@@ -1533,3 +1560,62 @@ dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(
 #orders-area .uco-check-controls button:disabled{opacity:.5}
 @media(max-width:66rem){#orders-area .uco-check-line{grid-template-columns:1fr}#orders-area .uco-check-controls{grid-template-columns:minmax(7rem,1fr) minmax(10rem,2fr) auto}}
 @media(max-width:42rem){#orders-area .uco-order-checks{padding:.8rem}#orders-area .uco-checks-head{align-items:stretch;flex-direction:column}#orders-area .uco-checks-head progress{width:100%}#orders-area .uco-check-controls{grid-template-columns:1fr}#orders-area .uco-check-controls button{width:100%}}
+
+/* Fase 3D UX · Ficha compacta por etapas (conserva CSS de fases anteriores) */
+#orders-area .uco-order-wizard{min-width:0}
+#orders-area .uco-wizard-heading{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;margin:0 0 1rem}
+#orders-area .uco-wizard-kicker{font:800 .68rem Manrope,sans-serif;letter-spacing:.09em;color:#6c7c92}
+#orders-area .uco-wizard-heading h3{font:800 clamp(1.05rem,1.6vw,1.3rem) Manrope,sans-serif;color:#232f5d;margin:0}
+#orders-area .uco-wizard-counter{margin-left:auto;font:700 .8rem Manrope,sans-serif;color:#728097}
+#orders-area .uco-wizard-viewport{min-width:0;min-height:9rem;animation:uco-wizard-in .18s ease-out}
+#orders-area .uco-wizard-page[hidden]{display:none!important}
+#orders-area .uco-wizard-page{min-width:0}
+#orders-area .uco-wizard-page>.uco-order-checks{margin:0}
+#orders-area .uco-wizard-page>.uco-order-history{margin:0}
+#orders-area .uco-wizard-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;border-top:1px solid #e1e7ef;padding-top:1rem;margin-top:1.1rem}
+#orders-area .uco-wizard-dots{display:flex;justify-content:center;align-items:center;gap:clamp(.35rem,1.5vw,1.1rem);min-width:0;flex:1}
+#orders-area .uco-wizard-dot{border:0;background:transparent;padding:.4rem .25rem;display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;color:#63748b;font:700 .68rem Manrope,sans-serif;min-width:0}
+#orders-area .uco-wizard-dot-mark{width:.95rem;height:.95rem;background:#a9df39;border-radius:50%;display:block;transition:transform .18s,box-shadow .18s}
+#orders-area .uco-wizard-dot.is-done .uco-wizard-dot-mark{background:#232f5d}
+#orders-area .uco-wizard-dot.is-current .uco-wizard-dot-mark{box-shadow:0 0 0 3px white,0 0 0 5px #7383a2;transform:scale(1.06)}
+#orders-area .uco-wizard-dot-label{white-space:nowrap}
+#orders-area .uco-wizard-move{min-height:2.6rem;padding:.6rem .85rem;border:1px solid #d4deea;border-radius:.7rem 0 .7rem 0;background:white;color:#232f5d;font:800 .78rem Manrope,sans-serif;cursor:pointer;flex-shrink:0}
+#orders-area .uco-wizard-move.is-next{background:#a9df39;border-color:#a9df39}
+#orders-area .uco-wizard-move:disabled{opacity:.35;cursor:default}
+#orders-area .uco-wizard-article{border:1px solid #dce4ee;border-radius:.8rem 0 .8rem 0;background:#fff;overflow:hidden}
+#orders-area .uco-wizard-article-title{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 1rem;color:#232f5d;font:800 .88rem Manrope,sans-serif;cursor:pointer}
+#orders-area .uco-wizard-article-title::-webkit-details-marker{display:none}
+#orders-area .uco-wizard-article-title:after{content:'+';font-size:1.25rem;color:#69809b}
+#orders-area .uco-wizard-article[open]>.uco-wizard-article-title:after{content:'−'}
+#orders-area .uco-wizard-article>.uco-check-line{border:0;border-top:1px solid #edf1f5;border-radius:0;margin:0}
+#orders-area .uco-wizard-article:not([open])>.uco-check-line{display:none}
+#orders-area .uco-wizard-article:focus-within,#orders-area .uco-wizard-dot:focus-visible{outline:2px solid #8dc92c;outline-offset:2px}
+@keyframes uco-wizard-in{from{opacity:.7;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:48rem){#orders-area .uco-wizard-nav{gap:.4rem}#orders-area .uco-wizard-dot-label{font-size:.58rem}#orders-area .uco-wizard-move{padding:.6rem .55rem}#orders-area .uco-wizard-page>.uco-order-checks{padding:.7rem}}
+@media(max-width:34rem){#orders-area .uco-order-detail{padding:.7rem}#orders-area .uco-wizard-heading{gap:.35rem}#orders-area .uco-wizard-kicker{width:100%}#orders-area .uco-wizard-dot-label{display:none}#orders-area .uco-wizard-dot{padding:.6rem .35rem;min-width:1.6rem}#orders-area .uco-wizard-dot-mark{width:.85rem;height:.85rem}#orders-area .uco-wizard-nav{gap:.35rem}#orders-area .uco-wizard-move{font-size:.72rem;min-height:2.7rem}#orders-area .uco-wizard-article-title{padding:.85rem .7rem}}
+@media(prefers-reduced-motion:reduce){#orders-area .uco-wizard-viewport{animation:none}#orders-area .uco-wizard-dot-mark{transition:none}}
+
+/* Ajuste puntual: estado visible e historial con desplazamiento interno */
+#orders-area .uco-wizard-current-state{display:inline-flex;align-items:center;font:800 .9rem Manrope,sans-serif;color:#232f5d;padding:.35rem .7rem;border-radius:.55rem 0 .55rem 0;background:#edf1f6}
+#orders-area .uco-wizard-current-state[data-state="delivered"]{color:#317514;background:#e8f6d4}
+#orders-area .uco-wizard-current-state[data-state="dispatched"],#orders-area .uco-wizard-current-state[data-state="prepared"]{color:#366f18;background:#edf7e0}
+#orders-area .uco-wizard-page>.uco-order-history{max-height:clamp(17rem,48vh,30rem);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#a9df39 #e8edf4;scroll-padding-block:1rem}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar{width:.55rem}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar-track{background:#e8edf4;border-radius:1rem}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar-thumb{background:#a9df39;border-radius:1rem;border:2px solid #e8edf4}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar-thumb:hover{background:#91c62d}
+@media(max-width:36rem){#orders-area .uco-wizard-page>.uco-order-history{max-height:min(45dvh,23rem)}#orders-area .uco-wizard-current-state{font-size:.82rem;padding:.3rem .55rem}}
+
+/* Ajuste visual puntual: responsable asignado destacado como el estado del pedido */
+#orders-area .uco-order-assign>div small{display:inline-flex;align-items:center;justify-self:start;width:fit-content;max-width:100%;box-sizing:border-box;padding:.35rem .7rem;border-radius:.55rem 0 .55rem 0;background:#e8f6d4;color:#317514;font:800 .9rem Manrope,sans-serif;overflow-wrap:anywhere}
+@media(max-width:36rem){#orders-area .uco-order-assign>div small{font-size:.82rem;padding:.3rem .55rem}}
+
+/* Artículos: distintivo verde solo cuando todas las líneas están verificadas y completas */
+#orders-area .uco-wizard-articles-complete{color:#317514;background:#e8f6d4}
+
+/* Fase 3D: destacar únicamente los pedidos entregados en el listado. */
+#orders-area .uco-order-card.uco-order-card-delivered{border:2px solid #a9df39;background:#fcfef8;box-shadow:inset .2rem 0 0 #a9df39;transition:border-color .2s ease,box-shadow .2s ease}
+#orders-area .uco-order-card.uco-order-card-delivered>summary{background:#f4fae9}
+#orders-area .uco-order-card.uco-order-card-delivered[open]>summary{background:#ecf7d9}
+#orders-area .uco-order-card.uco-order-card-delivered>summary .uco-order-state{display:inline-flex;align-items:center;justify-self:start;width:fit-content;max-width:100%;padding:.4rem .75rem;border-radius:.55rem 0 .55rem 0;background:#e0f2c9;color:#317514;font:800 .88rem Manrope,sans-serif;line-height:1.25}
+@media(max-width:36rem){#orders-area .uco-order-card.uco-order-card-delivered>summary .uco-order-state{font-size:.8rem;padding:.35rem .55rem;justify-self:end}}

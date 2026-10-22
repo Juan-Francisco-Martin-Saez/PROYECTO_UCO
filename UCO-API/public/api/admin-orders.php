@@ -52,6 +52,29 @@ try{
    $q=$db->prepare('INSERT INTO uco_order_line_check_events(order_id,line_id,prepared_quantity,note,actor_staff_id) VALUES(?,?,?,?,?)');$q->execute([$orderId,$lineId,$prepared,$note,$staffId]);
    $db->commit();replyOrders(['ok'=>true,'order_id'=>$orderId,'line_id'=>$lineId]);
   }
+  if($action==='shipping_update'){
+   if(!$orderId)replyOrders(['error'=>'Pedido no válido'],400);
+   $kind=(string)($data['shipping_action']??'');
+   if(!in_array($kind,['dispatch','deliver'],true))replyOrders(['error'=>'Operación no permitida'],400);
+   $carrier=trim((string)($data['carrier']??''));$reference=trim((string)($data['tracking_reference']??''));$note=trim((string)($data['shipping_note']??''));
+   if(mb_strlen($carrier)>120||mb_strlen($reference)>120||mb_strlen($note)>500)replyOrders(['error'=>'Los datos de expedición superan el límite permitido'],422);
+   if($kind==='dispatch'&&mb_strlen($carrier)<2)replyOrders(['error'=>'Indica el transportista o medio de reparto'],422);
+   $db->exec('BEGIN IMMEDIATE');
+   $q=$db->prepare("SELECT f.state,o.status,o.payment_status,p.state AS simulation_state FROM uco_order_fulfillment f JOIN uco_orders o ON o.id=f.order_id LEFT JOIN uco_simulated_payments p ON p.order_id=o.id WHERE f.order_id=?");$q->execute([$orderId]);$current=$q->fetch();$q->closeCursor();
+   $required=$kind==='dispatch'?'prepared':'dispatched';$next=$kind==='dispatch'?'dispatched':'delivered';
+   if(!$current||$current['state']!==$required){$db->rollBack();replyOrders(['error'=>'El pedido debe estar '.($kind==='dispatch'?'Preparado':'Expedido').' para realizar esta operación'],409);}
+   if($current['status']!=='paid'||$current['payment_status']!=='simulated_approved'||$current['simulation_state']!=='approved'){$db->rollBack();replyOrders(['error'=>'Pago no confirmado'],409);}
+   if($kind==='dispatch'){
+    $q=$db->prepare('SELECT COUNT(*) FROM uco_order_lines WHERE order_id=?');$q->execute([$orderId]);$total=(int)$q->fetchColumn();$q->closeCursor();
+    $q=$db->prepare('SELECT COUNT(*) FROM uco_order_lines l JOIN uco_order_line_checks c ON c.line_id=l.id AND c.order_id=l.order_id WHERE l.order_id=? AND ABS(CAST(l.quantity AS REAL)-c.prepared_quantity)<0.00001');$q->execute([$orderId]);$checked=(int)$q->fetchColumn();$q->closeCursor();
+    if(!$total||$total!==$checked){$db->rollBack();replyOrders(['error'=>'Todos los artículos deben estar verificados antes de expedir'],409);}
+   }
+   $q=$db->prepare('UPDATE uco_order_fulfillment SET state=?,updated_by_staff_id=?,updated_at=CURRENT_TIMESTAMP WHERE order_id=? AND state=?');$q->execute([$next,$staffId,$orderId,$required]);
+   if($q->rowCount()!==1)throw new RuntimeException('El estado cambió durante la operación');$q->closeCursor();
+   $q=$db->prepare('INSERT INTO uco_order_shipping_events(order_id,event_type,carrier,tracking_reference,note,actor_staff_id) VALUES(?,?,?,?,?,?)');$q->execute([$orderId,$kind,$kind==='dispatch'?$carrier:null,$kind==='dispatch'?$reference:null,$note,$staffId]);$q->closeCursor();
+   $q=$db->prepare('INSERT INTO uco_order_fulfillment_events(order_id,previous_state,new_state,actor_staff_id,note) VALUES(?,?,?,?,?)');$q->execute([$orderId,$required,$next,$staffId,$kind==='dispatch'?'Salida registrada en Expedición':'Entrega confirmada en Expedición']);$q->closeCursor();
+   $db->commit();replyOrders(['ok'=>true,'order_id'=>$orderId,'state'=>$next]);
+  }
   $assign=$action==='assign_staff';
   if($assign){
    $rawTarget=$data['staff_id']??null;
@@ -82,8 +105,8 @@ try{
    ''=>['pending_preparation'],
    'pending_preparation'=>['preparing','incident','cancelled'],
    'preparing'=>['prepared','incident'],
-   'prepared'=>['dispatched','incident'],
-   'dispatched'=>['delivered','incident'],
+   'prepared'=>['incident'],
+   'dispatched'=>['incident'],
    'incident'=>['pending_preparation','cancelled'],
    'delivered'=>[],
    'cancelled'=>[]
@@ -147,11 +170,13 @@ try{
  $staffList=$db->query("SELECT id,display_name FROM admin_users WHERE active=1 AND role IN ('admin','manager') ORDER BY display_name,id")->fetchAll();
  $events=$db->prepare("SELECT e.previous_state,e.new_state,e.note,e.created_at,COALESCE(a.display_name, 'Usuario no disponible') AS actor FROM uco_order_fulfillment_events e LEFT JOIN admin_users a ON a.id=e.actor_staff_id WHERE e.order_id=? ORDER BY e.id ASC");
  $resets=$db->prepare("SELECT r.previous_state,r.reason,r.verification_method,r.created_at,COALESCE(a.display_name, 'Usuario no disponible') AS actor FROM uco_order_fulfillment_resets r LEFT JOIN admin_users a ON a.id=r.actor_staff_id WHERE r.order_id=? ORDER BY r.id ASC");
+ $shipping=$db->prepare("SELECT e.event_type,e.carrier,e.tracking_reference,e.note,e.created_at,COALESCE(a.display_name,'Usuario no disponible') AS actor FROM uco_order_shipping_events e LEFT JOIN admin_users a ON a.id=e.actor_staff_id WHERE e.order_id=? ORDER BY e.id ASC");
  $lines=$db->prepare('SELECT l.id,l.sku,l.name,l.unit,l.quantity,l.unit_price_cents,l.line_cents,c.prepared_quantity,c.note AS check_note,c.updated_at AS checked_at,a.display_name AS checked_by FROM uco_order_lines l LEFT JOIN uco_order_line_checks c ON c.line_id=l.id LEFT JOIN admin_users a ON a.id=c.verified_by_staff_id WHERE l.order_id=? ORDER BY l.id');
  foreach($rows as &$row){
   $lines->execute([(int)$row['id']]);$row['lines']=$lines->fetchAll();
   $events->execute([(int)$row['id']]);$row['events']=$events->fetchAll();
   $resets->execute([(int)$row['id']]);$row['resets']=$resets->fetchAll();
+  $shipping->execute([(int)$row['id']]);$row['shipping_events']=$shipping->fetchAll();
   $row['payment_confirmed']=($row['payment_order_state']==='paid'&&$row['payment_status']==='simulated_approved'&&$row['simulation_state']==='approved');
  }unset($row);
  replyOrders(['orders'=>$rows,'staff'=>$staffList,'read_only'=>$staff['role']!=='admin']);
