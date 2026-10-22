@@ -1409,12 +1409,15 @@ dialog.uco-order-dialog::backdrop{background:#07132ab8;backdrop-filter:blur(3px)
 .uco-order-history .uco-history-note{background:#fff;border-left:3px solid #a9df39;padding:.55rem .7rem;border-radius:0 .45rem .45rem 0;overflow-wrap:anywhere}
 @media(max-width:36rem){.uco-order-history{padding:.9rem .75rem}.uco-history-top{flex-direction:column;gap:.2rem}}
 
-/* Pedidos: acceso al justificante simulado junto a los datos comerciales. */
-#orders-area .uco-order-meta{display:flex;align-items:center;justify-content:space-between;gap:.85rem 1.25rem;margin-bottom:.9rem}
-#orders-area .uco-order-meta p{flex:1 1 auto;min-width:0;margin:0}
-#orders-area .uco-order-receipt-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:2.65rem;padding:.7rem 1.15rem;background:#a9df39;color:#232f5d;border:0;border-radius:.75rem 0 .75rem 0;font:800 .86rem Manrope,sans-serif;cursor:pointer;text-align:center;transition:background .2s ease}
-#orders-area .uco-order-receipt-button:hover{background:#97cb29}
-#orders-area .uco-order-receipt-button:focus-visible{outline:2px solid #232f5d;outline-offset:3px}
-#orders-area .uco-order-receipt-button:disabled{opacity:.65;cursor:wait}
-@media(max-width:60rem){#orders-area .uco-order-meta{flex-direction:column;align-items:stretch;gap:.7rem;margin-bottom:1rem}#orders-area .uco-order-receipt-button{align-self:flex-start;min-height:2.85rem}}
-@media(max-width:36rem){#orders-area .uco-order-meta{gap:.65rem}#orders-area .uco-order-receipt-button{align-self:stretch;width:100%}}
+/* Confirmación propia UCO tras cambiar la contraseña */
+dialog.uco-password-success{position:fixed;inset:0;margin:auto;width:min(92vw,29rem);max-width:92vw;max-height:90dvh;overflow:auto;padding:0;border:0;border-radius:1.1rem 0 1.1rem 0;background:#fff;color:#232f5d;box-shadow:0 1.5rem 5rem #0a193555}
+dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(3px)}
+.uco-password-success-head{display:flex;align-items:center;gap:.85rem;padding:1.25rem 1.4rem;background:#232f5d;color:#fff}
+.uco-password-success-head h2{margin:0;color:#fff;font-size:clamp(1.2rem,3vw,1.5rem);line-height:1.25}
+.uco-password-success-icon{display:grid;place-items:center;flex:0 0 2.3rem;width:2.3rem;height:2.3rem;border-radius:.65rem 0 .65rem 0;background:#a9df39;color:#232f5d;font-weight:900;font-size:1.3rem}
+.uco-password-success-body{padding:1.4rem;display:grid;gap:1.4rem}
+.uco-password-success-body p{margin:0;line-height:1.55;color:#33486c;text-align:center;text-wrap:balance}
+.uco-password-success-actions{display:flex;justify-content:flex-end}
+.uco-password-success-actions button{min-width:8.5rem;border:0;border-radius:.75rem 0 .75rem 0;background:#a9df39;color:#232f5d;padding:.8rem 1.2rem;font-weight:800;cursor:pointer}
+.uco-password-success-actions button:focus-visible{outline:3px solid #232f5d;outline-offset:3px}
+@media(max-width:36rem){dialog.uco-password-success{width:calc(100vw - 1.5rem);max-width:calc(100vw - 1.5rem)}.uco-password-success-head{padding:1rem}.uco-password-success-body{padding:1rem}.uco-password-success-actions button{width:100%}}
