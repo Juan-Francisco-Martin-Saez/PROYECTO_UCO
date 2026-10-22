@@ -1451,3 +1451,22 @@ dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(
 #orders-area .uco-order-receipt-button:disabled{opacity:.65;cursor:wait}
 @media(max-width:60rem){#orders-area .uco-order-meta{flex-direction:column;align-items:stretch;gap:.7rem;margin-bottom:1rem}#orders-area .uco-order-receipt-button{align-self:flex-start;min-height:2.85rem}}
 @media(max-width:36rem){#orders-area .uco-order-meta{gap:.65rem}#orders-area .uco-order-receipt-button{align-self:stretch;width:100%}}
+
+/* Fase 3B: cola de preparación, sin alterar la navegación ni las operaciones existentes. */
+#orders-area .uco-orders-prep-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;margin:0 0 1.25rem}
+#orders-area .uco-prep-stat{display:grid;gap:.2rem;text-align:center;padding:1rem .45rem;background:#f4f8ed;border:1px solid #dbe9c3;border-radius:.85rem 0 .85rem 0}
+#orders-area .uco-prep-stat strong{font-size:clamp(1.4rem,2.6vw,2rem);line-height:1.15;color:#232f5d}
+#orders-area .uco-prep-stat span{font-size:.8rem;color:#516780;font-weight:700}
+#orders-area .uco-orders-prep-filters{display:grid;grid-template-columns:2fr 1fr;gap:.8rem;margin-bottom:1rem}
+#orders-area .uco-orders-prep-filters label{display:grid;gap:.4rem;font-size:.8rem;font-weight:800;color:#232f5d}
+#orders-area .uco-orders-prep-filters input,#orders-area .uco-orders-prep-filters select{width:100%;min-width:0;padding:.8rem;border:1px solid #cbd8e8;border-radius:.7rem 0 .7rem 0;background:#fff;color:#232f5d;font:inherit}
+#orders-area .uco-prep-card{padding:1rem 1.15rem;margin:.6rem 0;border:1px solid #dce4ee;border-radius:.9rem 0 .9rem 0;background:#fff}
+#orders-area .uco-prep-card-main{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem 1rem}
+#orders-area .uco-prep-card-main strong{color:#232f5d}
+#orders-area .uco-prep-card-main span{color:#32476b}
+#orders-area .uco-prep-card-main small{color:#708199}
+#orders-area .uco-prep-state{margin-left:auto;padding:.35rem .65rem;background:#f1f7e5;border-radius:.5rem 0 .5rem 0;color:#4c7625!important;font-size:.8rem;font-weight:800}
+#orders-area .uco-prep-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:.8rem;padding-top:.8rem;border-top:1px solid #e5ebf2;color:#61748e;font-size:.85rem}
+#orders-area .uco-prep-card-bottom button{padding:.7rem 1rem;border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;font:inherit;font-weight:800;cursor:pointer}
+@media(max-width:48rem){#orders-area .uco-orders-prep-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:30rem){#orders-area .uco-orders-prep-filters{grid-template-columns:1fr}#orders-area .uco-prep-card-bottom{flex-direction:column;align-items:stretch}#orders-area .uco-prep-card-bottom button{width:100%}#orders-area .uco-prep-state{margin-left:0}}
