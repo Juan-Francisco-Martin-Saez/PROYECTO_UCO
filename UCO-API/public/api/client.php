@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();require_once dirname(__DIR__,2).'/private/session-security.php';
 require_once __DIR__.'/commercial.php';
 require_once dirname(__DIR__,2).'/private/identity.php';
 function reply(array $a,int $status=200):never{http_response_code($status);echo json_encode($a,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
@@ -27,19 +27,20 @@ try{
   reply(['ok'=>true,'message'=>'Cuenta creada. Ya puedes acceder; la confirmación por correo se activará próximamente.']);
  }
  if($action==='login'&&$method==='POST'){
-  $identity=mb_strtolower(trim((string)($_POST['email']??'')),'UTF-8');$pass=(string)($_POST['password']??'');$st=$db->prepare('SELECT * FROM customers WHERE email=? COLLATE NOCASE OR username=? COLLATE NOCASE LIMIT 1');$st->execute([$identity,$identity]);$u=$st->fetch();
+  $identity=mb_strtolower(trim((string)($_POST['email']??'')),'UTF-8');if(ucoSecurityThrottle('client',$identity))reply(['error'=>'Demasiados intentos. Prueba de nuevo en 15 minutos.'],429);$pass=(string)($_POST['password']??'');$st=$db->prepare('SELECT * FROM customers WHERE email=? COLLATE NOCASE OR username=? COLLATE NOCASE LIMIT 1');$st->execute([$identity,$identity]);$u=$st->fetch();
   if(!$u||!(int)$u['active']||!password_verify($pass,$u['password_hash'])){usleep(450000);reply(['error'=>'Credenciales incorrectas o cuenta desactivada.'],401);}
   $identityId=ucoIdentityResolve($db,'customer',(int)$u['id'],true);if($identityId===null)reply(['error'=>'No se pudo vincular la identidad.'],503);
-  session_regenerate_id(true);$_SESSION['customer_id']=(int)$u['id'];$_SESSION['uco_identity_id']=$identityId;$_SESSION['customer_stamp']=hash('sha256',$u['password_hash']);$_SESSION['customer_csrf']=bin2hex(random_bytes(32));reply(['ok'=>true,'csrf'=>$_SESSION['customer_csrf'],'customer'=>customerPublic($u)]);
+  ucoSecurityThrottle('client',$identity,true);session_regenerate_id(true);ucoSecurityLoginSuccess();$_SESSION['customer_id']=(int)$u['id'];$_SESSION['uco_identity_id']=$identityId;$_SESSION['customer_stamp']=hash('sha256',$u['password_hash']);$_SESSION['customer_csrf']=bin2hex(random_bytes(32));reply(['ok'=>true,'csrf'=>$_SESSION['customer_csrf'],'customer'=>customerPublic($u)]);
  }
  if($action==='session'&&$method==='GET'&&!isset($_SESSION['customer_id']))reply(['authenticated'=>false]);
  if(!isset($_SESSION['customer_id']))reply(['error'=>'Acceso restringido'],401);
+  if(ucoSecurityIdleExpired())reply(['authenticated'=>false,'error'=>'Sesión caducada por inactividad'],401);
  $st=$db->prepare('SELECT * FROM customers WHERE id=? AND active=1');$st->execute([$_SESSION['customer_id']]);$u=$st->fetch();
- if(!$u||!ucoIdentitySessionValid($db,'customer',(int)$_SESSION['customer_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$u['password_hash']))){$_SESSION=[];session_destroy();reply(['authenticated'=>false,'error'=>'La sesión ha caducado'],401);}
+ if(!$u||!ucoIdentitySessionValid($db,'customer',(int)$_SESSION['customer_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$u['password_hash']))){ucoSecurityLogout();reply(['authenticated'=>false,'error'=>'La sesión ha caducado'],401);}
  if($action==='session'&&$method==='GET')reply(['authenticated'=>true,'csrf'=>$_SESSION['customer_csrf'],'customer'=>customerPublic($u)]);
  if($action==='logout'&&$method==='POST'){
   if(!hash_equals((string)$_SESSION['customer_csrf'],(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))reply(['error'=>'Solicitud no válida'],403);
-  $_SESSION=[];session_destroy();reply(['ok'=>true]);
+  ucoSecurityLogout();reply(['ok'=>true]);
  }
  if($action==='change_password'&&$method==='POST'){
   if(!hash_equals((string)$_SESSION['customer_csrf'],(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))reply(['error'=>'Solicitud no válida'],403);

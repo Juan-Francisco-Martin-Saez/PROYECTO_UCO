@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();require_once dirname(__DIR__,2).'/private/session-security.php';
 function respond($v,int $code=200):never{http_response_code($code);echo json_encode($v,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 function norm(string $s):string{$s=mb_strtolower($s,'UTF-8');if(class_exists('Normalizer'))$s=Normalizer::normalize($s,Normalizer::FORM_D);return strtr($s,['á'=>'a','à'=>'a','ä'=>'a','â'=>'a','é'=>'e','è'=>'e','ë'=>'e','ê'=>'e','í'=>'i','ì'=>'i','ï'=>'i','î'=>'i','ó'=>'o','ò'=>'o','ö'=>'o','ô'=>'o','ú'=>'u','ù'=>'u','ü'=>'u','û'=>'u']);}
 function db():PDO{$db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=5000');return $db;}
@@ -18,12 +18,13 @@ $action=(string)($_GET['action']??'session');$method=$_SERVER['REQUEST_METHOD'];
 try{
 if($action==='session'&&$method==='GET'){
  if(!authorized())respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
+  if(ucoSecurityIdleExpired())respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
  $sessionDb=db();
  $sessionCheck=$sessionDb->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');
  $sessionCheck->execute([(int)$_SESSION['uco_user_id']]);
  $sessionUser=$sessionCheck->fetch();
  if(!$sessionUser||!ucoIdentitySessionValid($sessionDb,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',(string)$sessionUser['password_hash']))){
-  $_SESSION=[];session_destroy();respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
+  ucoSecurityLogout();respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
  }
  $_SESSION['uco_role']=$sessionUser['role'];$_SESSION['uco_user']=userInfo($sessionUser);
  require_once dirname(__DIR__,2).'/private/access-permissions.php';
@@ -32,7 +33,8 @@ if($action==='session'&&$method==='GET'){
 }
 if($action==='login'&&$method==='POST'){
  $username=trim((string)($_POST['username']??''));$password=(string)($_POST['password']??'');
- $db=usersDb();$existing=(int)$db->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();
+ if(ucoSecurityThrottle('admin',$username))respond(['error'=>'Demasiados intentos. Prueba de nuevo en 15 minutos.'],429);
+  $db=usersDb();$existing=(int)$db->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();
  // Migración segura: el primer usuario conserva la contraseña ya configurada en el servidor.
  if($existing===0&&strcasecmp($username,'Administrador')===0){
   $legacy=(string)(getenv('UCO_ADMIN_PASSWORD_HASH')?:'');
@@ -45,15 +47,16 @@ if($action==='login'&&$method==='POST'){
  if(password_needs_rehash($u['password_hash'],PASSWORD_DEFAULT)){$db->prepare('UPDATE admin_users SET password_hash=? WHERE id=?')->execute([password_hash($password,PASSWORD_DEFAULT),$u['id']]);}
  $identityId=ucoIdentityResolve($db,'staff',(int)$u['id'],true);if($identityId===null)respond(['error'=>'No se pudo vincular la identidad.'],503);
  require_once dirname(__DIR__,2).'/private/access-permissions.php';$u['permissions']=array_keys(ucoAdminCapabilities($db,(int)$u['id'],(string)$u['role'])+ucoOrderCapabilities($db,(int)$u['id'],(string)$u['role']));
- session_regenerate_id(true);$_SESSION['uco_user_id']=(int)$u['id'];$_SESSION['uco_identity_id']=$identityId;$_SESSION['uco_role']=$u['role'];$_SESSION['uco_user']=userInfo($u);$_SESSION['uco_user']['permissions']=$u['permissions'];$_SESSION['uco_auth_stamp']=hash('sha256',$u['password_hash']);$_SESSION['csrf']=bin2hex(random_bytes(32));respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf'],'user'=>$_SESSION['uco_user']]);
+ ucoSecurityThrottle('admin',$username,true);session_regenerate_id(true);ucoSecurityLoginSuccess();$_SESSION['uco_user_id']=(int)$u['id'];$_SESSION['uco_identity_id']=$identityId;$_SESSION['uco_role']=$u['role'];$_SESSION['uco_user']=userInfo($u);$_SESSION['uco_user']['permissions']=$u['permissions'];$_SESSION['uco_auth_stamp']=hash('sha256',$u['password_hash']);$_SESSION['csrf']=bin2hex(random_bytes(32));respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf'],'user'=>$_SESSION['uco_user']]);
 }
 if(!authorized())respond(['error'=>'Acceso no autorizado'],401);
-if($action==='logout'&&$method==='POST'){csrf();$_SESSION=[];session_destroy();respond(['ok'=>true]);}
+if(ucoSecurityIdleExpired())respond(['error'=>'Sesión caducada por inactividad. Vuelve a entrar.'],401);
+if($action==='logout'&&$method==='POST'){csrf();ucoSecurityLogout();respond(['ok'=>true]);}
 $db=usersDb();
 $cols=array_column($db->query('PRAGMA table_info(products)')->fetchAll(),'name');if(!in_array('description',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN description TEXT NOT NULL DEFAULT ''");if(!in_array('unit',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN unit TEXT NOT NULL DEFAULT 'unidad'");
 // Si una cuenta se desactiva o cambia de rol, las sesiones anteriores dejan de autorizarse.
 $check=$db->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');$check->execute([$_SESSION['uco_user_id']]);$current=$check->fetch();
-if(!$current||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){$_SESSION=[];session_destroy();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
+if(!$current||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){ucoSecurityLogout();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
 $_SESSION['uco_role']=$current['role'];$_SESSION['uco_user']=userInfo($current);
 require_once dirname(__DIR__,2).'/private/access-permissions.php';
 $ucoCaps=ucoAdminCapabilities($db,(int)$current['id'],(string)$current['role']);

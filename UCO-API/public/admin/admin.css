@@ -1783,3 +1783,42 @@ button[data-edit],button[data-edit-product],button[data-edit-client]{
     line-height:1.25;
   }
 }
+
+
+/* UCO · Catálogo: acciones de Observaciones y Editar equilibradas (26/10/2026).
+   Sólo afecta a celdas que contienen botones .note / .edit; mantiene el scroll
+   horizontal y no cambia la distribución de las demás columnas. */
+.tablewrap td:has(> .note),
+.tablewrap td:has(> .edit),
+.tablewrap td.actions:has(.note),
+.tablewrap td.actions:has(.edit){
+  text-align:center;
+  vertical-align:middle;
+}
+.tablewrap td .note,
+.tablewrap td .edit{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  min-width:7.4rem;
+  min-height:3.25rem;
+  padding:.75rem 1.1rem;
+  font-size:.95rem;
+  line-height:1.25;
+  font-weight:800;
+  white-space:nowrap;
+  vertical-align:middle;
+}
+/* Mantener centradas las cabeceras correspondientes, sin tocar el resto. */
+.tablewrap table:has(td > .note) th:nth-last-child(-n+2),
+.tablewrap table:has(td > .edit) th:nth-last-child(-n+2){text-align:center}
+/* En móvil y tableta, las tablas siguen desplazándose horizontalmente. */
+@media(max-width:1050px){
+  .tablewrap td .note,.tablewrap td .edit{
+    min-width:7.4rem;
+    min-height:3.25rem;
+    padding:.75rem 1.1rem;
+    max-width:none;
+  }
+}
