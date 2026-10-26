@@ -1646,3 +1646,140 @@ dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(
 .uco-access-cancel{border:1px solid #b6c8e2;background:white;color:#232f5d}.uco-access-save{border:0;background:#a9df39;color:#232f5d}.uco-access-save:disabled{opacity:.6;cursor:wait}
 .uco-access-launch{white-space:nowrap}
 @media(max-width:40rem){.uco-access-dialog{width:96vw;max-height:94dvh}.uco-access-shell{max-height:94dvh}.uco-access-head,.uco-access-content{padding:1rem}.uco-access-roles{grid-template-columns:1fr;gap:.5rem}.uco-access-actions{padding:.85rem 1rem}.uco-access-actions button{flex:1}.uco-access-head p{font-size:.8rem}}
+
+/* PARCHE UCO: ficha de expedición de solo lectura. */
+dialog.uco-shipping-snapshot{width:min(94vw,54rem);max-width:94vw;max-height:92dvh;overscroll-behavior:contain}
+.uco-shipping-snapshot .uco-order-dialog-body{gap:.85rem}
+.uco-shipping-snapshot h3{margin:.4rem 0 0;color:#232f5d;font-size:1.05rem}
+.uco-shipping-snapshot-status{font-weight:750;color:#568b17}
+.uco-shipping-snapshot-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem 1rem}
+.uco-shipping-snapshot-lines{border:1px solid #dce5ed;border-radius:.65rem;overflow:hidden}
+.uco-shipping-snapshot-lines>div{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem;border-bottom:1px solid #e6ebf0}
+.uco-shipping-snapshot-lines>div:last-child{border-bottom:0}
+.uco-shipping-snapshot-lines span{display:grid;gap:.25rem;min-width:0}
+.uco-shipping-snapshot-lines small{color:#60738b}
+.uco-shipping-snapshot-total{display:flex;justify-content:space-between;gap:1rem;padding:.7rem 0;border-top:2px solid #a9df39}
+.uco-shipping-snapshot-events{display:grid;gap:.6rem;margin:0;padding-left:1.5rem}
+.uco-shipping-snapshot-events li{padding:.35rem 0}
+.uco-shipping-snapshot-events li span{display:block;margin-top:.2rem}
+@media(max-width:600px){dialog.uco-shipping-snapshot{width:calc(100vw - 1rem);max-width:calc(100vw - 1rem);max-height:94dvh}.uco-shipping-snapshot-meta{grid-template-columns:1fr}.uco-shipping-snapshot .uco-order-dialog-body{padding:1rem}.uco-shipping-snapshot-lines>div{align-items:flex-start}}
+
+
+/* UCO · Parche integrado: botones administrativos y ficha histórica de Expedición */
+:root{--uco-action-lime:#a9df39;--uco-action-ink:#232f5d;--uco-action-green:#568b17}
+.note,.secondary,.commercial-row-actions button:not(.primary):not(.edit),
+.user-table td:last-child button:not(.primary):not(.edit),
+#orders-area .uco-shipping-bottom button{
+ background:transparent;border:1px solid var(--uco-action-lime);
+ color:var(--uco-action-green);font-weight:800;
+}
+.edit,.commercial-row-actions button.edit,.user-table td:last-child button.edit,
+button[data-edit],button[data-edit-product],button[data-edit-client]{
+ background:var(--uco-action-lime);border:1px solid var(--uco-action-lime);
+ color:var(--uco-action-ink);font-weight:800;
+}
+.note:disabled,.secondary:disabled,.edit:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:700px){
+ .note,.edit,.commercial-row-actions button,.user-table td:last-child button{max-width:100%;min-height:2.4rem}
+}
+#orders-area dialog.uco-shipping-snapshot{
+ width:min(94vw,1120px);max-width:94vw;max-height:92dvh;
+ overflow:auto;border:0;padding:0;border-radius:1.1rem;
+ box-shadow:0 28px 90px #091f3470;background:#fff;
+}
+#orders-area .uco-snapshot-shell{min-width:0}
+#orders-area .uco-snapshot-toolbar{
+ display:flex;justify-content:space-between;align-items:center;gap:1rem;
+ padding:.55rem 1rem;background:#232f5d;color:#fff;font:700 .8rem Manrope,sans-serif;
+}
+#orders-area .uco-snapshot-close{background:transparent;color:#fff;border:1px solid #ffffff80;border-radius:.5rem;min-width:2.2rem;min-height:2.2rem;font-size:1.5rem;line-height:1}
+#orders-area .uco-shipping-snapshot .uco-order-card{margin:0;border:2px solid #a9df39;border-radius:0 0 1rem 0;overflow:hidden}
+#orders-area .uco-snapshot-summary{
+ display:grid;grid-template-columns:.8fr 1.4fr 1.3fr .8fr 1fr .9fr;
+ align-items:center;gap:.8rem;padding:1rem;background:#eaf6d9;color:#232f5d;font-size:.87rem;
+}
+#orders-area .uco-snapshot-summary .uco-order-state{justify-self:end;background:#dff0cb;color:#367a18;border-radius:.45rem;padding:.45rem .7rem;font-weight:800}
+#orders-area .uco-shipping-snapshot .uco-order-detail{padding:1rem}
+#orders-area .uco-shipping-snapshot .uco-wizard-page[hidden]{display:none!important}
+#orders-area .uco-shipping-snapshot .uco-wizard-viewport{min-height:14rem}
+#orders-area .uco-shipping-snapshot .uco-order-lines{margin-top:1rem}
+#orders-area .uco-shipping-snapshot .uco-snapshot-history{display:grid;gap:1rem;max-height:55vh;overflow:auto}
+#orders-area .uco-shipping-snapshot .uco-snapshot-history .uco-order-history{max-height:none;overflow:visible}
+#orders-area .uco-shipping-snapshot .uco-snapshot-state{display:grid;justify-items:start;gap:1rem}
+#orders-area .uco-shipping-snapshot .uco-wizard-dot{color:#63748b}
+#orders-area .uco-shipping-snapshot .uco-wizard-dot.is-current{color:#232f5d}
+@media(max-width:760px){
+ #orders-area .uco-snapshot-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+ #orders-area .uco-shipping-snapshot .uco-wizard-nav{gap:.4rem}
+}
+@media(max-width:520px){
+ #orders-area dialog.uco-shipping-snapshot{width:calc(100vw - .6rem);max-width:calc(100vw - .6rem);max-height:96dvh}
+ #orders-area .uco-snapshot-summary{grid-template-columns:1fr 1fr;font-size:.76rem;padding:.7rem}
+ #orders-area .uco-snapshot-summary .uco-order-state{justify-self:start}
+ #orders-area .uco-shipping-snapshot .uco-order-detail{padding:.65rem}
+ #orders-area .uco-shipping-snapshot .uco-wizard-dot-label{display:none}
+ #orders-area .uco-shipping-snapshot .uco-wizard-move{font-size:.7rem;padding:.5rem}
+ #orders-area .uco-shipping-snapshot .uco-order-lines>div{gap:.35rem}
+}
+
+/* Indicadores verdes en los títulos de las etapas de la ficha de Expedición */
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="assigned"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="complete"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="prepared"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="dispatched"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="delivered"]{color:#317514;background:#e8f6d4}
+
+/* UCO · Uniformidad de botones de acción administrativos.
+   Mantiene anchos naturales y no afecta iconos, puntos del asistente ni controles de cierre. */
+:root{--uco-admin-action-height:3.25rem;--uco-admin-action-pad-x:1.2rem}
+@media(min-width:701px){
+  .user-table td:last-child button,
+  .commercial-row-actions button,
+  .commercial-actions button,
+  .users-panel>.buttons button,
+  .tablewrap td.actions button,
+  #orders-area .uco-orders-work-row>button,
+  #orders-area .uco-prep-card-bottom>button,
+  #orders-area .uco-shipping-bottom>button,
+  #orders-area .uco-shipping-form>button,
+  #orders-area .uco-order-actions>button,
+  #orders-area .uco-order-meta>button,
+  #orders-area .uco-check-controls button,
+  .modal .buttons button,
+  .security-form .buttons button{
+    box-sizing:border-box;
+    min-height:var(--uco-admin-action-height);
+    padding-block:.8rem;
+    padding-inline:var(--uco-admin-action-pad-x);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    line-height:1.25;
+    font-size:.95rem;
+    font-weight:800;
+    vertical-align:middle;
+  }
+}
+@media(max-width:700px){
+  .user-table td:last-child button,
+  .commercial-row-actions button,
+  .commercial-actions button,
+  .users-panel>.buttons button,
+  #orders-area .uco-orders-work-row>button,
+  #orders-area .uco-prep-card-bottom>button,
+  #orders-area .uco-shipping-bottom>button,
+  #orders-area .uco-shipping-form>button,
+  #orders-area .uco-order-actions>button,
+  #orders-area .uco-order-meta>button,
+  #orders-area .uco-check-controls button,
+  .modal .buttons button,
+  .security-form .buttons button{
+    box-sizing:border-box;
+    min-height:2.75rem;
+    height:auto;
+    max-width:100%;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.25;
+  }
+}
