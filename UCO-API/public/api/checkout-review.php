@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: DENY');
+
 ini_set('display_errors','0');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -8,6 +11,14 @@ ini_set('session.use_strict_mode','1');
 session_name('UCOCLIENT');
 session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);
 session_start();
+require_once dirname(__DIR__,2).'/private/session-security.php';
+if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
+ http_response_code(401);
+ header('Content-Type: application/json; charset=utf-8');
+ echo json_encode(['error'=>'Sesión caducada por inactividad. Vuelve a iniciar sesión.','authenticated'=>false],JSON_UNESCAPED_UNICODE);
+ exit;
+}
+
 function reviewReply(array $data,int $code=200):never{
  http_response_code($code);echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;
 }

@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: DENY');
+
 header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
 if($_SERVER['REQUEST_METHOD']!=='GET'){http_response_code(405);echo json_encode(['error'=>'Método no permitido']);exit;}
 if(($_GET['action']??'catalog')!=='catalog'){http_response_code(404);echo json_encode(['error'=>'Ruta no disponible']);exit;}
