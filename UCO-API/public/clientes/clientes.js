@@ -194,6 +194,17 @@ async function showOrderConfirmation(orderId,chosenMethod){
  const confirm=document.createElement('button');confirm.type='button';confirm.className='uco-order-review-confirm';confirm.textContent='Continuar al pago simulado';confirm.disabled=false;
  const explanation=document.createElement('small');explanation.textContent='ENTORNO DE PRUEBAS. Ningún método realiza cobros reales.';
  actions.append(back,confirm);foot.append(note,actions,explanation);
+ // Fase 6.2: consulta de disponibilidad real. El simulador permanece intacto mientras no se habiliten pasarelas.
+ let realPaymentEnabled=false;
+ try {
+  const availabilityResponse=await fetch('../api/payment-real.php',{credentials:'same-origin',cache:'no-store'});
+  if(availabilityResponse.ok){const availability=await availabilityResponse.json();realPaymentEnabled=availability.enabled===true && availability.methods?.[chosenMethod]===true;}
+ } catch (_) { /* Sin configuración, conservar el comportamiento anterior. */ }
+ if(realPaymentEnabled){
+  note.textContent='El cobro se realizará mediante el proveedor seleccionado. El pedido seguirá pendiente hasta recibir confirmación verificable.';
+  confirm.textContent=chosenMethod==='transfer'?'Generar instrucciones de transferencia':'Continuar a la pasarela segura';
+  explanation.textContent='No se almacenan datos de tarjetas ni contraseñas bancarias en UCO.';
+ }
  const simulation=document.createElement('div');simulation.className='uco-simulation-controls';simulation.hidden=true;
  const simText=document.createElement('p');simText.textContent='SIMULADOR DE PAGO · No se realizará ningún cobro real.';
  const approved=document.createElement('button');approved.type='button';approved.textContent='Simular aprobación';
@@ -209,6 +220,34 @@ async function showOrderConfirmation(orderId,chosenMethod){
  confirm.addEventListener('click',async()=>{
   confirm.disabled=true;
   try{
+   if(realPaymentEnabled){
+    const data=new FormData();data.set('order_id',String(orderId));data.set('method',chosenMethod);
+    const response=await fetch('../api/payment-real.php',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'X-CSRF-Token':csrf},body:data});
+    const payment=await response.json();if(!response.ok)throw Error(payment.error||'No se pudo iniciar el pago');
+    if(payment.method==='transfer'&&payment.bank){
+     const details=document.createElement('div');details.className='uco-transfer-instructions';
+     const heading=document.createElement('strong');heading.textContent='Transferencia bancaria pendiente';details.append(heading);
+     for(const [label,value] of [['Beneficiario',payment.bank.beneficiary],['IBAN',payment.bank.iban],['Concepto obligatorio',payment.bank.concept],['Importe exacto',ucoMoney(payment.total_cents)]]){
+      const line=document.createElement('p');const bold=document.createElement('strong');bold.textContent=label+': ';line.append(bold,document.createTextNode(String(value)));details.append(line);
+     }
+     const warning=document.createElement('p');warning.textContent='El pedido NO está pagado. Se tramitará únicamente tras verificar el ingreso bancario.';details.append(warning);
+     simulation.replaceChildren(details);simulation.hidden=false;confirm.hidden=true;back.disabled=true;note.textContent='Pendiente de recibir y verificar la transferencia.';scheduleCartFit();return;
+    }
+    if(payment.method==='paypal'&&typeof payment.redirect_url==='string'){
+     const url=new URL(payment.redirect_url);if(url.protocol!=='https:'||!['www.paypal.com','www.sandbox.paypal.com'].includes(url.hostname))throw Error('URL de PayPal no válida');
+     window.location.assign(url.href);return;
+    }
+    if(['redsys','bizum'].includes(payment.method)&&payment.form_fields&&typeof payment.form_url==='string'){
+     const url=new URL(payment.form_url);if(url.protocol!=='https:'||!['sis.redsys.es','sis-t.redsys.es'].includes(url.hostname))throw Error('URL bancaria no válida');
+     const gatewayForm=document.createElement('form');gatewayForm.method='POST';gatewayForm.action=url.href;
+     for(const key of ['Ds_SignatureVersion','Ds_MerchantParameters','Ds_Signature']){
+      if(typeof payment.form_fields[key]!=='string')throw Error('Respuesta bancaria incompleta');
+      const field=document.createElement('input');field.type='hidden';field.name=key;field.value=payment.form_fields[key];gatewayForm.append(field);
+     }
+     document.body.append(gatewayForm);gatewayForm.submit();return;
+    }
+    throw Error('La operación está pendiente. Consulta el historial antes de repetir.');
+   }
    const result=await simPost('start');
    if(result.state!=='pending')throw Error('Esta operación ya está '+result.state+'. Consulta el historial de pedidos.');
    simulation.hidden=false;close.disabled=true;
