@@ -3,6 +3,21 @@ declare(strict_types=1);
 header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 
+// Fase 3E.4E: limitar el tamaño de las solicitudes de escritura antes de procesarlas.
+// No cambia el formato admitido por las rutas existentes (formularios o JSON).
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $ucoMaxPostBytes = 262144; // 256 KiB
+    $ucoLength = $_SERVER['CONTENT_LENGTH'] ?? null;
+    if ($ucoLength !== null && (!ctype_digit((string)$ucoLength) || (float)$ucoLength > $ucoMaxPostBytes)) {
+        http_response_code(413);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+        echo json_encode(['error' => 'La solicitud supera el tamaño permitido.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store,private');header('X-Content-Type-Options: nosniff');
 ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
