@@ -19,7 +19,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store,private');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 // 3E.4G: las operaciones POST de pago reciben campos de formulario en $_POST.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
@@ -44,15 +46,21 @@ require_once dirname(__DIR__,2).'/private/economy.php';
 function simReply(array $v,int $code=200):never{http_response_code($code);echo json_encode($v,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 try{
  if(($_SERVER['REQUEST_METHOD']??'')!=='POST')simReply(['error'=>'Método no permitido'],405);
- if(empty($_SESSION['customer_csrf'])||!hash_equals((string)$_SESSION['customer_csrf'],(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))simReply(['error'=>'Solicitud no válida'],403);
+ if(empty($_SESSION['customer_csrf'])||!ucoSecurityCsrfValid('customer_csrf'))simReply(['error'=>'Solicitud no válida'],403);
  $cid=(int)($_SESSION['customer_id']??0);if(!$cid)simReply(['error'=>'Inicia sesión'],401);
  $db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
  $db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=10000');commercialDb($db);
  $s=$db->prepare('SELECT password_hash FROM customers WHERE id=? AND active=1');$s->execute([$cid]);$user=$s->fetch();
  if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$user['password_hash'])))simReply(['error'=>'Sesión caducada'],401);
- $oid=filter_var($_POST['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
- $action=(string)($_POST['action']??'');$method=(string)($_POST['method']??'');
- if(!$oid||!in_array($action,['start','approve','reject','cancel'],true))simReply(['error'=>'Solicitud inválida'],422);
+ // 3E.4K: validar campos escalares antes de convertirlos o iniciar la transacción.
+ $rawOrderId=$_POST['order_id']??null;
+ $rawAction=$_POST['action']??null;
+ $rawMethod=$_POST['method']??'';
+ if(!is_string($rawOrderId)||!preg_match('/^[1-9][0-9]*$/D',$rawOrderId)
+    ||!is_string($rawAction)||!is_string($rawMethod))simReply(['error'=>'Solicitud inválida'],422);
+ $oid=filter_var($rawOrderId,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ $action=$rawAction;$method=$rawMethod;
+ if($oid===false||!in_array($action,['start','approve','reject','cancel'],true))simReply(['error'=>'Solicitud inválida'],422);
  $db->exec('BEGIN IMMEDIATE');
  try{
   $db->exec("CREATE TABLE IF NOT EXISTS uco_simulated_payments(order_id INTEGER PRIMARY KEY REFERENCES uco_orders(id),customer_id INTEGER NOT NULL,method TEXT NOT NULL CHECK(method IN ('redsys','paypal','bizum','transfer')),state TEXT NOT NULL CHECK(state IN ('pending','approved','rejected','cancelled')),subtotal_cents INTEGER NOT NULL,tax_cents INTEGER NOT NULL,shipping_cents INTEGER NOT NULL,total_cents INTEGER NOT NULL,delivery_json TEXT NOT NULL,tax_json TEXT NOT NULL,reference TEXT NOT NULL UNIQUE,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");

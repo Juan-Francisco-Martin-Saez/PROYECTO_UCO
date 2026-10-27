@@ -4,7 +4,9 @@ header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store, private');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
  http_response_code(401);

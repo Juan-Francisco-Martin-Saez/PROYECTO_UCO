@@ -20,7 +20,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
-ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 if(!empty($_SESSION['uco_user_id']) && ucoSecurityIdleExpired()){
  http_response_code(401);
@@ -60,7 +62,7 @@ try{
  if(!$current||$current['role']!=='admin'||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',(string)$current['password_hash'])))reply(['error'=>'Sesión o permisos no válidos. Vuelve a iniciar sesión.'],403);
  ucoEconomySchema($db);
  if($_SERVER['REQUEST_METHOD']==='POST'){
-  if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))reply(['error'=>'Sesión no válida'],403);
+  if(!ucoSecurityCsrfValid('csrf'))reply(['error'=>'Sesión no válida'],403);
   $db->exec('BEGIN IMMEDIATE');
   try{
    $type=(string)($_POST['type']??'');

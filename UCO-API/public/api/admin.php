@@ -4,7 +4,9 @@ header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();require_once dirname(__DIR__,2).'/private/session-security.php';
+ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();require_once dirname(__DIR__,2).'/private/session-security.php';
 function respond($v,int $code=200):never{http_response_code($code);echo json_encode($v,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 function norm(string $s):string{$s=mb_strtolower($s,'UTF-8');if(class_exists('Normalizer'))$s=Normalizer::normalize($s,Normalizer::FORM_D);return strtr($s,['á'=>'a','à'=>'a','ä'=>'a','â'=>'a','é'=>'e','è'=>'e','ë'=>'e','ê'=>'e','í'=>'i','ì'=>'i','ï'=>'i','î'=>'i','ó'=>'o','ò'=>'o','ö'=>'o','ô'=>'o','ú'=>'u','ù'=>'u','ü'=>'u','û'=>'u']);}
 function db():PDO{$db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=5000');return $db;}
@@ -16,7 +18,7 @@ function adminOnly():void{if(($_SESSION['uco_role']??'')!=='admin')respond(['err
 function userInfo(array $u):array{return ['id'=>(int)$u['id'],'username'=>$u['username'],'display_name'=>$u['display_name'],'email'=>$u['email'],'avatar'=>$u['avatar']??'','role'=>$u['role'],'active'=>(int)$u['active'],'created_at'=>$u['created_at']];}
 function validatePassword(string $p):void{if(strlen($p)<12||strlen($p)>256)respond(['error'=>'La contraseña debe tener entre 12 y 256 caracteres.'],422);}
 function activeAdmins(PDO $db):int{return (int)$db->query("SELECT COUNT(*) FROM admin_users WHERE role='admin' AND active=1")->fetchColumn();}
-function csrf():void{if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))respond(['error'=>'Sesión no válida. Actualiza la página.'],403);}
+function csrf():void{if(!ucoSecurityCsrfValid('csrf'))respond(['error'=>'Sesión no válida. Actualiza la página.'],403);}
 $action=(string)($_GET['action']??'session');$method=$_SERVER['REQUEST_METHOD'];
 try{
 if($action==='session'&&$method==='GET'){

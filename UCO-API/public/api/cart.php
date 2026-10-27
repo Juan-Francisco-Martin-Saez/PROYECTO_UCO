@@ -4,7 +4,9 @@ header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
  http_response_code(401);
@@ -31,7 +33,7 @@ try{
    respond(['error'=>'Solicitud demasiado grande'],413);
   if(count($_POST)>8||count($_FILES)>0)
    respond(['error'=>'Datos del carrito no válidos'],422);
-  if(!hash_equals((string)($_SESSION['customer_csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))respond(['error'=>'Solicitud no válida'],403);
+  if(!ucoSecurityCsrfValid('customer_csrf'))respond(['error'=>'Solicitud no válida'],403);
   $product=filter_var($_POST['product_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);$qty=filter_var($_POST['quantity']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>99999]]);
   if($action!=='set'||$product===false||$product===null||$qty===false||$qty===null)respond(['error'=>'Datos del carrito no válidos'],422);
   $db->exec('BEGIN IMMEDIATE');

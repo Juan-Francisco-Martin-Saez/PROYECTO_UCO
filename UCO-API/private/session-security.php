@@ -52,3 +52,13 @@ function ucoSecurityThrottle(string $scope,string $identity,bool $success=false)
         $db->commit();return $blocked;
     } catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
 }
+
+/* 3E.5: Nunca aceptar una comparación CSRF de dos tokens vacíos.
+   Exige sesión con token emitido y cabecera explícita no vacía. */
+function ucoSecurityCsrfValid(string $sessionKey):bool {
+    $expected=$_SESSION[$sessionKey]??null;
+    $received=$_SERVER['HTTP_X_CSRF_TOKEN']??null;
+    return is_string($expected) && $expected!==''
+        && is_string($received) && $received!==''
+        && hash_equals($expected,$received);
+}

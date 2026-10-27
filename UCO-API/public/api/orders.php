@@ -4,7 +4,9 @@ header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
  http_response_code(401);
@@ -39,7 +41,7 @@ try{
  $db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=10000');commercialDb($db);
  $id=(int)($_SESSION['customer_id']??0);if(!$id)orderReply(['error'=>'Inicia sesión'],401);$q=$db->prepare('SELECT password_hash,group_id FROM customers WHERE id=? AND active=1');$q->execute([$id]);$user=$q->fetch();if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$user['password_hash'])))orderReply(['error'=>'Sesión caducada'],401);
  $action=(string)($_GET['action']??'preview');$method=$_SERVER['REQUEST_METHOD'];if(!in_array($action,['preview','reserve','cancel','status','history','methods'],true))orderReply(['error'=>'Operación desconocida'],404);
- if(in_array($action,['reserve','cancel'],true)&&($method!=='POST'||!hash_equals((string)($_SESSION['customer_csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??''))))orderReply(['error'=>'Solicitud no válida'],403);
+ if(in_array($action,['reserve','cancel'],true)&&($method!=='POST'||!ucoSecurityCsrfValid('customer_csrf')))orderReply(['error'=>'Solicitud no válida'],403);
  if(in_array($action,['preview','status','history','methods'],true)&&$method!=='GET')orderReply(['error'=>'Método no permitido'],405);
  $db->exec('BEGIN IMMEDIATE');try{
   orderSchema($db);orderExpire($db);

@@ -4,7 +4,9 @@ header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();require_once dirname(__DIR__,2).'/private/session-security.php';
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();require_once dirname(__DIR__,2).'/private/session-security.php';
 require_once __DIR__.'/commercial.php';
 require_once dirname(__DIR__,2).'/private/identity.php';
 function reply(array $a,int $status=200):never{http_response_code($status);echo json_encode($a,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
@@ -42,11 +44,11 @@ try{
  if(!$u||!ucoIdentitySessionValid($db,'customer',(int)$_SESSION['customer_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$u['password_hash']))){ucoSecurityLogout();reply(['authenticated'=>false,'error'=>'La sesión ha caducado'],401);}
  if($action==='session'&&$method==='GET')reply(['authenticated'=>true,'csrf'=>$_SESSION['customer_csrf'],'customer'=>customerPublic($u)]);
  if($action==='logout'&&$method==='POST'){
-  if(!hash_equals((string)$_SESSION['customer_csrf'],(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))reply(['error'=>'Solicitud no válida'],403);
+  if(!ucoSecurityCsrfValid('customer_csrf'))reply(['error'=>'Solicitud no válida'],403);
   ucoSecurityLogout();reply(['ok'=>true]);
  }
  if($action==='change_password'&&$method==='POST'){
-  if(!hash_equals((string)$_SESSION['customer_csrf'],(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))reply(['error'=>'Solicitud no válida'],403);
+  if(!ucoSecurityCsrfValid('customer_csrf'))reply(['error'=>'Solicitud no válida'],403);
   $old=(string)($_POST['old_password']??'');$new=(string)($_POST['new_password']??'');if(!password_verify($old,$u['password_hash']))reply(['error'=>'Contraseña actual incorrecta'],422);if(strlen($new)<12||strlen($new)>256)reply(['error'=>'La contraseña debe tener entre 12 y 256 caracteres'],422);
   $hash=password_hash($new,PASSWORD_DEFAULT);$db->prepare('UPDATE customers SET password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$hash,$u['id']]);$_SESSION['customer_stamp']=hash('sha256',$hash);reply(['ok'=>true]);
  }

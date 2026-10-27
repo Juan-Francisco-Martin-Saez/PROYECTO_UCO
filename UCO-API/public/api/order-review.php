@@ -11,6 +11,8 @@ header('X-Content-Type-Options: nosniff');
 ini_set('session.use_strict_mode','1');
 session_name('UCOCLIENT');
 session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);
+ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
 session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
@@ -42,7 +44,11 @@ try{
  $s->execute([$cid]);$customer=$s->fetch();
  if(!$customer||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',(string)$customer['password_hash'])))
   reviewReply(['error'=>'Sesión caducada'],401);
- $oid=filter_var($_GET['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ // 3E.4J: identificador escalar, decimal y acotado; rechazar arrays y valores ambiguos.
+ $ucoRawOrderId=$_GET['order_id']??null;
+ if(!is_string($ucoRawOrderId)||!preg_match('/^[1-9][0-9]{0,17}$/D',$ucoRawOrderId))
+  reviewReply(['error'=>'Reserva inválida'],422);
+ $oid=filter_var($ucoRawOrderId,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
  if(!$oid)reviewReply(['error'=>'Reserva inválida'],422);
  $s=$db->prepare('SELECT id,status,expires_at,subtotal_cents FROM uco_orders WHERE id=? AND customer_id=?');
  $s->execute([$oid,$cid]);$order=$s->fetch();

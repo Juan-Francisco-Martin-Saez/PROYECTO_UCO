@@ -10,6 +10,8 @@ header('X-Content-Type-Options: nosniff');
 ini_set('session.use_strict_mode','1');
 session_name('UCOADMIN');
 session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);
+ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
 session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 if(!empty($_SESSION['uco_user_id']) && ucoSecurityIdleExpired()){
@@ -35,9 +37,22 @@ try{
  if(!ucoOrderCan($caps,'orders.view'))replyOrders(['error'=>'No tienes acceso a los pedidos'],403);
  if($_SERVER['REQUEST_METHOD']==='POST'){
   // El administrador conserva el control completo; el resto necesita autorización por operación.
-  if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))replyOrders(['error'=>'Token de seguridad no válido'],403);
-  $data=json_decode(file_get_contents('php://input'),true);
-  if(!is_array($data))replyOrders(['error'=>'Solicitud no válida'],400);
+  if(!ucoSecurityCsrfValid('csrf'))replyOrders(['error'=>'Token de seguridad no válido'],403);
+  // 3E.4D: limitar tamaño y formato antes de interpretar operaciones sensibles.
+  $contentType=strtolower(trim(explode(';',(string)($_SERVER['CONTENT_TYPE']??''),2)[0]));
+  if($contentType!=='application/json')replyOrders(['error'=>'Formato de solicitud no admitido'],415);
+  $maxBody=131072; // 128 KiB, superior a las operaciones JSON habituales de pedidos.
+  $length=filter_var($_SERVER['CONTENT_LENGTH']??null,FILTER_VALIDATE_INT);
+  if($length!==false && $length!==null && $length>$maxBody)replyOrders(['error'=>'Solicitud demasiado grande'],413);
+  $stream=fopen('php://input','rb');
+  if($stream===false)replyOrders(['error'=>'No se pudo leer la solicitud'],400);
+  $raw=stream_get_contents($stream,$maxBody+1);
+  fclose($stream);
+  if($raw===false)replyOrders(['error'=>'No se pudo leer la solicitud'],400);
+  if(strlen($raw)>$maxBody)replyOrders(['error'=>'Solicitud demasiado grande'],413);
+  try{$data=json_decode($raw,true,32,JSON_THROW_ON_ERROR);}
+  catch(JsonException $e){replyOrders(['error'=>'JSON no válido'],400);}
+  if(!is_array($data)||array_is_list($data))replyOrders(['error'=>'Solicitud no válida'],400);
   $orderId=filter_var($data['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
   $action=(string)($data['action']??'');
   $required=match($action){

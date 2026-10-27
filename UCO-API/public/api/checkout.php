@@ -4,7 +4,9 @@ header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
  http_response_code(401);
@@ -19,7 +21,7 @@ try{
  $id=(int)($_SESSION['customer_id']??0);if(!$id)checkoutReply(['error'=>'Inicia sesión'],401);
  $s=$db->prepare('SELECT password_hash FROM customers WHERE id=? AND active=1');$s->execute([$id]);$user=$s->fetch();if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$user['password_hash'])))checkoutReply(['error'=>'Sesión caducada'],401);
  $method=$_SERVER['REQUEST_METHOD']??'GET';if(!in_array($method,['GET','POST'],true))checkoutReply(['error'=>'Método no permitido'],405);
- if($method==='POST'&&!hash_equals((string)($_SESSION['customer_csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))checkoutReply(['error'=>'Solicitud no válida'],403);
+ if($method==='POST'&&!ucoSecurityCsrfValid('customer_csrf'))checkoutReply(['error'=>'Solicitud no válida'],403);
 
  // Seguridad 3E.4I: proteger los datos de entrega sin alterar su esquema.
  if($method==='POST'){

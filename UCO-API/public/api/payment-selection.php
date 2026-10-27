@@ -25,6 +25,8 @@ header('X-Content-Type-Options: nosniff');
 ini_set('session.use_strict_mode','1');
 session_name('UCOCLIENT');
 session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);
+ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
 session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
 // 3E.4G: las operaciones POST de pago reciben campos de formulario en $_POST.
@@ -50,7 +52,7 @@ try{
  $method=$_SERVER['REQUEST_METHOD']??'GET';
  if(!in_array($method,['GET','POST'],true))payReply(['error'=>'Método no permitido'],405);
  $id=(int)($_SESSION['customer_id']??0);if($id<1)payReply(['error'=>'Inicia sesión'],401);
- if($method==='POST'&&!hash_equals((string)($_SESSION['customer_csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))payReply(['error'=>'Solicitud no válida'],403);
+ if($method==='POST'&&!ucoSecurityCsrfValid('customer_csrf'))payReply(['error'=>'Solicitud no válida'],403);
  $db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
  $db->exec('PRAGMA busy_timeout=10000');$db->exec('PRAGMA foreign_keys=ON');
  $db->exec('BEGIN IMMEDIATE');
@@ -68,7 +70,11 @@ try{
  $db->exec("CREATE TABLE IF NOT EXISTS uco_order_payment_choices(order_id INTEGER PRIMARY KEY REFERENCES uco_orders(id) ON DELETE CASCADE,method TEXT NOT NULL CHECK(method IN ('redsys','transfer','paypal','bizum')),updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
  $q=$db->prepare('SELECT method FROM uco_order_payment_choices WHERE order_id=?');$q->execute([(int)$order['id']]);$selected=$q->fetchColumn()?:null;
  if($method==='POST'){
-  $chosen=(string)($_POST['payment_method']??'');
+  // 3E.4L: rechazar arrays u objetos manipulados antes de convertir el método a texto.
+  if(!isset($_POST['payment_method']) || !is_string($_POST['payment_method'])){
+   $db->rollBack();payReply(['error'=>'Método de pago no válido'],422);
+  }
+  $chosen=$_POST['payment_method'];
   if(!in_array($chosen,['redsys','transfer','paypal','bizum'],true)){$db->rollBack();payReply(['error'=>'Método de pago no válido'],422);}
   $q=$db->prepare('INSERT INTO uco_order_payment_choices(order_id,method) VALUES(?,?) ON CONFLICT(order_id) DO UPDATE SET method=excluded.method,updated_at=CURRENT_TIMESTAMP');$q->execute([(int)$order['id'],$chosen]);$selected=$chosen;
  }
