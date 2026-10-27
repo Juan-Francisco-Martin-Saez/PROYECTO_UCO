@@ -20,6 +20,19 @@ try{
  $s=$db->prepare('SELECT password_hash FROM customers WHERE id=? AND active=1');$s->execute([$id]);$user=$s->fetch();if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$user['password_hash'])))checkoutReply(['error'=>'Sesión caducada'],401);
  $method=$_SERVER['REQUEST_METHOD']??'GET';if(!in_array($method,['GET','POST'],true))checkoutReply(['error'=>'Método no permitido'],405);
  if($method==='POST'&&!hash_equals((string)($_SESSION['customer_csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))checkoutReply(['error'=>'Solicitud no válida'],403);
+
+ // Seguridad 3E.4I: proteger los datos de entrega sin alterar su esquema.
+ if($method==='POST'){
+  $mediaType=strtolower(trim(explode(';',(string)($_SERVER['CONTENT_TYPE']??''),2)[0]));
+  if(!in_array($mediaType,['application/x-www-form-urlencoded','multipart/form-data'],true))checkoutReply(['error'=>'Formato de solicitud no admitido'],415);
+  $contentLength=$_SERVER['CONTENT_LENGTH']??null;
+  if($contentLength!==null&&(!ctype_digit((string)$contentLength)||(float)$contentLength>16384))checkoutReply(['error'=>'Solicitud demasiado grande'],413);
+  if(count($_POST)>12||count($_FILES)>0)checkoutReply(['error'=>'Datos de entrega no válidos'],422);
+  foreach(['contact','phone','address','postal_code','city','province','notes'] as $field){
+   if(isset($_POST[$field])&&!is_string($_POST[$field]))checkoutReply(['error'=>'Formato de campo no válido'],422);
+  }
+ }
+
  $db->exec('CREATE TABLE IF NOT EXISTS uco_checkout_details(customer_id INTEGER PRIMARY KEY REFERENCES customers(id) ON DELETE CASCADE,contact TEXT NOT NULL,phone TEXT NOT NULL,address TEXT NOT NULL,postal_code TEXT NOT NULL,city TEXT NOT NULL,province TEXT NOT NULL,notes TEXT NOT NULL,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)');
  if($method==='GET'){$s=$db->prepare('SELECT contact,phone,address,postal_code,city,province,notes FROM uco_checkout_details WHERE customer_id=?');$s->execute([$id]);checkoutReply(['details'=>$s->fetch()?:null]);}
  $keys=['contact'=>100,'phone'=>35,'address'=>180,'postal_code'=>12,'city'=>90,'province'=>90,'notes'=>500];$values=[];

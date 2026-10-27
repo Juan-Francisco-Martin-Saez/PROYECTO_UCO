@@ -27,6 +27,17 @@ session_name('UCOCLIENT');
 session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);
 session_start();
 require_once dirname(__DIR__,2).'/private/session-security.php';
+// 3E.4G: las operaciones POST de pago reciben campos de formulario en $_POST.
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $ucoMediaType = strtolower(trim(explode(';', (string)($_SERVER['CONTENT_TYPE'] ?? ''), 2)[0]));
+    if (!in_array($ucoMediaType, ['application/x-www-form-urlencoded', 'multipart/form-data'], true)) {
+        http_response_code(415);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Formato de solicitud no admitido'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
 if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
  http_response_code(401);
  header('Content-Type: application/json; charset=utf-8');

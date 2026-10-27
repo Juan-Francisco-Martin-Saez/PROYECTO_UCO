@@ -22,6 +22,15 @@ try{
  $db->exec('CREATE TABLE IF NOT EXISTS shopping_cart_items(customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,quantity INTEGER NOT NULL CHECK(quantity BETWEEN 1 AND 99999),updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(customer_id,product_id))');
  $action=(string)($_GET['action']??'list');$method=$_SERVER['REQUEST_METHOD'];
  if($method==='POST'){
+  // 3E.4H: validar formato y tamaño antes de modificar el carrito.
+  $ucoType=strtolower(trim(explode(';',(string)($_SERVER['CONTENT_TYPE']??''),2)[0]));
+  if(!in_array($ucoType,['application/x-www-form-urlencoded','multipart/form-data'],true))
+   respond(['error'=>'Formato de solicitud no admitido'],415);
+  $ucoLength=$_SERVER['CONTENT_LENGTH']??null;
+  if($ucoLength!==null&&(!ctype_digit((string)$ucoLength)||(float)$ucoLength>16384))
+   respond(['error'=>'Solicitud demasiado grande'],413);
+  if(count($_POST)>8||count($_FILES)>0)
+   respond(['error'=>'Datos del carrito no válidos'],422);
   if(!hash_equals((string)($_SESSION['customer_csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))respond(['error'=>'Solicitud no válida'],403);
   $product=filter_var($_POST['product_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);$qty=filter_var($_POST['quantity']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>99999]]);
   if($action!=='set'||$product===false||$product===null||$qty===false||$qty===null)respond(['error'=>'Datos del carrito no válidos'],422);
