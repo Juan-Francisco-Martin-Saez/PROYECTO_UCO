@@ -77,7 +77,7 @@ try{
    $quote=ucoEconomyQuote($db,$items,$delivery);
    if(!$quote['ready']||(int)$quote['subtotal_cents']!==(int)$order['subtotal_cents']){$db->rollBack();simReply(['error'=>'Revisa el importe y los datos de entrega antes de continuar','issues'=>$quote['issues']],409);}
    // Validación del stock: una reserva pendiente no puede competir con otra.
-   $s=$db->prepare("SELECT p.stock,COALESCE((SELECT SUM(l2.quantity) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>? AND o2.status='reserved' AND o2.expires_at>?),0) AS others,l.quantity FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");
+   $s=$db->prepare("SELECT p.stock,COALESCE((SELECT SUM(l2.quantity) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>? AND o2.status IN ('reserved','pending_payment') AND o2.expires_at>?),0) AS others,l.quantity FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");
    $s->execute([$oid,time(),$oid]);
    foreach($s->fetchAll() as $v)if((int)$v['stock']-(int)$v['others']<(int)$v['quantity']){$db->rollBack();simReply(['error'=>'Existencias insuficientes'],409);}
    $reference='SIM-'.strtoupper(bin2hex(random_bytes(8)));
@@ -94,7 +94,7 @@ try{
   if($action==='approve' && (int)$order['expires_at']<=time()){$db->rollBack();simReply(['error'=>'La operación ha caducado; no se puede aprobar'],409);}
   if($action==='approve'){
    // Stock se descuenta exactamente una vez, en la misma transacción que la aprobación.
-   $s=$db->prepare("SELECT l.product_id,l.quantity,p.stock,(SELECT COALESCE(SUM(l2.quantity),0) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>l.order_id AND o2.status='reserved' AND o2.expires_at>CAST(strftime('%s','now') AS INTEGER)) AS others FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");$s->execute([$oid]);$lines=$s->fetchAll();
+   $s=$db->prepare("SELECT l.product_id,l.quantity,p.stock,(SELECT COALESCE(SUM(l2.quantity),0) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>l.order_id AND o2.status IN ('reserved','pending_payment') AND o2.expires_at>CAST(strftime('%s','now') AS INTEGER)) AS others FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");$s->execute([$oid]);$lines=$s->fetchAll();
    foreach($lines as $v)if((int)$v['stock']-(int)$v['others']<(int)$v['quantity']){$db->rollBack();simReply(['error'=>'Stock insuficiente para aprobar el pago simulado'],409);}
    // El trigger de reservas puede bloquear decrementos: primero cambiar estado en la transacción.
    $change=$db->prepare("UPDATE uco_orders SET status='paid',payment_status='simulated_approved',updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='pending_payment'");$change->execute([$oid]);if($change->rowCount()!==1)throw new RuntimeException('Estado de pedido no válido');

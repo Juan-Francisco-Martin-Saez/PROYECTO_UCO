@@ -26,7 +26,10 @@ try {
   $q=$db->prepare('SELECT product_id,name,quantity,line_cents FROM uco_order_lines WHERE order_id=?');$q->execute([$oid]);$items=$q->fetchAll();
   $q=$db->prepare('SELECT contact,phone,address,postal_code,city,province,notes FROM uco_checkout_details WHERE customer_id=?');$q->execute([$cid]);$delivery=$q->fetch()?:null;
   $quote=ucoEconomyQuote($db,$items,$delivery);if(!$quote['ready']||(int)$quote['subtotal_cents']!==(int)$order['subtotal_cents']||(int)$quote['total_cents']<=0)throw new DomainException('Revisa los importes y la entrega');
-  $q=$db->prepare('SELECT l.quantity,p.stock FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?');$q->execute([$oid]);foreach($q->fetchAll() as $line)if((int)$line['stock']<(int)$line['quantity'])throw new DomainException('Existencias insuficientes');
+  $q=$db->prepare("SELECT l.quantity,p.stock,COALESCE((SELECT SUM(l2.quantity) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>l.order_id AND o2.status IN ('reserved','pending_payment') AND o2.expires_at>?),0) AS others FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");
+  $q->execute([time(),$oid]);$stockLines=$q->fetchAll();
+  if(!$stockLines)throw new DomainException('Pedido sin productos');
+  foreach($stockLines as $line)if((int)$line['stock']-(int)$line['others']<(int)$line['quantity'])throw new DomainException('Existencias insuficientes');
   $reference='UCO'.str_pad((string)$oid,8,'0',STR_PAD_LEFT).strtoupper(bin2hex(random_bytes(3)));
   $q=$db->prepare("INSERT INTO uco_real_payments(order_id,customer_id,method,state,reference,amount_cents) VALUES(?,?,?,'pending',?,?)");$q->execute([$oid,$cid,$method,$reference,(int)$quote['total_cents']]);
   $db->prepare("UPDATE uco_orders SET status='pending_payment',payment_status='pending',expires_at=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")->execute([time()+86400,$oid]);

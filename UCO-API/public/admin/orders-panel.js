@@ -31,64 +31,31 @@ function orderHistory(o){
 }
 // Consulta de expedición: ficha histórica de solo lectura, sin cambiar de pestaña.
 function openShippingOrderSnapshot(o){
- if(!o||!['prepared','dispatched','delivered'].includes(o.fulfillment_state))return;
- const existing=document.querySelector('dialog.uco-shipping-snapshot');
- if(existing)existing.close();
- const dialog=document.createElement('dialog');
- dialog.className='uco-shipping-snapshot';
- dialog.setAttribute('aria-label','Ficha histórica del pedido PED-'+String(o.id).padStart(2,'0'));
- const number='PED-'+String(o.id).padStart(2,'0');
- const payment=({redsys:'Tarjeta bancaria (Visa / Mastercard)',paypal:'PayPal',bizum:'Bizum',transfer:'Transferencia bancaria'})[o.payment_method]||o.payment_method||'—';
- const events=(o.shipping_events||[]).slice().sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
- const complete=!!o.lines?.length&&o.lines.every(l=>l.prepared_quantity!==null&&Math.abs(Number(l.prepared_quantity)-Number(l.quantity))<.00001);
+ if(!o)return;
  const names=['Resumen','Responsable','Artículos','Estado','Historial'];
+ const id=Number(o.id), reference='PED-'+String(id).padStart(2,'0');
+ const method=({redsys:'Tarjeta bancaria (Visa / Mastercard)',paypal:'PayPal',bizum:'Bizum',transfer:'Transferencia bancaria'})[o.payment_method]||o.payment_method||'—';
+ const shipping=(o.shipping_events||[]).slice().sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
+ const complete=[true,!!o.assigned_staff_name,!!o.lines?.length&&o.lines.every(l=>l.prepared_quantity!==null&&Math.abs(Number(l.prepared_quantity)-Number(l.quantity))<.00001),true,o.fulfillment_state==='delivered'];
  const pages=[
-  `<div class="uco-order-meta"><p><strong>Cliente:</strong> ${esc(o.customer)} · <strong>Forma de pago:</strong> ${esc(payment)}</p>${o.payment_confirmed?`<button type="button" class="uco-order-receipt-button" data-snapshot-receipt="${Number(o.id)}">Ver justificante PDF</button>`:''}</div><div class="uco-order-lines">${(o.lines||[]).map(l=>`<div><span>${esc(l.name)}<small>${esc(l.sku)}</small></span><span>${esc(l.quantity)} ${esc(l.unit)}</span><strong>${money(l.line_cents)}</strong></div>`).join('')}</div>`,
-  `<div class="uco-order-assign"><div><strong>Responsable de preparación</strong><small>${esc(o.assigned_staff_name||'Sin asignar')}</small></div></div>`,
-  `<section class="uco-order-checks"><div class="uco-checks-head"><div><h3>Verificación de artículos</h3><p>${(o.lines||[]).filter(l=>l.prepared_quantity!==null&&Math.abs(Number(l.prepared_quantity)-Number(l.quantity))<.00001).length} de ${(o.lines||[]).length} artículos completos</p></div></div><div class="uco-checks-list">${(o.lines||[]).map(l=>`<details class="uco-wizard-article"><summary class="uco-wizard-article-title">${esc(l.name)} · ${l.prepared_quantity!==null&&Math.abs(Number(l.prepared_quantity)-Number(l.quantity))<.00001?'Completo':'Pendiente'}</summary><div class="uco-check-line"><div class="uco-check-product"><strong>${esc(l.name)}</strong><small>${esc(l.sku)} · Solicitado: ${esc(l.quantity)} ${esc(l.unit)}</small><small>Preparado: ${l.prepared_quantity===null?'Sin verificar':esc(l.prepared_quantity)+' '+esc(l.unit)}</small>${l.check_note?`<small>Observaciones: ${esc(l.check_note)}</small>`:''}</div></div></details>`).join('')}</div></section>`,
-  `<div class="uco-snapshot-state"><strong>Estado actual:</strong> <span class="uco-wizard-current-state" data-state="${esc(o.fulfillment_state)}">${esc(states[o.fulfillment_state]||'—')}</span><p>Pedido cerrado para consulta. No se permiten modificaciones desde esta ventana.</p></div>`,
-  `<div class="uco-snapshot-history">${orderHistory(o)}<section class="uco-order-history"><h3>Historial de expedición</h3>${events.length?`<ol>${events.map(e=>`<li><strong>${esc(e.event_type==='dispatch'?'Salida':e.event_type==='deliver'?'Entrega':e.event_type||'Movimiento')}</strong> · ${esc(e.created_at)} · ${esc(e.actor||'—')}${e.carrier?`<p>Transporte: ${esc(e.carrier)}</p>`:''}${e.tracking_reference?`<p>Referencia: ${esc(e.tracking_reference)}</p>`:''}${e.note?`<p>${esc(e.note)}</p>`:''}</li>`).join('')}</ol>`:'<p>Sin movimientos registrados.</p>'}</section></div>`
+ `<div class="uco-order-meta"><p><strong>Cliente:</strong> ${esc(o.customer)} · <strong>Forma de pago:</strong> ${esc(method)}</p>${o.payment_confirmed?`<button type="button" class="uco-order-receipt-button" data-snapshot-receipt="${id}">Ver justificante PDF</button>`:''}</div><div class="uco-order-lines">${(o.lines||[]).map(l=>`<div><span>${esc(l.name)}<small>${esc(l.sku)}</small></span><span>${esc(l.quantity)} ${esc(l.unit)}</span><strong>${money(l.line_cents)}</strong></div>`).join('')}</div>`,
+ `<div class="uco-order-assign"><div><strong>Responsable de preparación</strong><small>${esc(o.assigned_staff_name||'Sin asignar')}</small></div></div>`,
+ `<section class="uco-order-checks"><div class="uco-checks-head"><div><h3>Verificación de artículos</h3><p>Consulta de las cantidades registradas</p></div></div><div class="uco-checks-list">${(o.lines||[]).map(l=>`<div class="uco-check-line"><div class="uco-check-product"><strong>${esc(l.name)}</strong><small>${esc(l.sku)} · Solicitado: ${esc(l.quantity)} ${esc(l.unit)}</small><span class="uco-check-status ${l.prepared_quantity!==null&&Number(l.prepared_quantity)===Number(l.quantity)?'is-complete':''}">${l.prepared_quantity===null?'Sin verificación registrada':'Verificado: '+esc(l.prepared_quantity)+' '+esc(l.unit)}</span>${l.check_note?`<small>${esc(l.check_note)}</small>`:''}</div></div>`).join('')}</div></section>`,
+ `<div class="uco-order-assign"><div><strong>Estado actual</strong><small>${esc(states[o.fulfillment_state]||'—')}</small></div></div><div class="uco-shipping-snapshot-events"><h3>Expedición y entrega</h3>${shipping.length?`<ol>${shipping.map(e=>`<li><strong>${esc(e.event_type==='dispatch'?'Salida':e.event_type==='deliver'?'Entrega':e.event_type||'Movimiento')}</strong> · ${esc(e.created_at)} · ${esc(e.actor||'—')}${e.carrier?`<p>Transporte: ${esc(e.carrier)}</p>`:''}${e.tracking_reference?`<p>Referencia: ${esc(e.tracking_reference)}</p>`:''}${e.note?`<p>${esc(e.note)}</p>`:''}</li>`).join('')}</ol>`:'<p>Sin movimientos de expedición registrados.</p>'}</div>`,
+ orderHistory(o)
  ];
- const dots=names.map((name,i)=>`<button type="button" class="uco-wizard-dot ${i===0?'is-current':''} ${i===0||i===1||i===2&&complete||i===3||i===4&&o.fulfillment_state==='delivered'?'is-done':''}" data-snapshot-step="${i}" aria-label="${name}"><span class="uco-wizard-dot-mark"></span><span class="uco-wizard-dot-label">${name}</span></button>`).join('');
- dialog.innerHTML=`<div class="uco-snapshot-shell"><div class="uco-snapshot-toolbar"><strong>Consulta de pedido · Solo lectura</strong><button type="button" class="uco-snapshot-close" aria-label="Cerrar ventana">×</button></div><div class="uco-order-card ${o.fulfillment_state==='delivered'?'uco-order-card-delivered':''}"><div class="uco-snapshot-summary"><strong>${esc(number)}</strong><span>${esc(o.customer)}</span><span>${esc(o.created_at)}</span><strong>${money(o.total_cents??o.subtotal_cents)}</strong><span class="uco-order-status">${o.payment_confirmed?'Pago aprobado':'Pago sin confirmar'}</span><span class="uco-order-state">${esc(states[o.fulfillment_state])}</span></div><div class="uco-order-detail"><div class="uco-order-wizard"><div class="uco-wizard-heading"><span class="uco-wizard-kicker">FICHA DEL PEDIDO</span><h3>Resumen</h3><span class="uco-wizard-counter">1 / 5</span></div><div class="uco-wizard-viewport">${pages.map((html,i)=>`<section class="uco-wizard-page" data-snapshot-page="${i}" ${i?'hidden':''}>${html}</section>`).join('')}</div><nav class="uco-wizard-nav" aria-label="Etapas del pedido"><button type="button" class="uco-wizard-move" data-snapshot-move="-1" disabled>← Anterior</button><div class="uco-wizard-dots">${dots}</div><button type="button" class="uco-wizard-move is-next" data-snapshot-move="1">Siguiente →</button></nav></div></div></div></div>`;
+ const dialog=document.createElement('dialog');
+ dialog.className='uco-shipping-history-modal';
+ dialog.setAttribute('aria-label','Ficha histórica del pedido '+reference);
+ dialog.innerHTML=`<div id="orders-area" class="uco-shipping-modal-scope"><div class="uco-shipping-modal-toolbar"><strong>Consulta del pedido · Solo lectura</strong><button type="button" class="uco-shipping-modal-close" aria-label="Cerrar ventana">×</button></div><article class="uco-order-card ${o.fulfillment_state==='delivered'?'uco-order-card-delivered':''}" ><div class="uco-shipping-modal-summary"><strong>${esc(reference)}</strong><span>${esc(o.customer)}</span><span>${esc(o.created_at)}</span><strong>${money(o.total_cents??o.subtotal_cents)}</strong><span class="uco-order-status">${o.payment_confirmed?'Pago aprobado':'Pago sin confirmar'}</span><span class="uco-order-state">${esc(states[o.fulfillment_state]||'Sin iniciar')}</span></div><div class="uco-order-detail"><div class="uco-order-wizard"><div class="uco-wizard-heading"><span class="uco-wizard-kicker">FICHA DEL PEDIDO</span><h3>Resumen</h3><span class="uco-wizard-counter" aria-live="polite">1 / 5</span></div><div class="uco-wizard-viewport">${pages.map((html,i)=>`<section class="uco-wizard-page" data-snapshot-page="${i}" ${i?'hidden':''}>${html}</section>`).join('')}</div><nav class="uco-wizard-nav" aria-label="Etapas del pedido"><button type="button" class="uco-wizard-move" data-snapshot-move="-1">← Anterior</button><div class="uco-wizard-dots">${names.map((name,i)=>`<button type="button" class="uco-wizard-dot ${complete[i]?'is-done':''} ${i===0?'is-current':''}" data-snapshot-go="${i}" aria-label="${name}" title="${name}"><span class="uco-wizard-dot-mark"></span><span class="uco-wizard-dot-label">${name}</span></button>`).join('')}</div><button type="button" class="uco-wizard-move is-next" data-snapshot-move="1">Siguiente →</button></nav></div></div></article></div>`;
+ document.body.append(dialog);
  const previousFocus=document.activeElement;
- const host=document.querySelector('#orders-area')||document.body;
- host.append(dialog);
  let current=0;
- const show=i=>{
-  current=Math.max(0,Math.min(4,i));
-  dialog.querySelectorAll('[data-snapshot-page]').forEach((page,index)=>page.hidden=index!==current);
-  dialog.querySelectorAll('[data-snapshot-step]').forEach((dot,index)=>{dot.classList.toggle('is-current',index===current);dot.setAttribute('aria-current',index===current?'step':'false')});
-  const heading=dialog.querySelector('.uco-wizard-heading');
-  heading.querySelector('h3').textContent=names[current];
-  heading.querySelectorAll('.uco-wizard-current-state').forEach(b=>b.remove());
-  let badgeText='',badgeState='';
-  if(current===1&&o.assigned_staff_name){badgeText='Responsable asignado';badgeState='assigned'}
-  if(current===2&&complete){badgeText='Pedido completo';badgeState='complete'}
-  if(current===3){badgeText=states[o.fulfillment_state]||'Sin iniciar';badgeState=o.fulfillment_state||'none'}
-  if(current===4&&o.fulfillment_state==='delivered'){badgeText='Entregado';badgeState='delivered'}
-  if(badgeText){const badge=document.createElement('strong');badge.className='uco-wizard-current-state';badge.dataset.state=badgeState;badge.textContent=badgeText;heading.querySelector('h3').after(badge)}
-  dialog.querySelector('.uco-wizard-counter').textContent=(current+1)+' / 5';
-  dialog.querySelector('[data-snapshot-move="-1"]').disabled=current===0;
-  dialog.querySelector('[data-snapshot-move="1"]').disabled=current===4;
- };
+ const activate=i=>{current=Math.max(0,Math.min(4,i));dialog.querySelectorAll('[data-snapshot-page]').forEach((page,n)=>page.hidden=n!==current);dialog.querySelectorAll('[data-snapshot-go]').forEach((dot,n)=>{dot.classList.toggle('is-current',n===current);dot.setAttribute('aria-current',n===current?'step':'false')});dialog.querySelector('.uco-wizard-heading h3').textContent=names[current];dialog.querySelectorAll('.uco-wizard-snapshot-state').forEach(node=>node.remove());const badge=document.createElement('strong');badge.className='uco-wizard-snapshot-state';badge.textContent=current===0?(o.payment_confirmed?'Pago aprobado':'Pago pendiente'):current===1?(o.assigned_staff_name?'Asignado':'Sin asignar'):current===2?(complete[2]?'Pedido completo':'Verificación pendiente'):current===3?(states[o.fulfillment_state]||'Sin iniciar'):(o.fulfillment_state==='delivered'?'Entregado':'En curso');badge.dataset.status= current===3?(o.fulfillment_state||'none'):complete[current]?'complete':'pending';dialog.querySelector('.uco-wizard-heading h3').after(badge);dialog.querySelector('.uco-wizard-counter').textContent=(current+1)+' / 5';dialog.querySelector('[data-snapshot-move="-1"]').disabled=current===0;dialog.querySelector('[data-snapshot-move="1"]').disabled=current===4};
  const close=()=>{if(dialog.open)dialog.close();dialog.remove();if(previousFocus?.isConnected)previousFocus.focus()};
- dialog.querySelector('.uco-snapshot-close').addEventListener('click',close);
+ dialog.addEventListener('click',async e=>{if(e.target===dialog||e.target.closest('.uco-shipping-modal-close')){close();return}const go=e.target.closest('[data-snapshot-go]'),move=e.target.closest('[data-snapshot-move]'),receipt=e.target.closest('[data-snapshot-receipt]');if(go)activate(Number(go.dataset.snapshotGo));else if(move)activate(current+Number(move.dataset.snapshotMove));else if(receipt&&!receipt.disabled){receipt.disabled=true;try{const {openUcoReceipt}=await import('../clientes/receipt.js');await openUcoReceipt(id,'admin')}catch(err){console.error('No se pudo abrir el justificante',err)}finally{receipt.disabled=false}}});
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
- dialog.addEventListener('click',async e=>{
-  const step=e.target.closest('[data-snapshot-step]');
-  const move=e.target.closest('[data-snapshot-move]');
-  if(step)show(Number(step.dataset.snapshotStep));
-  if(move)show(current+Number(move.dataset.snapshotMove));
-  const receipt=e.target.closest('[data-snapshot-receipt]');
-  if(receipt&&!receipt.disabled){
-   receipt.disabled=true;
-   try{const {openUcoReceipt}=await import('../clientes/receipt.js');await openUcoReceipt(Number(receipt.dataset.snapshotReceipt),'admin')}
-   catch(error){console.error('No se pudo abrir el justificante',error);alert('No se pudo abrir el justificante PDF.')}
-   finally{receipt.disabled=false}
-  }
- });
- dialog.showModal();
+ activate(0);dialog.showModal();
 }
 
 function orderLineChecks(o,canManage){
@@ -174,10 +141,8 @@ export async function openAdminOrders(){
   el.querySelector('.uco-orders-panels').addEventListener('click',e=>{
    const b=e.target.closest('[data-view-order]');if(!b)return;
    const id=Number(b.dataset.viewOrder);
-   el.querySelector('#uco-orders-search').value='PED-'+String(id).padStart(2,'0');
-   el.querySelector('#uco-orders-payment').value='';el.querySelector('#uco-orders-state').value='';
-   selectTab('all');render();
-   const details=list.querySelector('.uco-order-card');if(details){details.open=true;details.scrollIntoView({behavior:'smooth',block:'nearest'})}
+   const order=orders.find(o=>Number(o.id)===id);
+   if(order)openShippingOrderSnapshot(order);
   });
   // Navegación visual por etapas: no altera estados ni permisos del servidor.
   const wizardPosition=new Map();

@@ -1,1 +1,55 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UCO · Control de pagos</title><meta name="robots" content="noindex,nofollow"><style>body{font:15px system-ui,sans-serif;background:#f5f7f8;color:#152b3a;margin:0}header{background:#122d47;color:white;padding:22px max(20px,5vw)}header a{color:#fff}main{max-width:1200px;margin:auto;padding:26px 20px}h1{margin:10px 0}h2{margin-top:35px}p{line-height:1.55}.stats{display:flex;gap:12px;flex-wrap:wrap}.stats div{background:#fff;border:1px solid #dce3e8;border-radius:8px;padding:15px;min-width:130px}.stats strong{display:block;font-size:26px}table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:11px;border-bottom:1px solid #dce3e8;text-align:left;vertical-align:top}th{background:#eaf0f3}section{overflow:auto}button,select{font:inherit;padding:8px 12px}#message{margin:16px 0}small{color:#60727e}.notice{padding:12px;border-left:3px solid #9c6a1b;background:#fff7e9}a{color:#14577d}@media(max-width:650px){table{font-size:13px}}</style></head><body><header><a href="./">← Volver a administración</a><h1>Control de pagos</h1><p><a href="./payment-settings.html">Configuración de pasarelas</a> (solo administración principal)</p><div>Fase 6.6 · Consulta y revisión administrativa</div></header><main><p class="notice">Las tareas pueden cerrarse administrativamente con motivo y auditoría. Esto NO confirma transferencias, NO ejecuta devoluciones y NO modifica pedidos ni existencias.</p><div class="stats" id="stats"></div><p><label for="status">Estado: </label><select id="status"><option value="all">Todos</option><option value="pending">Pendientes</option><option value="paid">Cobrados</option><option value="review">En revisión</option><option value="failed">Fallidos</option><option value="cancelled">Cancelados</option></select> <button type="button" id="refresh">Actualizar</button></p><div id="message" role="status"></div><h2>Operaciones</h2><section><table><thead><tr><th>Referencia</th><th>Método</th><th>Estado</th><th>Importe</th><th>Pedido</th><th>Fecha</th></tr></thead><tbody id="payments"></tbody></table></section><h2>Tareas abiertas</h2><section><table><thead><tr><th>Referencia</th><th>Tipo</th><th>Estado del pago</th><th>Nota</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody id="tasks"></tbody></table></section><p><small>Los datos se muestran únicamente a usuarios con permiso de consulta de pedidos.</small></p></main><script src="./payments-66.js" defer></script></body></html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UCO · Control de pagos</title><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="./admin.css?v=1.9.6.5"><style>
+body{font-family:Manrope,sans-serif;background:#f7f8f3;color:#10283a;margin:0}
+header{background:#232f5d;color:white;padding:1.5rem clamp(1rem,3vw,3rem)}
+header a{color:white}main{max-width:1450px;margin:auto;padding:clamp(1rem,3vw,3rem)}
+h1,h2{font-family:'Space Grotesk',sans-serif}
+h2{font-size:1.5rem;margin:2rem 0 1rem}
+p{line-height:1.6}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem}
+.stats>div{background:white;border:1px solid #dce4e9;border-radius:1.4rem 0 1.4rem 0;padding:1.3rem}
+.stats strong{display:block;font-size:1.8rem}
+section{overflow-x:auto;background:white;border:1px solid #dce4e9;border-radius:1.4rem 0 1.4rem 0}
+table{width:100%;border-collapse:collapse;min-width:690px}
+th,td{padding:1rem;text-align:left;border-bottom:1px solid #e1e7ea;vertical-align:top}
+th{background:#f0f4e9;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+button,select{font:inherit;padding:.7rem 1rem;border-radius:1rem 0 1rem 0;border:1px solid #b9cbd5}
+button{background:#a9e13f;color:#10283a;font-weight:800;cursor:pointer}
+a{color:#275d89;font-weight:700}
+.notice{background:#f1f5e7;border-left:4px solid #86ad39;padding:1rem 1.3rem;border-radius:.6rem}
+#message{margin:1rem 0}small{color:#647a88}
+body.embedded header{display:none}
+body.embedded main{padding:0 0 1.5rem}
+@media(max-width:650px){table{font-size:.85rem}}
+
+.payment-actions{display:grid;grid-template-columns:minmax(220px,0.9fr) minmax(0,2fr);gap:1rem;align-items:stretch;margin:1.4rem 0}
+.payment-filter,.payment-action-card{background:#fff;border:1px solid #dce4e9;border-radius:1.45rem 0 1.45rem 0;padding:1.15rem 1.3rem;min-width:0}
+.payment-filter{display:flex;flex-direction:column;justify-content:center;gap:.7rem}
+.payment-filter label{font-weight:800;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:#597183}
+.payment-filter-controls{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap}
+.payment-filter select{flex:1;min-width:115px;background:#f5f8f1}
+.payment-filter button{white-space:nowrap}
+.payment-quick-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+a.payment-action-card{display:flex;gap:.85rem;align-items:center;text-decoration:none;color:#10283a;transition:border-color .2s,transform .2s,box-shadow .2s}
+a.payment-action-card:hover,a.payment-action-card:focus-visible{border-color:#91b63e;transform:translateY(-2px);box-shadow:0 8px 22px #23335c12}
+.payment-action-card strong,.payment-action-card small{display:block}
+.payment-action-card strong{font-weight:800}
+.payment-action-card small{font-size:.76rem;line-height:1.45;margin-top:.25rem}
+.payment-action-card>span:last-child{margin-left:auto;font-size:1.7rem;color:#729b28}
+.payment-action-icon{width:2.65rem;height:2.65rem;display:grid;place-items:center;flex:none;background:#edf6d7;border-radius:1rem 0 1rem 0;color:#5c8725;font-size:1.35rem;font-weight:900}
+@media(max-width:1050px){.payment-actions{grid-template-columns:1fr}}
+@media(max-width:980px){.payment-quick-links{grid-template-columns:1fr}}@media(max-width:600px){.payment-quick-links{grid-template-columns:1fr}.payment-filter-controls{flex-direction:column;align-items:stretch}.payment-filter-controls select,.payment-filter-controls button{width:100%}}
+</style></head><body><header><a href="./">← Volver a administración</a><h1>Control de pagos</h1><div>Fase 6.6 · Consulta y revisión administrativa</div></header><main><p class="notice">Las tareas pueden cerrarse administrativamente con motivo y auditoría. Esto NO confirma transferencias, NO ejecuta devoluciones y NO modifica pedidos ni existencias.</p><div class="stats" id="stats"></div><div class="payment-actions"><div class="payment-filter"><label for="status">Filtrar operaciones</label><div class="payment-filter-controls"><select id="status"><option value="all">Todos</option><option value="pending">Pendientes</option><option value="paid">Cobrados</option><option value="review">En revisión</option><option value="failed">Fallidos</option><option value="cancelled">Cancelados</option></select> <button type="button" id="refresh"><span aria-hidden="true">↻</span> Actualizar</button></div></div><div class="payment-quick-links"><a class="payment-action-card" data-payment-modal="refunds" href="./refunds.html"><span class="payment-action-icon" aria-hidden="true">↩</span><span><strong>Devoluciones</strong><small>Consultar registros y verificaciones</small></span><span aria-hidden="true">›</span></a><a class="payment-action-card" data-payment-modal="incidents" href="./incidents.html"><span class="payment-action-icon" aria-hidden="true">!</span><span><strong>Incidencias</strong><small>Pagos tardíos y conciliación</small></span><span aria-hidden="true">›</span></a><a class="payment-action-card" href="./chatbot-admin.html?modal=1" data-payment-modal="chatbot"><span class="payment-action-icon" aria-hidden="true">◉</span><span><strong>Preparación del chatbot</strong><small>Permisos, trazabilidad y comprobaciones</small></span><span aria-hidden="true">›</span></a></div></div><div id="message" role="status"></div><h2>Operaciones</h2><section><table><thead><tr><th>Referencia</th><th>Método</th><th>Estado</th><th>Importe</th><th>Pedido</th><th>Fecha</th></tr></thead><tbody id="payments"></tbody></table></section><h2>Tareas abiertas</h2><section><table><thead><tr><th>Referencia</th><th>Tipo</th><th>Estado del pago</th><th>Nota</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody id="tasks"></tbody></table></section><p><small>Los datos se muestran únicamente a usuarios con permiso de consulta de pedidos.</small></p></main><script src="./payments-66.js" defer></script><script>
+if(new URLSearchParams(location.search).get('embedded')==='1'){
+ document.body.classList.add('embedded');
+ const sendHeight=()=>parent.postMessage({type:'uco-payments-height',height:document.documentElement.scrollHeight},location.origin);
+ new ResizeObserver(sendHeight).observe(document.body);
+ window.addEventListener('load',sendHeight);
+}
+</script><script>
+document.querySelectorAll('[data-payment-modal]').forEach(link=>{
+ link.addEventListener('click',event=>{
+  if(!document.body.classList.contains('embedded'))return;
+  event.preventDefault();
+  parent.postMessage({type:'uco-open-payment-modal',section:link.dataset.paymentModal},location.origin);
+ });
+});
+</script></body></html>

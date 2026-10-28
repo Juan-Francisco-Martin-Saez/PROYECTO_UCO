@@ -65,7 +65,7 @@ try{
  $q=$db->prepare('SELECT product_id,quantity FROM uco_order_lines WHERE order_id=?');$q->execute([(int)$order['id']]);$lines=$q->fetchAll();
  if(!$lines){$db->rollBack();payReply(['error'=>'La reserva no contiene productos.'],409);}
  $product=$db->prepare('SELECT p.stock,p.active,c.active category_active FROM products p JOIN categories c ON c.id=p.category_id WHERE p.id=?');
- $reserved=$db->prepare("SELECT COALESCE(SUM(l.quantity),0) FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=? AND o.status='reserved' AND o.expires_at>?");
+ $reserved=$db->prepare("SELECT COALESCE(SUM(l.quantity),0) FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=? AND o.status IN ('reserved','pending_payment') AND o.expires_at>?");
  foreach($lines as $line){$product->execute([(int)$line['product_id']]);$p=$product->fetch();$reserved->execute([(int)$line['product_id'],time()]);$held=(int)$reserved->fetchColumn();if(!$p||!(int)$p['active']||!(int)$p['category_active']||(int)$p['stock']<$held){$db->rollBack();payReply(['error'=>'Las existencias han cambiado. Revisa tu reserva antes de continuar.'],409);}}
  $db->exec("CREATE TABLE IF NOT EXISTS uco_order_payment_choices(order_id INTEGER PRIMARY KEY REFERENCES uco_orders(id) ON DELETE CASCADE,method TEXT NOT NULL CHECK(method IN ('redsys','transfer','paypal','bizum')),updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
  $q=$db->prepare('SELECT method FROM uco_order_payment_choices WHERE order_id=?');$q->execute([(int)$order['id']]);$selected=$q->fetchColumn()?:null;

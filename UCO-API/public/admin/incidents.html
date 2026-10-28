@@ -1,0 +1,363 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>UCO · Incidencias de pagos</title><link rel="stylesheet" href="./admin.css?v=1.9.6.7"><style>
+:root{font-family:system-ui,sans-serif;color:#142e41;background:#f5f7f8}body{margin:0}header{background:#122d47;color:#fff;padding:20px max(18px,5vw)}header a{color:#fff}main{max-width:1200px;margin:auto;padding:24px 18px}h1{margin:10px 0}h2{margin:26px 0 12px}.notice{padding:14px;border-left:4px solid #a26c1e;background:#fff5e6;line-height:1.5}table{width:100%;border-collapse:collapse;background:#fff}th,td{text-align:left;border-bottom:1px solid #dce3e8;padding:10px;vertical-align:top}th{background:#eaf0f3}.scroll{overflow-x:auto}button{font:inherit;padding:8px 14px;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}#message{min-height:1.5em}.muted{color:#526b7c}.flags{font-size:.87em;word-break:break-word}code{font-size:.95em}@media(max-width:680px){table{font-size:12px}th,td{padding:8px}}
+
+:root{font-family:Manrope,sans-serif;background:#f7f8f3;color:#10283a}
+body{font-family:Manrope,sans-serif;background:#f7f8f3;color:#10283a}
+header{background:#232f5d;color:#fff}
+main{max-width:1450px;margin:auto;padding:clamp(1rem,3vw,2rem)}
+h1,h2{font-family:'Space Grotesk',sans-serif;color:#10283a}
+header h1{color:white}
+.notice{background:#f0f5e6;border-left:4px solid #8fb93b;border-radius:1rem 0 1rem 0;padding:1rem 1.3rem;color:#355063}
+.scroll,section{overflow-x:auto;background:#fff;border:1px solid #dce4e9;border-radius:1.4rem 0 1.4rem 0}
+table{width:100%;border-collapse:collapse;min-width:680px;background:#fff}
+th,td{padding:.9rem 1rem;border-bottom:1px solid #e1e7ea;text-align:left;vertical-align:top}
+th{background:#f0f4e9;color:#10283a;font-size:.77rem;letter-spacing:.04em;text-transform:uppercase}
+button,select{font:inherit;border:1px solid #b9cbd5;padding:.65rem .9rem;border-radius:1rem 0 1rem 0}
+button{background:#a9e13f;color:#10283a;font-weight:800;cursor:pointer;border:0}
+button:disabled{opacity:.4;cursor:not-allowed}
+select{background:white;color:#10283a}
+#message{margin:1rem 0}
+body.modal header{display:none}
+body.modal main{padding:clamp(1rem,3vw,2rem)}
+@media(max-width:650px){table{font-size:.78rem}th,td{padding:.65rem}body.modal main{padding:1rem}}
+
+/* Corrección tipográfica y responsive específica de consultas bancarias */
+html{min-width:0;max-width:100%;overflow-x:hidden}
+body{font-family:Manrope,Arial,sans-serif!important;font-size:14px;line-height:1.5;min-width:0;max-width:100%;overflow-x:hidden}
+body h1,body h2,body h3{font-family:'Space Grotesk',Manrope,Arial,sans-serif!important;font-weight:700;letter-spacing:-.025em;line-height:1.2}
+body h2{font-size:clamp(1.05rem,2.4vw,1.45rem);margin:1.35rem 0 .7rem}
+body p,body .muted,body #message{font-family:Manrope,Arial,sans-serif;font-size:.88rem;line-height:1.55}
+body main{width:100%;min-width:0;max-width:1200px;padding:clamp(.85rem,2.6vw,1.5rem);margin:auto}
+body.modal main{padding:clamp(.8rem,2.6vw,1.4rem)}
+body .notice{font-size:.85rem;line-height:1.55;margin:0 0 1rem;padding:.9rem 1.1rem;overflow-wrap:break-word}
+body button,body select{font-family:Manrope,Arial,sans-serif!important;font-size:.82rem!important;font-weight:750;line-height:1.2;white-space:nowrap;min-height:35px;padding:.55rem .75rem}
+body button:disabled{opacity:.38}
+body main>p,body main>div{min-width:0}
+body .scroll,body section{display:block;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+body table{width:100%;min-width:640px;table-layout:auto}
+body th{font-family:Manrope,Arial,sans-serif!important;font-size:.68rem!important;font-weight:800;letter-spacing:.025em;white-space:nowrap}
+body td{font-family:Manrope,Arial,sans-serif!important;font-size:.77rem;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+body td .flags,body td code{font-family:inherit;font-size:inherit;overflow-wrap:anywhere}
+body th,body td{padding:.65rem .75rem;vertical-align:middle}
+body #message{overflow-wrap:anywhere}
+@media(max-width:700px){
+ body{font-size:12px}
+ body main,body.modal main{padding:.7rem .65rem 1.2rem}
+ body h2{font-size:1.04rem!important;margin:1.05rem 0 .55rem}
+ body p,body .muted,body #message{font-size:.76rem;line-height:1.4}
+ body .notice{font-size:.75rem;line-height:1.4;padding:.65rem .75rem;margin-bottom:.7rem}
+ body button,body select{font-size:.72rem!important;padding:.48rem .6rem;min-height:32px}
+ body th,body td{padding:.48rem .55rem}
+ body th{font-size:.62rem!important}
+ body td{font-size:.69rem}
+ body table{min-width:580px}
+ body main>p{margin:.65rem 0}
+}
+@media(max-width:390px){
+ body h2{font-size:.96rem!important}
+ body .notice{font-size:.71rem}
+ body button,body select{font-size:.68rem!important;padding:.42rem .48rem}
+ body table{min-width:540px}
+}
+
+/* Fase 6.31: prioridades y filtros sin alterar los datos */
+.uco-incidents-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:.7rem;margin:1rem 0}
+.uco-incidents-filter{display:flex;align-items:center;gap:.55rem;min-width:0}
+.uco-incidents-filter label{font-weight:800;font-size:.78rem;white-space:nowrap}
+.uco-incidents-filter select{min-width:145px}
+.uco-priority-summary{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.1rem}
+.uco-priority-count{background:white;border:1px solid #dce4e9;border-radius:1rem 0 1rem 0;padding:.55rem .8rem;font-size:.76rem;font-weight:800;white-space:nowrap}
+.uco-priority-pill{display:inline-block;font-size:.7rem;font-weight:800;padding:.35rem .55rem;border-radius:.6rem;white-space:nowrap}
+.uco-priority-pill[data-level="critical"]{background:#fbe5e3;color:#962b2b}
+.uco-priority-pill[data-level="high"]{background:#fff0d7;color:#895a0b}
+.uco-priority-pill[data-level="medium"]{background:#e6efff;color:#295587}
+.uco-priority-pill[data-level="low"]{background:#edf5e0;color:#416b1e}
+.uco-priority-summary .uco-priority-count{font-family:Manrope,Arial,sans-serif}
+body table{min-width:740px}
+@media(max-width:600px){.uco-incidents-toolbar{gap:.55rem}.uco-incidents-toolbar .muted{flex-basis:100%;font-size:.72rem}.uco-incidents-filter{flex:1}.uco-incidents-filter select{min-width:0;width:100%;max-width:150px}.uco-priority-count{font-size:.69rem;padding:.45rem .6rem}.uco-priority-pill{font-size:.65rem}}
+
+/* Fase 6.32: exportación compacta sin desbordamientos */
+#export-csv{background:#232f5d;color:#fff;white-space:nowrap}
+#export-csv:disabled{opacity:.35}
+@media(max-width:600px){.uco-incidents-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:.45rem;align-items:center}.uco-incidents-filter{min-width:0}.uco-incidents-filter label{font-size:.69rem}.uco-incidents-filter select{max-width:110px}.uco-incidents-toolbar button{font-size:.68rem!important;padding:.45rem .5rem}.uco-incidents-toolbar .muted{grid-column:1/-1;min-width:0}}
+@media(max-width:360px){.uco-incidents-toolbar{grid-template-columns:1fr 1fr}.uco-incidents-filter{grid-column:1/-1}.uco-incidents-toolbar button{width:100%}}
+.uco-followup{margin:2rem 0;padding:clamp(1rem,2vw,1.5rem);background:white;border:1px solid #dce4e9;border-radius:1.4rem 0 1.4rem 0;overflow:visible}
+.uco-followup h2{margin-top:0}.uco-followup-grid{display:grid;grid-template-columns:1fr 1.4fr auto;gap:.8rem;align-items:end}
+.uco-followup label{display:flex;flex-direction:column;gap:.4rem;min-width:0;font-weight:700;font-size:.82rem}
+.uco-followup input,.uco-followup textarea,.uco-followup select{width:100%;min-width:0;box-sizing:border-box;padding:.65rem;border:1px solid #b9cbd5;border-radius:.75rem;background:#fff;font:inherit}
+.uco-followup form{display:grid;gap:1rem;margin-top:1rem}.uco-followup form .uco-followup-grid{grid-template-columns:1fr 1fr}
+#followup-history{margin-top:1rem;overflow-wrap:anywhere}#followup-history article{border-bottom:1px solid #e2e9ec;padding:.65rem 0}
+@media(max-width:650px){.uco-followup-grid,.uco-followup form .uco-followup-grid{grid-template-columns:minmax(0,1fr)}.uco-followup button{width:100%}}
+
+.uco-overview{margin:2rem 0;padding:clamp(1rem,2vw,1.5rem);background:white;border:1px solid #dce4e9;border-radius:1.4rem 0 1.4rem 0;overflow:hidden}
+.uco-overview h2{margin-top:0}.uco-overview-controls{display:grid;grid-template-columns:1fr 1fr minmax(160px,1.5fr) auto;gap:.7rem;align-items:end}
+.uco-overview-controls label{display:flex;flex-direction:column;gap:.35rem;font-weight:700;font-size:.78rem;min-width:0}
+.uco-overview-controls select,.uco-overview-controls input{width:100%;min-width:0;padding:.65rem;border:1px solid #b9cbd5;border-radius:.75rem;background:#fff;font:inherit}
+.uco-overview-controls button,.uco-overview-pagination button{white-space:nowrap}
+.uco-overview-result{padding:.85rem 0;border-bottom:1px solid #e2e9ec;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.4rem .8rem;overflow-wrap:anywhere}
+.uco-overview-result strong{font-weight:800}.uco-overview-result p{grid-column:1/-1;margin:0;font-size:.85rem}
+.uco-overview-result small{color:#647a88}.uco-overview-pagination{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-top:1rem}
+@media(max-width:850px){.uco-overview-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:450px){.uco-overview-controls{grid-template-columns:minmax(0,1fr)}.uco-overview-controls button{width:100%}.uco-overview-pagination{justify-content:center}.uco-overview-result{grid-template-columns:minmax(0,1fr)}}
+.uco-summary{margin:1.5rem 0;padding:clamp(1rem,2vw,1.5rem);border:1px solid #dce4e9;border-radius:1.4rem 0 1.4rem 0;background:#fff;overflow:visible}
+.uco-summary h2{margin-top:0}.uco-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}
+.uco-summary-item{min-width:0;padding:1rem;background:#f4f7ef;border:1px solid #e0e9d4;border-radius:1rem 0 1rem 0;display:flex;flex-direction:column;gap:.3rem}
+.uco-summary-item strong{font:800 clamp(1.35rem,3vw,2rem)/1.1 'Space Grotesk',sans-serif;color:#232f5d}
+.uco-summary-item span{font-size:clamp(.7rem,1.3vw,.85rem);font-weight:700;overflow-wrap:break-word}
+@media(max-width:650px){.uco-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.uco-summary-item{padding:.75rem}}
+@media(max-width:350px){.uco-summary-grid{gap:.5rem}}
+
+/* UCO · refinamiento visual responsive de Incidencias, sin alterar la lógica */
+:root{color-scheme:light}
+html,body{width:100%;min-width:0;overflow-x:clip}
+body{background:#f7f8f3!important;color:#232f5d!important}
+body main{box-sizing:border-box;width:100%;max-width:1160px;padding:clamp(12px,2.5vw,28px)!important}
+body.modal main{padding:clamp(10px,2vw,22px)!important}
+body h2{color:#232f5d!important;font-size:clamp(1.12rem,2vw,1.48rem)!important;letter-spacing:-.035em;margin:0 0 .85rem!important}
+body main>.notice{border:1px solid #dbe9c9;border-left:5px solid #a9e13f;background:#f1f7e8;color:#40552e;border-radius:14px 4px 14px 4px;padding:13px 16px;line-height:1.55;margin-bottom:16px}
+body main>.notice::before{content:"INFORMACIÓN ADMINISTRATIVA";display:block;color:#365c1d;font-size:.65rem;font-weight:900;letter-spacing:.1em;margin-bottom:5px}
+body .uco-incidents-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:9px;padding:14px;background:white;border:1px solid #e0e7e8;border-radius:18px 5px 18px 5px;box-shadow:0 5px 22px rgba(35,47,93,.045);margin:0 0 14px}
+body .uco-incidents-filter{display:flex;flex-direction:column;align-items:stretch;gap:5px;flex:1 1 170px}
+body .uco-incidents-filter label{color:#4e5d74;font-size:.7rem;font-weight:800;letter-spacing:.03em}
+body .uco-incidents-filter select{width:100%;max-width:none;min-width:0}
+body button{border-radius:11px 3px 11px 3px!important;min-height:40px;transition:background .15s,box-shadow .15s}
+body button:hover:not(:disabled){filter:brightness(.97);box-shadow:0 3px 9px rgba(35,47,93,.1)}
+body button:focus-visible,body input:focus-visible,body select:focus-visible,body textarea:focus-visible{outline:3px solid #a9e13f;outline-offset:2px}
+body .uco-incidents-toolbar .muted{flex-basis:100%;margin:2px 0 0;color:#677789;font-size:.73rem}
+body .uco-priority-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 16px}
+body .uco-priority-count{display:flex;align-items:center;justify-content:center;text-align:center;min-width:0;white-space:normal;overflow-wrap:anywhere;min-height:48px;padding:9px 6px;border-radius:13px 3px 13px 3px;border-color:#e0e7e8;background:#fff;box-shadow:0 3px 12px rgba(35,47,93,.035)}
+body #message{margin:8px 0 12px;min-height:0}
+body main>h2{margin-top:22px!important;padding:0 0 8px;border-bottom:2px solid #e3eacb}
+body main>.scroll{width:100%;max-width:100%;box-sizing:border-box;border-radius:17px 4px 17px 4px;border:1px solid #dfe7e8;box-shadow:0 5px 20px rgba(35,47,93,.04);background:white;overflow-x:auto}
+body .scroll table{min-width:720px;margin:0}
+body .scroll th{background:#edf3e7;color:#34425b}
+body .scroll td{background:#fff;border-bottom-color:#edf0f2}
+body .scroll tbody tr:hover td{background:#fafcf6}
+body .uco-summary,body .uco-overview,body .uco-followup{box-sizing:border-box;width:100%;min-width:0;max-width:100%;overflow:visible;background:#fff;border:1px solid #dfe7e8;border-radius:20px 5px 20px 5px;padding:clamp(14px,2.4vw,24px)!important;box-shadow:0 7px 24px rgba(35,47,93,.045);margin:20px 0}
+body .uco-summary{background:linear-gradient(145deg,#fff 55%,#f6f9ef)}
+body .uco-summary-grid{min-width:0;max-width:100%;gap:10px}
+body .uco-summary-grid>*{min-width:0;overflow-wrap:anywhere}
+body .uco-overview-controls{grid-template-columns:repeat(2,minmax(0,1fr)) minmax(0,1.4fr) auto;gap:10px}
+body .uco-overview-controls label,body .uco-followup label{color:#43526a;font-weight:800}
+body .uco-overview-controls input,body .uco-overview-controls select,body .uco-followup input,body .uco-followup select,body .uco-followup textarea{box-sizing:border-box;min-height:42px;width:100%;max-width:100%;border-radius:11px 3px 11px 3px;background:#fcfdfb;color:#232f5d}
+body .uco-overview-result{border-bottom:1px solid #e9edef;padding:12px 0;min-width:0}
+body #overview-results,body #followup-history{min-width:0;max-width:100%;overflow-wrap:anywhere}
+body .uco-followup-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr) auto}
+body .uco-followup form .uco-followup-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body .uco-followup form button{justify-self:start}
+body main>p:last-of-type{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+body main>p:last-of-type button{flex:0 0 auto}
+@media(max-width:850px){
+ body .uco-overview-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body .uco-followup-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body #followup-load{grid-column:1/-1}
+ body .uco-priority-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+ body main,body.modal main{padding:10px!important}
+ body .notice{font-size:.76rem!important}
+ body .uco-incidents-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:11px;gap:8px}
+ body .uco-incidents-filter{grid-column:1/-1;min-width:0}
+ body .uco-incidents-filter select{max-width:100%;width:100%}
+ body .uco-incidents-toolbar button{width:100%;min-width:0;white-space:nowrap;font-size:.72rem!important}
+ body .uco-incidents-toolbar .muted{grid-column:1/-1}
+ body .uco-priority-summary{gap:7px}
+ body .uco-priority-count{font-size:.69rem;padding:7px 5px}
+ body .uco-summary,body .uco-overview,body .uco-followup{padding:13px!important;border-radius:15px 4px 15px 4px;margin:14px 0}
+ body .uco-overview-controls,body .uco-followup-grid,body .uco-followup form .uco-followup-grid{grid-template-columns:minmax(0,1fr)}
+ body #followup-load{grid-column:auto}
+ body .uco-followup form button{justify-self:stretch}
+ body .uco-overview-pagination{display:grid;grid-template-columns:1fr auto 1fr;gap:7px}
+ body .uco-overview-pagination button{min-width:0;padding:8px 5px!important}
+ body .uco-overview-result{grid-template-columns:minmax(0,1fr)}
+ body .uco-overview-result p{grid-column:1}
+ body .scroll{overflow:visible!important;border:0!important;background:transparent!important;box-shadow:none!important}
+ body .scroll table{display:block;min-width:0!important;width:100%;background:transparent}
+ body .scroll thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ body .scroll tbody{display:grid;gap:10px;width:100%}
+ body .scroll tbody tr{display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0;background:#fff;border:1px solid #dfe7e8;border-radius:14px 4px 14px 4px;padding:8px 11px;box-shadow:0 3px 12px rgba(35,47,93,.035)}
+ body .scroll tbody td{display:flex;align-items:baseline;justify-content:space-between;gap:12px;max-width:none;min-width:0;width:100%;box-sizing:border-box;white-space:normal!important;overflow-wrap:anywhere;overflow:visible;text-overflow:clip;padding:7px 0!important;font-size:.74rem!important;line-height:1.45;border-bottom:1px solid #edf0f2;background:transparent!important;text-align:right}
+ body .scroll tbody td:last-child{border-bottom:0}
+ body .scroll tbody td::before{flex:0 0 34%;text-align:left;color:#66758b;font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em}
+ body .scroll tbody td:nth-child(1)::before{content:"Referencia"}
+ body .scroll tbody td:nth-child(2)::before{content:"Pedido"}
+ body .scroll tbody td:nth-child(3)::before{content:"Proveedor"}
+ body .scroll tbody td:nth-child(4)::before{content:"Estado"}
+ body .scroll tbody td:nth-child(5)::before{content:"Importe"}
+ body .scroll tbody td:nth-child(6)::before{content:"Prioridad"}
+ body .scroll tbody td:nth-child(7)::before{content:"Incidencias"}
+ body .scroll tbody td>*{max-width:65%;overflow-wrap:anywhere}
+ body .scroll tbody td[colspan]{display:block;text-align:center}
+ body .scroll tbody td[colspan]::before{content:none}
+}
+@media(max-width:360px){
+ body .uco-incidents-toolbar{grid-template-columns:minmax(0,1fr)}
+ body .uco-incidents-toolbar button{grid-column:1}
+ body .uco-priority-summary{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ body .uco-overview-pagination{grid-template-columns:1fr 1fr}
+ body .uco-overview-pagination span{grid-column:1/-1;grid-row:1;text-align:center}
+ body .scroll tbody td::before{flex-basis:32%}
+}
+
+.uco-aging{box-sizing:border-box;min-width:0;margin:20px 0;padding:clamp(14px,2.4vw,24px);background:#fff;border:1px solid #dfe7e8;border-radius:20px 5px 20px 5px;box-shadow:0 7px 24px rgba(35,47,93,.045)}
+.uco-aging-heading{display:flex;gap:16px;justify-content:space-between;align-items:start;flex-wrap:wrap}
+.uco-aging-heading>div{flex:1 1 230px;min-width:0}.uco-aging-heading p{margin:0;color:#66758b;font-size:.82rem;line-height:1.55}
+.uco-aging-heading label{display:grid;gap:5px;flex:0 1 190px;min-width:0;font-weight:800;font-size:.75rem;color:#43526a}
+.uco-aging-heading select{min-width:0;width:100%;box-sizing:border-box;min-height:42px;border:1px solid #b9cbd5;border-radius:11px 3px 11px 3px;padding:8px;background:#fcfdfb;color:#232f5d;font:inherit}
+.uco-aging-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#f4f8ec;padding:12px;margin:15px 0;border-radius:13px 4px 13px 4px}
+.uco-aging-status strong{font:800 clamp(1.4rem,3vw,2rem) 'Space Grotesk',sans-serif;color:#232f5d}
+.uco-aging-status span{flex:1 1 170px;font-size:.78rem;color:#455571}.uco-aging-results{display:grid;gap:9px}
+.uco-aging-item{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid #e0e7e8;border-radius:12px 4px 12px 4px;min-width:0}
+.uco-aging-item>*{min-width:0;overflow-wrap:anywhere}.uco-aging-item strong{display:block;color:#232f5d}.uco-aging-item small{color:#66758b}
+.uco-aging-days{font-weight:800;color:#7d4d18;white-space:nowrap}
+@media(max-width:600px){.uco-aging{padding:13px;margin:14px 0}.uco-aging-heading label{flex:1 1 100%}.uco-aging-item{grid-template-columns:minmax(0,1fr) auto}.uco-aging-item>div:nth-child(2){grid-column:1/-1;grid-row:2}.uco-aging-days{grid-column:2;grid-row:1}.uco-aging-status button{width:100%}}
+
+/* Fase 6.37: accesos rápidos a expedientes */
+.uco-aging-actions{display:flex;gap:7px;flex-wrap:wrap;grid-column:1/-1;padding-top:8px;border-top:1px solid #edf0f2}
+.uco-aging-actions button{min-height:36px;padding:8px 12px;font-size:.75rem;white-space:normal;overflow-wrap:anywhere}
+.uco-aging-actions .uco-aging-open{background:#a9e13f!important;color:#232f5d!important;border-color:#a9e13f!important}
+.uco-aging-actions .uco-aging-history{background:#f7f8f3!important;color:#232f5d!important;border:1px solid #cbd8df!important}
+@media(max-width:560px){.uco-aging-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.uco-aging-actions button{width:100%;min-width:0;font-size:.7rem}}
+@media(max-width:340px){.uco-aging-actions{grid-template-columns:minmax(0,1fr)}}
+
+/* Fase 6.38: navegación accesible por secciones, compatible con iframes */
+body .uco-incidents-jump{position:sticky;top:0;z-index:12;display:flex;align-items:center;gap:7px;max-width:100%;min-width:0;box-sizing:border-box;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scroll-snap-type:x proximity;padding:10px 12px;margin:0 0 16px;background:rgba(247,248,243,.98);border:1px solid #dce5df;border-radius:16px 4px 16px 4px;box-shadow:0 5px 18px rgba(35,47,93,.07);-webkit-overflow-scrolling:touch}
+body .uco-incidents-jump .uco-jump-label{flex:0 0 auto;font-size:.62rem;letter-spacing:.11em;font-weight:900;color:#66758b;padding:0 6px 0 2px}
+body .uco-incidents-jump a{flex:0 0 auto;scroll-snap-align:start;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:39px;padding:9px 12px;border-radius:10px 3px 10px 3px;background:white;border:1px solid #dce5df;color:#232f5d;text-decoration:none;font:800 .76rem/1.2 Manrope,Arial,sans-serif;white-space:nowrap}
+body .uco-incidents-jump a:hover,body .uco-incidents-jump a:focus-visible{background:#a9e13f;border-color:#a9e13f;color:#232f5d}
+body .uco-incidents-jump a:focus-visible{outline:2px solid #232f5d;outline-offset:2px}
+body #uco-section-payments,body #uco-section-refunds,body #summary-635-title,body #aging-title,body #overview-title,body #followup-title{scroll-margin-top:85px}
+body #uco-section-payments:target,body #uco-section-refunds:target,body #summary-635-title:target,body #aging-title:target,body #overview-title:target,body #followup-title:target{background:linear-gradient(transparent 70%,rgba(169,225,63,.23) 70%)}
+@media(max-width:600px){body .uco-incidents-jump{padding:8px;gap:6px;margin-bottom:12px}body .uco-incidents-jump .uco-jump-label{display:none}body .uco-incidents-jump a{font-size:.72rem;min-height:38px;padding:9px 11px}}
+@media(max-height:550px){body .uco-incidents-jump{padding:5px 8px;margin-bottom:8px}body .uco-incidents-jump a{min-height:33px;padding:6px 10px}body #uco-section-payments,body #uco-section-refunds,body #summary-635-title,body #aging-title,body #overview-title,body #followup-title{scroll-margin-top:60px}}
+@media(prefers-reduced-motion:no-preference){body .uco-incidents-jump{scroll-behavior:smooth}}
+
+/* Fase 6.39 · secciones plegables, compatibles con la navegación 6.38 */
+body .uco-fold{display:block;min-width:0;max-width:100%;box-sizing:border-box;margin:12px 0;background:#fff;border:1px solid #dfe7e8;border-radius:18px 5px 18px 5px;overflow:clip;box-shadow:0 4px 17px rgba(35,47,93,.045)}
+body .uco-fold>summary{list-style:none;display:flex;align-items:center;gap:12px;min-height:58px;box-sizing:border-box;padding:13px 17px;cursor:pointer;user-select:none;color:#232f5d;font:800 clamp(.9rem,1.8vw,1.07rem)/1.3 'Space Grotesk',Manrope,sans-serif;background:linear-gradient(115deg,#fff,#f6f9ef)}
+body .uco-fold>summary::-webkit-details-marker{display:none}
+body .uco-fold>summary:focus-visible{outline:3px solid #a9e13f;outline-offset:-4px}
+body .uco-fold[open]>summary{border-bottom:1px solid #e5ebeb;background:#f4f8ec}
+body .uco-fold-number{display:inline-grid;place-items:center;flex:0 0 31px;width:31px;height:31px;border-radius:9px 2px 9px 2px;background:#232f5d;color:#fff;font:800 .72rem Manrope,sans-serif}
+body .uco-fold-name{flex:1;min-width:0;overflow-wrap:anywhere}
+body .uco-fold-chevron{flex:0 0 auto;font-size:1.35rem;transition:transform .15s}
+body .uco-fold[open] .uco-fold-chevron{transform:rotate(180deg)}
+body .uco-fold-content{padding:clamp(10px,1.6vw,19px);min-width:0;box-sizing:border-box}
+body .uco-fold-content>h2:first-child,body .uco-fold-content>section>h2:first-child,body .uco-fold-content>section>.uco-aging-heading h2{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;margin:0!important;padding:0!important;border:0!important}
+body .uco-fold-content>.uco-summary,body .uco-fold-content>.uco-aging,body .uco-fold-content>.uco-overview,body .uco-fold-content>.uco-followup{border:0;box-shadow:none;border-radius:0;margin:0;padding:4px!important;background:transparent}
+body .uco-fold-content>.uco-aging .uco-aging-heading{padding-top:4px}
+body .uco-fold-content>.uco-summary .uco-summary-grid{margin-top:4px}
+body .uco-fold-content>.scroll{margin-top:8px}
+body .uco-fold-content>p:first-of-type{margin-top:0}
+body .uco-fold-content .uco-overview-controls{margin-top:12px}
+body .uco-fold-content .uco-followup-grid{margin-top:10px}
+body .uco-fold:target{scroll-margin-top:80px}
+@media(max-width:600px){body .uco-fold{margin:9px 0;border-radius:13px 4px 13px 4px}body .uco-fold>summary{min-height:49px;padding:10px;gap:9px;font-size:.84rem}body .uco-fold-number{width:27px;height:27px;flex-basis:27px;font-size:.65rem}body .uco-fold-content{padding:9px}body .uco-fold-content>.uco-summary,body .uco-fold-content>.uco-aging,body .uco-fold-content>.uco-overview,body .uco-fold-content>.uco-followup{padding:0!important}}
+@media(max-height:500px){body .uco-fold>summary{min-height:40px;padding:7px 10px}}
+
+/* Desktop/tablet: pestañas reales; móvil: acordeones sin barra */
+body .uco-incidents-jump{position:relative;top:auto;display:flex;align-items:stretch;gap:5px;overflow:visible;flex-wrap:wrap;padding:7px;background:#edf2e8;border:1px solid #dbe6d4;border-radius:16px 5px 16px 5px;box-shadow:none;margin:0 0 16px}
+body .uco-incidents-jump .uco-jump-label{display:none}
+body .uco-incidents-jump a{display:flex;flex:1 1 145px;align-items:center;justify-content:center;min-width:0;min-height:44px;box-sizing:border-box;text-align:center;white-space:normal;line-height:1.25;border-radius:11px 3px 11px 3px;color:#232f5d;background:transparent;border:1px solid transparent;font-weight:800;font-size:clamp(.7rem,1vw,.82rem);text-decoration:none;padding:9px 8px}
+body .uco-incidents-jump a[aria-selected="true"]{background:#232f5d;color:#fff;border-color:#232f5d;box-shadow:0 3px 10px rgba(35,47,93,.14)}
+body .uco-incidents-jump a:focus-visible{outline:3px solid #a9e13f;outline-offset:2px}
+@media(min-width:701px){
+ body .uco-fold{display:none!important;margin:0!important;min-width:0}
+ body .uco-fold.uco-tab-active{display:block!important}
+ body .uco-fold>summary{display:none!important}
+ body .uco-fold-content{padding:clamp(10px,2vw,22px)!important}
+ body .uco-incidents-jump{position:relative!important;top:auto!important}
+}
+@media(max-width:700px){
+ body .uco-incidents-jump{display:none!important}
+ body .uco-fold{display:block!important;min-width:0;max-width:100%;box-sizing:border-box}
+ body .uco-fold-content{min-width:0;max-width:100%;box-sizing:border-box}
+ body .uco-fold-content>*{max-width:100%;min-width:0;box-sizing:border-box}
+ body .uco-fold-content input,body .uco-fold-content select,body .uco-fold-content textarea{max-width:100%;min-width:0}
+ body .uco-fold-content .scroll{max-width:100%}
+ body .uco-fold-content .uco-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:390px){
+ body .uco-fold-content{padding:7px!important}
+ body .uco-fold>summary{padding:9px 7px!important}
+ body .uco-summary-item{padding:9px!important}
+}
+
+/* Ajuste del documento embebido: sin márgenes muertos arriba o abajo. */
+html,body{min-height:100%;margin:0!important;padding:0!important}
+body.modal{min-height:100dvh!important;margin:0!important;padding:0!important;overflow-y:auto!important}
+body.modal main{max-width:none!important;width:100%!important;min-height:100%!important;box-sizing:border-box!important;margin:0!important;padding:8px clamp(10px,2.5vw,22px) 12px!important}
+body.modal .uco-incidents-jump{margin-top:0!important;margin-bottom:10px!important}
+body.modal .uco-fold{margin-top:8px!important;margin-bottom:8px!important}
+@media(max-width:700px){body.modal main{padding:5px 8px 12px!important}}
+</style></head><body><header><a href="./payments.html">← Volver a control de pagos</a><h1>Incidencias unificadas</h1><p>Fase 6.30 · Consulta administrativa</p></header><main><nav class="uco-incidents-jump" aria-label="Ir a sección de incidencias"><span class="uco-jump-label">IR A</span><a href="#uco-section-payments">Pagos</a><a href="#uco-section-refunds">Devoluciones</a><a href="#summary-635-title">Resumen</a><a href="#aging-title">Pendientes</a><a href="#overview-title">Expedientes</a><a href="#followup-title">Seguimiento</a></nav><p class="notice">Solo lectura. Los estados locales no acreditan cobros o devoluciones bancarias. No se preparan pedidos, ejecutan reembolsos ni modifican reservas desde esta pantalla.</p><div class="uco-incidents-toolbar"><div class="uco-incidents-filter"><label for="priority">Prioridad</label><select id="priority"><option value="all">Todas</option><option value="critical">Urgentes</option><option value="high">Altas</option><option value="medium">Medias</option><option value="low">Informativas</option></select></div><button id="refresh" type="button">Actualizar</button><button id="export-csv" type="button" disabled title="Exportar las incidencias visibles de la página">Exportar CSV</button><span class="muted">25 resultados por sección y página · filtros sobre esta página</span></div><div id="priority-summary" class="uco-priority-summary" role="status" aria-live="polite"></div><p id="message" role="status" aria-live="polite"></p><details class="uco-fold uco-fold-payments" id="uco-fold-payments" open><summary><span class="uco-fold-number">01</span><span class="uco-fold-name">Pagos tardíos y discrepancias</span><span class="uco-fold-chevron" aria-hidden="true">⌄</span></summary><div class="uco-fold-content"><h2 id="uco-section-payments">Pagos tardíos y discrepancias</h2><p id="payments-status" role="status"></p><div class="scroll"><table><thead><tr><th>Referencia</th><th>Pedido</th><th>Proveedor</th><th>Pago</th><th>Importe</th><th>Prioridad</th><th>Incidencias</th></tr></thead><tbody id="payments"></tbody></table></div></div></details><details class="uco-fold uco-fold-refunds" id="uco-fold-refunds"><summary><span class="uco-fold-number">02</span><span class="uco-fold-name">Devoluciones Redsys/Bizum</span><span class="uco-fold-chevron" aria-hidden="true">⌄</span></summary><div class="uco-fold-content"><h2 id="uco-section-refunds">Devoluciones Redsys/Bizum</h2><p id="refunds-status" role="status"></p><div class="scroll"><table><thead><tr><th>Referencia</th><th>Pedido</th><th>Proveedor</th><th>Estado</th><th>Importe</th><th>Prioridad</th><th>Incidencias</th></tr></thead><tbody id="refunds"></tbody></table></div></div></details><details class="uco-fold uco-fold-summary" id="uco-fold-summary"><summary><span class="uco-fold-number">03</span><span class="uco-fold-name">Resumen de expedientes</span><span class="uco-fold-chevron" aria-hidden="true">⌄</span></summary><div class="uco-fold-content"><section class="uco-summary" aria-labelledby="summary-635-title"><h2 id="summary-635-title">Resumen de expedientes</h2><div class="uco-summary-grid" id="summary-635-grid" aria-live="polite"><p>Consultando resumen…</p></div><p id="summary-635-message" role="status"></p></section></div></details><details class="uco-fold uco-fold-aging" id="uco-fold-aging" open><summary><span class="uco-fold-number">04</span><span class="uco-fold-name">Pendientes de seguimiento</span><span class="uco-fold-chevron" aria-hidden="true">⌄</span></summary><div class="uco-fold-content"><section class="uco-aging" aria-labelledby="aging-title"><div class="uco-aging-heading"><div><h2 id="aging-title">Pendientes de seguimiento</h2><p>Expedientes sin anotaciones recientes. La antigüedad se calcula desde la última observación administrativa, no desde el pago.</p></div><label>Sin actualizar desde<select id="aging-days"><option value="3">3 días</option><option value="7" selected>7 días</option><option value="14">14 días</option><option value="30">30 días</option></select></label></div><div class="uco-aging-status"><strong id="aging-count">—</strong><span>expedientes pendientes que superan el umbral</span><button id="aging-refresh" type="button">Actualizar</button></div><div id="aging-results" class="uco-aging-results" aria-live="polite"></div><p id="aging-message" role="status"></p></section></div></details><details class="uco-fold uco-fold-overview" id="uco-fold-overview"><summary><span class="uco-fold-number">05</span><span class="uco-fold-name">Expedientes de seguimiento</span><span class="uco-fold-chevron" aria-hidden="true">⌄</span></summary><div class="uco-fold-content"><section class="uco-overview" aria-labelledby="overview-title"><h2 id="overview-title">Expedientes de seguimiento</h2><p>Última anotación administrativa de cada referencia. No representa confirmación bancaria.</p><div class="uco-overview-controls"><label>Estado<select id="overview-status"><option value="all">Todos</option><option value="open">Abiertos</option><option value="investigating">En investigación</option><option value="awaiting_provider">Esperando al proveedor</option><option value="reviewed">Revisados</option></select></label><label>Tipo<select id="overview-type"><option value="all">Todos</option><option value="payment">Pagos</option><option value="refund">Devoluciones</option></select></label><label>Referencia<input id="overview-query" maxlength="160" placeholder="Buscar referencia"></label><button id="overview-refresh" type="button">Consultar</button></div><div id="overview-results" aria-live="polite"></div><div class="uco-overview-pagination"><button type="button" id="overview-prev">Anterior</button><span id="overview-page"></span><button type="button" id="overview-next">Siguiente</button></div><p id="overview-message" role="status"></p></section></div></details><details class="uco-fold uco-fold-followup" id="uco-fold-followup"><summary><span class="uco-fold-number">06</span><span class="uco-fold-name">Seguimiento administrativo</span><span class="uco-fold-chevron" aria-hidden="true">⌄</span></summary><div class="uco-fold-content"><section class="uco-followup" aria-labelledby="followup-title"><h2 id="followup-title">Seguimiento administrativo</h2><p>Registra observaciones internas sin cambiar pagos, devoluciones ni pedidos.</p><div class="uco-followup-grid"><label>Tipo<select id="followup-type"><option value="payment">Pago</option><option value="refund">Devolución</option></select></label><label>Referencia<input id="followup-reference" maxlength="160" placeholder="Referencia exacta"></label><button type="button" id="followup-load">Consultar historial</button></div><div id="followup-history" aria-live="polite"></div><form id="followup-form"><div class="uco-followup-grid"><label>Estado administrativo<select id="followup-status"><option value="open">Abierta</option><option value="investigating">En investigación</option><option value="awaiting_provider">Esperando al proveedor</option><option value="reviewed">Revisada</option></select></label><label>Responsable<input id="followup-owner" maxlength="120"></label></div><label>Observación<textarea id="followup-note" maxlength="2000" required rows="3"></textarea></label><button type="submit">Guardar seguimiento</button></form><p id="followup-message" role="status"></p></section></div></details><p><button id="prev" type="button">Anterior</button> <span id="page"></span> <button id="next" type="button">Siguiente</button></p></main><script src="./incidents-631.js" defer></script><script src="./incidents-633.js" defer></script><script src="./incidents-634.js" defer></script><script src="./incidents-635.js" defer></script><script src="./incidents-636.js" defer></script><script>
+if(new URLSearchParams(location.search).get('modal')==='1')document.body.classList.add('modal');
+</script><script>
+/* Fase 6.40: pestañas en escritorio/tableta; acordeones independientes en móvil. */
+(function(){
+ var nav=document.querySelector('.uco-incidents-jump');
+ if(!nav)return;
+ var links=Array.from(nav.querySelectorAll('a[href^="#"]'));
+ var folds=Array.from(document.querySelectorAll('details.uco-fold'));
+ var media=window.matchMedia('(max-width:700px)');
+ var selected='uco-fold-payments';
+ var initialMobile=folds.filter(function(f){return f.open;}).map(function(f){return f.id;});
+ function locate(id){
+  var target=document.getElementById(id);
+  return target?target.closest('details.uco-fold'):null;
+ }
+ function selectFold(fold,scroll){
+  if(!fold)return;
+  selected=fold.id;
+  if(!media.matches){
+   folds.forEach(function(f){f.classList.toggle('uco-tab-active',f===fold);f.open=f===fold;});
+   links.forEach(function(a){
+    var active=locate(decodeURIComponent(a.hash.slice(1)))===fold;
+    a.setAttribute('aria-selected',String(active));
+    if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
+   });
+  }else{
+   fold.open=true;
+  }
+  if(scroll)requestAnimationFrame(function(){fold.scrollIntoView({block:'start',behavior:'auto'});});
+ }
+ function syncMode(){
+  if(media.matches){
+   folds.forEach(function(f){f.classList.remove('uco-tab-active');f.open=initialMobile.includes(f.id);});
+  }else{
+   selectFold(document.getElementById(selected)||folds[0],false);
+  }
+ }
+ nav.addEventListener('click',function(e){
+  var a=e.target.closest('a[href^="#"]');
+  if(!a)return;
+  var fold=locate(decodeURIComponent(a.hash.slice(1)));
+  if(!fold)return;
+  e.preventDefault();
+  selectFold(fold,false);
+ });
+ document.addEventListener('click',function(e){
+  var a=e.target.closest('a[href^="#"]');
+  if(!a||nav.contains(a))return;
+  var fold=locate(decodeURIComponent(a.hash.slice(1)));
+  if(fold)selectFold(fold,true);
+ });
+ document.addEventListener('focusin',function(e){
+  var fold=e.target.closest('details.uco-fold');
+  if(!fold)return;
+  if(media.matches){if(!fold.open)fold.open=true;}
+  else if(!fold.classList.contains('uco-tab-active'))selectFold(fold,false);
+ });
+ window.addEventListener('hashchange',function(){
+  var fold=locate(decodeURIComponent(location.hash.slice(1)));
+  if(fold)selectFold(fold,true);
+ });
+ if(media.addEventListener)media.addEventListener('change',syncMode);
+ else media.addListener(syncMode);
+ syncMode();
+ if(location.hash){
+  var fold=locate(decodeURIComponent(location.hash.slice(1)));
+  if(fold)selectFold(fold,false);
+ }
+})();
+</script></body></html>

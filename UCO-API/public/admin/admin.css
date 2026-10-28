@@ -1822,3 +1822,112 @@ button[data-edit],button[data-edit-product],button[data-edit-client]{
     max-width:none;
   }
 }
+
+/* Control de pagos: quinta pestaña integrada */
+.admin-section-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.65rem}
+.admin-section-nav button{min-width:0}
+.payments-integrated{padding-top:1rem}
+.payments-intro{text-align:center;margin:1rem 0 1.75rem}
+.payments-intro p{margin:.6rem 0 0}
+#payments-frame{display:block;width:100%;min-height:850px;border:0;background:transparent}
+@media(max-width:850px){.admin-section-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:440px){.admin-section-nav{grid-template-columns:1fr}}
+
+/* Ventanas de consulta de pagos: mismo lenguaje visual de UCO */
+body.uco-modal-open{overflow:hidden}
+.uco-payment-dialog{position:fixed;inset:0;margin:auto;width:min(1120px,calc(100vw - 2rem));height:min(850px,calc(100dvh - 2rem));max-width:none;max-height:none;padding:0;border:1px solid #dce4e9;border-radius:1.7rem 0 1.7rem 0;background:#f7f8f3;color:#10283a;box-shadow:0 24px 80px #10283a40;overflow:hidden}
+.uco-payment-dialog::backdrop{background:#0d1c35a8;backdrop-filter:blur(3px)}
+.uco-payment-dialog-head{height:76px;background:#232f5d;color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.uco-payment-dialog-head h2{font:700 clamp(1.15rem,2vw,1.6rem) 'Space Grotesk',sans-serif;margin:0}
+.uco-payment-dialog-close{background:#a9e13f;color:#10283a;font-weight:800;border:0;border-radius:1rem 0 1rem 0;padding:.65rem 1.1rem}
+.uco-payment-dialog-frame{width:100%;height:calc(100% - 76px);display:block;border:0;background:#f7f8f3}
+@media(max-width:650px){.uco-payment-dialog{width:100vw;height:100dvh;border-radius:0}.uco-payment-dialog-head{padding:.8rem 1rem;height:66px}.uco-payment-dialog-frame{height:calc(100% - 66px)}}
+
+/* Ventanas de pagos: altura útil y cabecera sin saltos de línea */
+.uco-payment-dialog{width:min(1120px,calc(100vw - 24px));height:min(850px,calc(100dvh - 24px));max-width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
+.uco-payment-dialog-head{min-width:0;gap:.65rem}
+.uco-payment-dialog-head h2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(1rem,2vw,1.5rem);line-height:1.2}
+.uco-payment-dialog-close{flex:0 0 auto;white-space:nowrap;font-size:.84rem;padding:.65rem .9rem}
+@media(max-width:650px){.uco-payment-dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border:0;border-radius:0}.uco-payment-dialog-head{height:58px;padding:.55rem .75rem}.uco-payment-dialog-head h2{font-size:clamp(.92rem,4.3vw,1.15rem)}.uco-payment-dialog-close{font-size:.76rem;padding:.5rem .65rem}.uco-payment-dialog-frame{height:calc(100% - 58px)}}
+
+/* UCO · modal: iframe ocupa el 100 % de la altura útil, sin franja inferior.
+   Cabecera fija dentro del dialog; scroll exclusivamente dentro del iframe. */
+.uco-payment-dialog{
+ display:flex!important;
+ flex-direction:column!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ min-height:0!important;
+}
+.uco-payment-dialog-head{
+ box-sizing:border-box!important;
+ flex:0 0 76px!important;
+ height:76px!important;
+ min-height:0!important;
+ width:100%!important;
+}
+.uco-payment-dialog-frame{
+ box-sizing:border-box!important;
+ display:block!important;
+ flex:1 1 0%!important;
+ min-height:0!important;
+ height:auto!important;
+ width:100%!important;
+ border:0!important;
+ overflow:auto;
+}
+@media(max-width:650px){
+ .uco-payment-dialog-head{flex-basis:58px!important;height:58px!important}
+}
+@media(max-height:450px){
+ .uco-payment-dialog-head{flex-basis:48px!important;height:48px!important;padding:.35rem .7rem!important}
+}
+
+
+/* UCO: ficha histórica, modal autónomo con el lenguaje visual de pedidos */
+.uco-shipping-history-modal{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(1080px,calc(100vw - 2rem));max-width:none;max-height:none;height:min(830px,calc(100dvh - 2rem));padding:0;border:1px solid #dce4e9;border-radius:1.7rem 0 1.7rem 0;background:#f7f8f3;color:#232f5d;overflow:hidden;box-shadow:0 22px 80px #12204166}
+.uco-shipping-history-modal::backdrop{background:#14213baa}
+.uco-shipping-history-modal .uco-shipping-modal-scope{display:flex;flex-direction:column;min-height:0;height:100%;width:100%;padding:0}
+.uco-shipping-history-modal .uco-shipping-modal-toolbar{flex:0 0 76px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#232f5d;color:#fff;padding:0 clamp(16px,2.2vw,28px);font:800 clamp(1rem,2vw,1.35rem) Manrope,sans-serif}
+.uco-shipping-history-modal .uco-shipping-modal-close{flex:none;display:grid;place-items:center;width:46px;height:40px;border:0;border-radius:14px 0 14px 0;background:#a9e13f;color:#232f5d;font:800 1.35rem Manrope,sans-serif;cursor:pointer}
+.uco-shipping-history-modal .uco-order-card{display:flex;flex-direction:column;flex:1 1 0;min-height:0;min-width:0;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#f7f8f3!important;overflow:hidden!important}
+.uco-shipping-history-modal .uco-shipping-modal-summary{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem 1rem;padding:12px clamp(16px,2.5vw,28px);background:#eaf2e1;border-bottom:1px solid #dce4e9;font-size:.85rem;line-height:1.5}
+.uco-shipping-history-modal .uco-shipping-modal-summary>*{min-width:0;overflow-wrap:anywhere}
+.uco-shipping-history-modal .uco-shipping-modal-summary>strong:first-child{font-size:1rem}
+.uco-shipping-history-modal .uco-order-detail{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:0!important;margin:0!important}
+.uco-shipping-history-modal .uco-order-wizard{display:flex;flex-direction:column;flex:1 1 0;min-height:0;padding:clamp(12px,2vw,24px)!important;margin:0!important}
+.uco-shipping-history-modal .uco-wizard-heading{flex:none;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:12px}
+.uco-shipping-history-modal .uco-wizard-heading h3{font:800 clamp(1.25rem,2.5vw,1.75rem) 'Space Grotesk',Manrope,sans-serif;margin:0}
+.uco-shipping-history-modal .uco-wizard-counter{margin-left:auto}
+.uco-shipping-history-modal .uco-wizard-viewport{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 2px 12px}
+.uco-shipping-history-modal .uco-wizard-nav{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #dce4e9;padding:12px 0 0}
+.uco-shipping-history-modal .uco-wizard-dots{display:flex;align-items:center;justify-content:center;gap:clamp(4px,1.5vw,20px);min-width:0;flex:1}
+.uco-shipping-history-modal .uco-wizard-move{flex:none;border:0;border-radius:12px 0 12px 0;padding:11px 14px;background:#e8ecee;color:#232f5d;font-weight:800}
+.uco-shipping-history-modal .uco-wizard-move.is-next{background:#a9e13f}
+.uco-shipping-history-modal .uco-wizard-move:disabled{opacity:.35}
+.uco-shipping-history-modal .uco-wizard-dot{display:flex;align-items:center;flex-direction:column;gap:4px;border:0;background:transparent;color:#60728d;font-size:.68rem;cursor:pointer}
+.uco-shipping-history-modal .uco-wizard-dot-mark{width:15px;height:15px;border-radius:50%;background:#232f5d}
+.uco-shipping-history-modal .uco-wizard-dot.is-current .uco-wizard-dot-mark{outline:2px solid #232f5d;outline-offset:3px}
+.uco-shipping-history-modal .uco-order-lines>div{display:flex;align-items:center;gap:14px;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e5e9ec}
+.uco-shipping-history-modal .uco-order-lines>div>span:first-child{flex:1}
+.uco-shipping-history-modal .uco-order-lines small{display:block;color:#697c94}
+.uco-shipping-history-modal .uco-order-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.uco-shipping-history-modal .uco-order-receipt-button{background:#a9e13f;color:#232f5d;border:0;border-radius:12px 0 12px 0;padding:12px 16px;font-weight:800}
+@media(max-width:650px){
+ .uco-shipping-history-modal{width:100vw;height:100dvh;border-radius:0}
+ .uco-shipping-history-modal .uco-shipping-modal-toolbar{flex-basis:58px}
+ .uco-shipping-history-modal .uco-shipping-modal-summary{gap:5px 12px}
+ .uco-shipping-history-modal .uco-wizard-nav{gap:4px}
+ .uco-shipping-history-modal .uco-wizard-move{font-size:.72rem;padding:10px 7px}
+ .uco-shipping-history-modal .uco-wizard-dot-label{display:none}
+}
+
+/* 28/10: marco modal completo, iframe hasta el borde inferior, sin franja vacía */
+.uco-payment-dialog{position:fixed!important;display:block!important;box-sizing:border-box!important;overflow:hidden!important;padding:0!important}
+.uco-payment-dialog-head{position:absolute!important;left:0!important;right:0!important;top:0!important;box-sizing:border-box!important;height:76px!important;min-height:0!important;max-height:76px!important;margin:0!important}
+.uco-payment-dialog-frame{position:absolute!important;left:0!important;right:0!important;top:76px!important;bottom:0!important;width:100%!important;height:calc(100% - 76px)!important;min-height:0!important;max-height:none!important;display:block!important;border:0!important;margin:0!important;padding:0!important}
+.uco-shipping-history-modal .uco-wizard-snapshot-state{display:inline-flex;align-items:center;padding:6px 11px;background:#e7f5d4;color:#33600f;border:1px solid #b9df90;border-radius:11px 2px 11px 2px;font:800 .78rem Manrope,Arial,sans-serif;white-space:normal}
+.uco-shipping-history-modal .uco-wizard-snapshot-state[data-status=pending],.uco-shipping-history-modal .uco-wizard-snapshot-state[data-status=none]{background:#fff3dd;color:#755018;border-color:#ead5a8}
+.uco-shipping-history-modal .uco-wizard-snapshot-state[data-status=incident]{background:#ffe8e8;color:#9c2525;border-color:#eab9b9}
+@media(max-width:650px){.uco-payment-dialog-head{height:58px!important;max-height:58px!important}.uco-payment-dialog-frame{top:58px!important;height:calc(100% - 58px)!important}.uco-shipping-history-modal .uco-wizard-snapshot-state{font-size:.7rem;padding:5px 8px}}
+@media(max-height:450px){.uco-payment-dialog-head{height:48px!important;max-height:48px!important}.uco-payment-dialog-frame{top:48px!important;height:calc(100% - 48px)!important}}

@@ -23,14 +23,14 @@ function orderSchema(PDO $db):void{
  $db->exec('CREATE INDEX IF NOT EXISTS idx_uco_orders_customer ON uco_orders(customer_id,status)');
  $db->exec('CREATE INDEX IF NOT EXISTS idx_uco_order_lines_product ON uco_order_lines(product_id,order_id)');
  // Protege la actualización administrativa de stock incluso si se usa otra API.
- $db->exec("CREATE TRIGGER IF NOT EXISTS uco_guard_reserved_stock BEFORE UPDATE OF stock ON products WHEN NEW.stock < COALESCE((SELECT SUM(l.quantity) FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=OLD.id AND o.status='reserved' AND o.expires_at>CAST(strftime('%s','now') AS INTEGER)),0) BEGIN SELECT RAISE(ABORT,'STOCK_RESERVADO_UCO'); END");
- $db->exec("CREATE TRIGGER IF NOT EXISTS uco_guard_reserved_delete BEFORE DELETE ON products WHEN EXISTS(SELECT 1 FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=OLD.id AND o.status='reserved' AND o.expires_at>CAST(strftime('%s','now') AS INTEGER)) BEGIN SELECT RAISE(ABORT,'STOCK_RESERVADO_UCO'); END");
+ $db->exec("CREATE TRIGGER IF NOT EXISTS uco_guard_reserved_stock BEFORE UPDATE OF stock ON products WHEN NEW.stock < COALESCE((SELECT SUM(l.quantity) FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=OLD.id AND o.status IN ('reserved','pending_payment') AND o.expires_at>CAST(strftime('%s','now') AS INTEGER)),0) BEGIN SELECT RAISE(ABORT,'STOCK_RESERVADO_UCO'); END");
+ $db->exec("CREATE TRIGGER IF NOT EXISTS uco_guard_reserved_delete BEFORE DELETE ON products WHEN EXISTS(SELECT 1 FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=OLD.id AND o.status IN ('reserved','pending_payment') AND o.expires_at>CAST(strftime('%s','now') AS INTEGER)) BEGIN SELECT RAISE(ABORT,'STOCK_RESERVADO_UCO'); END");
 
 }
 function orderExpire(PDO $db):void{$db->prepare("UPDATE uco_orders SET status='expired',updated_at=CURRENT_TIMESTAMP WHERE status='reserved' AND expires_at<=?")->execute([time()]);}
 function orderCart(PDO $db,int $customerId,int $groupId):array{
  $q=$db->prepare('SELECT ci.product_id,ci.quantity,p.sku,p.name,p.unit,p.stock,p.active,c.active category_active FROM shopping_cart_items ci JOIN products p ON p.id=ci.product_id JOIN categories c ON c.id=p.category_id WHERE ci.customer_id=? ORDER BY ci.product_id');$q->execute([$customerId]);$lines=[];$issues=[];$subtotal=0;
- $reserved=$db->prepare("SELECT COALESCE(SUM(l.quantity),0) FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=? AND o.status='reserved' AND o.expires_at>?");
+ $reserved=$db->prepare("SELECT COALESCE(SUM(l.quantity),0) FROM uco_order_lines l JOIN uco_orders o ON o.id=l.order_id WHERE l.product_id=? AND o.status IN ('reserved','pending_payment') AND o.expires_at>?");
  foreach($q->fetchAll() as $p){$pid=(int)$p['product_id'];$qty=(int)$p['quantity'];$reserved->execute([$pid,time()]);$free=max(0,(int)$p['stock']-(int)$reserved->fetchColumn());$price=commercialPrice($db,$pid,$customerId,$groupId?:null);$cents=$price['price_cents'];$available=(bool)$p['active']&&(bool)$p['category_active']?$free:0;
   if($available<$qty||$cents===null)$issues[]=['product_id'=>$pid,'name'=>$p['name'],'requested'=>$qty,'available'=>$available,'reason'=>$cents===null?'sin_precio':'sin_stock'];
   $line=['product_id'=>$pid,'sku'=>$p['sku'],'name'=>$p['name'],'unit'=>$p['unit'],'quantity'=>$qty,'available'=>$available,'unit_price_cents'=>$cents,'line_cents'=>$cents===null?null:$qty*$cents];$lines[]=$line;if($cents!==null)$subtotal+=$qty*$cents;
