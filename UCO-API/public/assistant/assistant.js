@@ -175,13 +175,23 @@ async function askUcoLogic(question){
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();if(!data.ok)throw Error(data.error||'API no disponible');
   if(data.intent==='comparison'&&Array.isArray(data.comparison)){
+   const groups=data.comparison;
    const describeSide=group=>{
     const options=Array.isArray(group.items)?group.items:[];
     if(!options.length)return '• '+group.query+': no encuentro una referencia verificable.';
     return '• '+group.query+': '+options.map(p=>p.name+(p.unit?' · '+p.unit:'')+(p.category?' ('+p.category+')':'')+(p.is_demo?' [demostración]':'')).join('; ');
    };
-   return 'He buscado ambas opciones por separado en el catálogo:\n'+data.comparison.map(describeSide).join('\n')+
-    '\nEstos son datos de identificación y presentación, no una valoración de cuál es mejor. Si aparecen varias referencias, dime cuáles quieres comparar. La disponibilidad y los precios deben verificarse aparte.';
+   let answer='He buscado ambas opciones por separado en el catálogo:\n'+groups.map(describeSide).join('\n');
+   // 7.1Q: price only two unique, real references. Never infer which is intended.
+   const choices=groups.map(group=>Array.isArray(group.items)?group.items:[]);
+   if(choices.length===2 && choices.every(list=>list.length===1 && !list[0].is_demo)
+      && Number(choices[0][0].id)!==Number(choices[1][0].id)){
+    answer+='\n'+await askOwnPrices([choices[0][0],choices[1][0]]);
+    answer+='\nLos precios corresponden a tu cuenta, no son una comparación de calidad ni de disponibilidad.';
+   }else{
+    answer+='\nPara comparar precios necesito dos referencias comerciales inequívocas. Si aparecen varias opciones o referencias de demostración, dime los nombres exactos.';
+   }
+   return answer;
   }
   const items=Array.isArray(data.items)?data.items:[];
   const subject=catalogSubject(question,data);if(subject)saveCatalogContext(subject);
