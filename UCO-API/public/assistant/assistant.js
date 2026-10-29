@@ -166,6 +166,42 @@ const HELP_TOPICS={
  precios:'Puedo localizar productos, pero los precios personalizados requieren consultar la tarifa del cliente autenticado.',
  ayuda:'Puedes preguntarme por productos, categorías, pedidos, facturas o el funcionamiento de la web.'
 };
+// 7.1R: only non-sensitive, unambiguous product identifiers in tab memory.
+// Never store account prices, sessions, or order data.
+let lastComparedProducts=null;
+function isComparisonFollowup(question){
+ const n=normalizeUco(question);
+ return /^(?:y |cual |cuales |cuanto |cuantos |que |dime |comparalos|comparalas|sus precios|los precios|el precio|precios|precio)/.test(n)
+  && /\b(precio|precios|cuesta|cuestan|vale|valen|barato|barata|baratos|baratas|caro|cara|caros|caras|diferencia|comparacion|comparar|comparalos|comparalas)\b/.test(n);
+}
+async function askComparedPrices(){
+ const pair=lastComparedProducts;
+ if(!pair||pair.length!==2)return 'Para comparar precios, primero necesito identificar dos productos comerciales concretos.';
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),8000);
+ try{
+  const response=await fetch('/api/assistant-prices-71i.php?'+new URLSearchParams({ids:pair.map(p=>p.id).join(',')}),{
+   credentials:'same-origin',cache:'no-store',signal:ctrl.signal,headers:{Accept:'application/json'}
+  });
+  if(response.status===401)return 'Inicia sesión como cliente para comparar los precios de tu tarifa.';
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data.items))throw Error('Respuesta de precios inválida');
+  const rows=pair.map(p=>data.items.find(x=>Number(x.id)===p.id));
+  if(rows.some(x=>!x||!Number.isSafeInteger(x.price_cents)||x.price_cents<0))
+   return 'No puedo comparar los importes: falta un precio confirmado para alguna referencia.';
+  const euro=v=>(v/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+  const [a,b]=rows;
+  const sameUnit=String(a.unit||'').trim().toLowerCase()===String(b.unit||'').trim().toLowerCase();
+  let result='Precios de tu tarifa actual:\n• '+a.name+': '+euro(a.price_cents)+(a.unit?' / '+a.unit:'')+
+   '\n• '+b.name+': '+euro(b.price_cents)+(b.unit?' / '+b.unit:'');
+  if(!sameUnit)return result+'\nLas unidades de venta son distintas; no puedo concluir cuál es más económico sin una base comparable.';
+  if(a.price_cents===b.price_cents)return result+'\nAmbas referencias tienen el mismo precio para esa unidad.';
+  const cheaper=a.price_cents<b.price_cents?a:b;
+  return result+'\nLa referencia de menor precio para la misma unidad es '+cheaper.name+
+   ', con una diferencia de '+euro(Math.abs(a.price_cents-b.price_cents))+'. Los importes pueden variar hasta confirmar el pedido.';
+ }catch(error){console.warn('[UCO 7.1R] Comparación de precios:',error);return 'No puedo verificar ahora los precios de tu tarifa.';}
+ finally{clearTimeout(timer)}
+}
 async function askUcoLogic(question){
  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),8500);
  try{
@@ -174,6 +210,7 @@ async function askUcoLogic(question){
   });
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();if(!data.ok)throw Error(data.error||'API no disponible');
+  if(data.intent!=='comparison')lastComparedProducts=null;
   if(data.intent==='comparison'&&Array.isArray(data.comparison)){
    const groups=data.comparison;
    const describeSide=group=>{
@@ -184,8 +221,10 @@ async function askUcoLogic(question){
    let answer='He buscado ambas opciones por separado en el catálogo:\n'+groups.map(describeSide).join('\n');
    // 7.1Q: price only two unique, real references. Never infer which is intended.
    const choices=groups.map(group=>Array.isArray(group.items)?group.items:[]);
+   lastComparedProducts=null;
    if(choices.length===2 && choices.every(list=>list.length===1 && !list[0].is_demo)
       && Number(choices[0][0].id)!==Number(choices[1][0].id)){
+    lastComparedProducts=choices.map(list=>({id:Number(list[0].id),name:String(list[0].name||'')}));
     answer+='\n'+await askOwnPrices([choices[0][0],choices[1][0]]);
     answer+='\nLos precios corresponden a tu cuenta, no son una comparación de calidad ni de disponibilidad.';
    }else{
@@ -456,14 +495,15 @@ form.addEventListener('submit',async e=>{
  const submit=form.querySelector('button[type="submit"]');if(submit)submit.disabled=true;
  try{
   if(isReset(value)){
-   clearCatalogContext();lastOwnOrderId=null;append('bot','He borrado el contexto de esta conversación. ¿Qué necesitas consultar?');
+   clearCatalogContext();lastOwnOrderId=null;lastComparedProducts=null;append('bot','He borrado el contexto de esta conversación. ¿Qué necesitas consultar?');
   }else{
+   const compareFollowup=lastComparedProducts&&isComparisonFollowup(value);
    const prior=readCatalogContext();
    const follow=isFollowup(value);
    const routeHint=contextualRoute(value);
    const query=follow&&prior&&routeHint!=='order'&&routeHint!=='document'?value+' '+prior.term:value;
    const route=contextualRoute(value);
-   const reply=route==='document'?await askOwnDocuments(value):(route==='order'?await askOwnOrders(value):(guideFromQuestion(value)||await askUcoLogic(query)));
+   const reply=route==='document'?await askOwnDocuments(value):(route==='order'?await askOwnOrders(value):(compareFollowup?await askComparedPrices():(guideFromQuestion(value)||await askUcoLogic(query))));
    append('bot',reply);
   }
  }finally{busy=false;if(submit)submit.disabled=false}
