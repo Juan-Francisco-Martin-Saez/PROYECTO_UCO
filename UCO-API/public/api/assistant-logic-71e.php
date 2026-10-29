@@ -15,6 +15,8 @@ $private=dirname(__DIR__,2).'/private';
 require_once $private.'/assistant/dictionary.php';
 require_once $private.'/assistant/semantic.php';
 require_once $private.'/assistant/query-clarity.php';
+require_once $private.'/assistant/catalog-filters.php';
+require_once $private.'/assistant/catalog-comparison.php';
 try{
  $catalog=$private.'/database/catalogo.sqlite';
  if(!is_file($catalog))throw new RuntimeException('Catálogo ausente');
@@ -25,7 +27,8 @@ try{
  $dict=new PDO('sqlite:'.$dictPath,null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
  $dict->exec('PRAGMA busy_timeout=2000');
  uco_dictionary($dict);
- $analysis=uco_interpret($dict,$q);
+ $filter=uco_catalog_filter_request($q);
+ $analysis=uco_interpret($dict,$filter['active']?$filter['positive']:$q);
  $clarity=uco_query_clarity($q);
  $tokens=$analysis['terms'];
  $expanded=$analysis['expanded'];
@@ -34,8 +37,16 @@ try{
  $rows=$db->query("SELECT p.id,p.name,p.description,p.unit,p.search_text,p.is_demo,p.stock,c.name AS category
  FROM products p LEFT JOIN categories c ON c.id=p.category_id
  WHERE p.active=1 AND (c.id IS NULL OR c.active=1)")->fetchAll();
+ $comparison=uco_comparison_request($q);
+ if($comparison){
+  $groups=[];
+  foreach($comparison as $term)$groups[]=['query'=>$term,'items'=>uco_comparison_candidates($rows,$term,$dict)];
+  answer(['ok'=>true,'intent'=>'comparison','comparison'=>$groups,'items'=>[],
+   'topics'=>[],'terms'=>[],'clarity'=>$clarity,'negated'=>false,'count'=>0]);
+ }
  $found=[];$recognized=[];
  foreach($rows as $p){
+  if($filter['active']&&uco_catalog_excluded($p,$filter['exclude']))continue;
   $rank=uco_semantic_rank($p,$expanded);
   if(!$rank['score'])continue;
   foreach($rank['concepts'] as $concept)$recognized[$concept]=true;
@@ -61,7 +72,7 @@ try{
  }
  answer(['ok'=>true,'intent'=>$intent,'terms'=>$tokens,'topics'=>$topics,
  'items'=>array_slice($found,0,12),'truncated'=>count($found)>12,
- 'source'=>'active_catalog+approved_dictionary_71m','negated'=>($analysis['negated']||$clarity['exclusion']),'clarity'=>$clarity,'count'=>count($found)]);
+ 'source'=>'active_catalog+approved_dictionary_71m','negated'=>($analysis['negated']||($clarity['exclusion']&&!$filter['active'])),'filter_applied'=>$filter['active'],'filter_type'=>$filter['active']?'explicit_catalog_exclusion':null,'clarity'=>$clarity,'count'=>count($found)]);
 }catch(Throwable $e){
  error_log('[UCO assistant 7.1E] '.$e->getMessage());
  answer(['ok'=>false,'error'=>'No se puede consultar el catálogo en este momento'],503);

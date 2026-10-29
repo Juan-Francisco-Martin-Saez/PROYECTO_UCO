@@ -174,6 +174,15 @@ async function askUcoLogic(question){
   });
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();if(!data.ok)throw Error(data.error||'API no disponible');
+  if(data.intent==='comparison'&&Array.isArray(data.comparison)){
+   const describeSide=group=>{
+    const options=Array.isArray(group.items)?group.items:[];
+    if(!options.length)return '• '+group.query+': no encuentro una referencia verificable.';
+    return '• '+group.query+': '+options.map(p=>p.name+(p.unit?' · '+p.unit:'')+(p.category?' ('+p.category+')':'')+(p.is_demo?' [demostración]':'')).join('; ');
+   };
+   return 'He buscado ambas opciones por separado en el catálogo:\n'+data.comparison.map(describeSide).join('\n')+
+    '\nEstos son datos de identificación y presentación, no una valoración de cuál es mejor. Si aparecen varias referencias, dime cuáles quieres comparar. La disponibilidad y los precios deben verificarse aparte.';
+  }
   const items=Array.isArray(data.items)?data.items:[];
   const subject=catalogSubject(question,data);if(subject)saveCatalogContext(subject);
   // 7.1N: no present potentially mixed results as a single definite answer.
@@ -185,6 +194,7 @@ async function askUcoLogic(question){
   const real=items.filter(p=>!p.is_demo),demo=items.filter(p=>p.is_demo);
   const topic=(data.topics||[]).find(t=>HELP_TOPICS[t]);
   if(!items.length){
+   if(data.filter_applied)return 'No encuentro coincidencias tras excluir las referencias indicadas en el catálogo. Esto no certifica características o ausencia de ingredientes.';
    if(topic)return HELP_TOPICS[topic];
    return 'No encuentro una coincidencia verificable en el catálogo actual. Puedes darme otra palabra, una categoría o más detalles. No afirmaré que no existe sin verificarlo.';
   }
@@ -192,6 +202,7 @@ async function askUcoLogic(question){
   let answer=real.length
    ?'He encontrado '+real.length+(data.truncated?' o más':'')+' referencia'+(real.length===1?'':'s')+' comercial'+(real.length===1?'':'es')+' relacionada'+(real.length===1?'':'s')+':\n'+describe(real)
    :'He encontrado referencias relacionadas, pero ninguna confirmada como producto comercial activo.';
+  if(data.filter_applied)answer+='\nHe excluido las referencias que mencionan el término indicado en los datos del catálogo. Esto no acredita ausencia de ingredientes ni alérgenos.';
   if(demo.length)answer+='\nReferencias de demostración (no confirman disponibilidad):\n'+describe(demo);
   if(data.intent==='price')answer+='\n'+await askOwnPrices(real);
   else if(data.intent==='buy')answer+='\nSi quieres comprar, dime las cantidades. Todavía no puedo crear ni cobrar pedidos desde el chat.';
