@@ -26,6 +26,22 @@ const form=document.createElement('form');form.className='uco-ai-form';const inp
 const foot=document.createElement('div');foot.className='uco-ai-foot';foot.textContent='Consulta de catálogo · Sin pedidos ni pagos desde el chat';panel.append(head,stage,messages,actions,form,foot);
 const hint=document.createElement('div');hint.className='uco-ai-hint';hint.hidden=true;const hintRobot=document.createElement('span');hintRobot.className='uco-ai-hint-robot';hintRobot.innerHTML=robotSVG;const hintText=document.createElement('span');hintText.className='uco-ai-hint-bubble';hintText.textContent='¿Te ayudo?';const hintClose=document.createElement('button');hintClose.type='button';hintClose.textContent='×';hintClose.setAttribute('aria-label','Ocultar sugerencia');hint.append(hintRobot,hintText,hintClose);
 root.append(panel,launch,hint);document.body.append(root);
+// 7.1T.2: Private assistants are unavailable until the corresponding
+// authenticated panel is actually mounted. Login, registration and loading
+// screens never expose the launcher, panel or invitation.
+if(area==='client'||area==='admin'){
+ const app=document.getElementById('app');
+ const authenticatedPanel=area==='client'?'uco-client-panel':'uco-admin-panel';
+ const updateAssistantAccess=()=>{
+  const allowed=Boolean(app?.querySelector(authenticatedPanel));
+  root.style.display=allowed?'':'none';
+  if(!allowed){panel.hidden=true;hint.hidden=true;launch.setAttribute('aria-expanded','false');}
+ };
+ root.style.display='none';
+ updateAssistantAccess();
+ if(app)new MutationObserver(updateAssistantAccess).observe(app,{childList:true});
+}
+
 let speechTimer=0;
 function speak(text){robot.classList.add('is-speaking');clearTimeout(speechTimer);speechTimer=setTimeout(()=>robot.classList.remove('is-speaking'),Math.min(6500,Math.max(1000,text.length*35)))}
 function append(who,text,persist=true){const el=document.createElement('div');el.className='uco-ai-msg';el.dataset.who=who;el.textContent=text;messages.append(el);messages.scrollTop=messages.scrollHeight;if(who==='bot'&&persist)speak(text);if(persist){state.messages.push({who,text});state.messages=state.messages.slice(-MAX);save()}}
@@ -36,8 +52,16 @@ const shortcuts=area==='admin'
  ?[['Catálogo','#catalog-nav'],['Clientes','#customers-nav'],['Tarifas','#tariffs-main-nav'],['Pedidos','#orders-nav'],['Pagos','#payments-nav']]
  :area==='public'
  ?[['Inicio','#inicio'],['Familias','#familias'],['Selección','#seleccion'],['Filosofía','#nosotros'],['Pedidos','#pedidos'],['Contacto','#contacto']]
- :[['Inicio','#inicio'],['Catálogo','#catalogo'],['Pedidos','#pedidos'],['Historial','#historial'],['Cuenta','#cuenta']];
+ :[['Carrito','#cart-toggle'],['Historial de compras','#uco-purchase-history']];
 function navigateShortcut(label,selector){
+ if(area==='client'){
+  // Reuse native client cart/history windows and their authenticated handlers.
+  const target=document.querySelector(selector);
+  if(!target||target.disabled||target.closest('[hidden]')){
+   append('bot','Inicia sesión en el área de clientes para abrir '+label.toLowerCase()+'.');return;
+  }
+  target.click();return;
+ }
  if(area==='admin'){
   const target=document.querySelector(selector);
   if(!target||target.hidden||target.disabled||target.closest('[hidden]')){
@@ -62,7 +86,7 @@ function navigateShortcut(label,selector){
 }
 shortcuts.forEach(([label,selector])=>{
  const b=document.createElement('button');b.type='button';b.textContent=label;
- b.setAttribute('aria-label','Ir a '+label);
+ b.setAttribute('aria-label',area==='client'?'Abrir '+label:'Ir a '+label);
  b.addEventListener('click',()=>navigateShortcut(label,selector));actions.append(b);
 });
 actions.style.setProperty('--uco-ai-shortcut-count',String(shortcuts.length));
@@ -71,7 +95,7 @@ const margin=8;const coords={launch:read(POS+'_launch',null),panel:read(POS+'_pa
 function size(){return {w:document.documentElement.clientWidth,h:window.visualViewport?.height||innerHeight,offsetTop:window.visualViewport?.offsetTop||0}}
 function clamp(el,x,y){const {w,h,offsetTop}=size(),r=el.getBoundingClientRect();return {x:Math.max(margin,Math.min(Math.max(margin,w-r.width-margin),x)),y:Math.max(offsetTop+margin,Math.min(Math.max(offsetTop+margin,offsetTop+h-r.height-margin),y))}}
 function apply(el,xy){const p=clamp(el,xy.x,xy.y);el.style.setProperty('left',p.x+'px','important');el.style.setProperty('top',p.y+'px','important');el.style.setProperty('right','auto','important');el.style.setProperty('bottom','auto','important');return p}
-function defaultPosition(el,kind){const {w,h,offsetTop}=size(),r=el.getBoundingClientRect();if(kind==='launch')return {x:w-r.width-16,y:offsetTop+h-r.height-(mobile()?Math.max(75,parseInt(getComputedStyle(document.documentElement).getPropertyValue('--uco-ai-mobile-clearance'))||75):110)};return {x:w-r.width-16,y:offsetTop+h-r.height-(mobile()?10:96)}}
+function defaultPosition(el,kind){const {w,h,offsetTop}=size(),r=el.getBoundingClientRect();if(kind==='launch'){const gap=mobile()?16:24;const safe=mobile()?Math.max(76,parseInt(getComputedStyle(document.documentElement).getPropertyValue('--uco-ai-mobile-clearance'),10)||76):24;return {x:w-r.width-gap,y:offsetTop+h-r.height-safe}};return {x:w-r.width-16,y:offsetTop+h-r.height-(mobile()?10:96)}}
 function place(el,kind){const saved=coords[kind];return apply(el,saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)?saved:defaultPosition(el,kind))}
 function savePosition(kind,xy){coords[kind]=xy;try{localStorage.setItem(POS+'_'+kind,JSON.stringify(xy))}catch{}}
 function hideHint(){hint.hidden=true;root.classList.remove('uco-ai-inviting')}
@@ -202,6 +226,349 @@ async function askComparedPrices(){
  }catch(error){console.warn('[UCO 7.1R] Comparación de precios:',error);return 'No puedo verificar ahora los precios de tu tarifa.';}
  finally{clearTimeout(timer)}
 }
+// 7.1S: estimates are read-only and require a single unambiguous real product.
+// Units must be identical to the catalog's selling unit. Never assume kg = unit.
+function parseQuantityRequest(question){
+ const n=normalizeUco(question);
+ const m=n.match(/(?:^|\s)(\d+(?:[.,]\d{1,3})?)\s*(kg|kilos?|kilogramos?|g|gramos?|unidades?|uds?|piezas?|cajas?|caja|bandejas?|bandeja|bolsas?|bolsa)(?=\s|$)/);
+ if(!m)return null;
+ const amount=Number(m[1].replace(',','.'));
+ if(!Number.isFinite(amount)||amount<=0||amount>10000)return null;
+ const unit=m[2];
+ const groups={kg:['kg','kilo','kilos','kilogramo','kilogramos'],g:['g','gramo','gramos'],ud:['ud','uds','unidad','unidades','pieza','piezas'],caja:['caja','cajas'],bandeja:['bandeja','bandejas'],bolsa:['bolsa','bolsas']};
+ const canonical=Object.keys(groups).find(k=>groups[k].includes(unit));
+ if(!canonical)return null;
+ const before=n.slice(0,m.index),after=n.slice(m.index+m[0].length);
+ const subject=(before+' '+after).replace(/\b(?:cuanto|cuantos|cuesta|cuestan|vale|valen|precio|precios|importe|total|seria|serian|quiero|necesito|comprar|pedir|dame|de|del|el|la|los|las|un|una|unas|unos|por|favor|para|me|costaria|costarian|calcula|calcular|presupuesto|aproximado)\b/g,' ').replace(/\s+/g,' ').trim();
+ return {amount,canonical,subject};
+}
+function sellingUnit(unit){
+ const n=normalizeUco(String(unit||''));
+ const groups={kg:['kg','kilo','kilos','kilogramo','kilogramos'],g:['g','gramo','gramos'],ud:['ud','uds','unidad','unidades','pieza','piezas'],caja:['caja','cajas'],bandeja:['bandeja','bandejas'],bolsa:['bolsa','bolsas']};
+ return Object.keys(groups).find(k=>groups[k].includes(n))||null;
+}
+async function askQuantityEstimate(question){
+ const request=parseQuantityRequest(question);
+ if(!request)return null;
+ if(!request.subject)return 'Indícame el producto concreto junto con la cantidad para calcular un importe orientativo.';
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8500);
+ try{
+  const response=await fetch('/api/assistant-logic-71e.php?'+new URLSearchParams({q:request.subject}),{credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
+  if(!response.ok)throw Error('Catálogo HTTP '+response.status);
+  const data=await response.json();
+  if(!data.ok||data.negated||data.clarity?.alternative||data.clarity?.multiple_requests||data.intent==='comparison')return 'La consulta incluye condiciones que no puedo resolver con seguridad. Indica una única referencia y su cantidad.';
+  const real=Array.isArray(data.items)?data.items.filter(p=>!p.is_demo):[];
+  if(real.length!==1||data.truncated)return 'Necesito una única referencia comercial inequívoca para calcular el importe. Concreta el nombre del producto; he encontrado '+real.length+' coincidencias comerciales.';
+  const item=real[0],catalogUnit=sellingUnit(item.unit);
+  if(!catalogUnit||catalogUnit!==request.canonical)return 'La cantidad indicada no coincide con la unidad de venta del catálogo ('+String(item.unit||'sin especificar')+'). No haré conversiones ni asumiré formatos de venta.';
+  const priceResponse=await fetch('/api/assistant-prices-71i.php?'+new URLSearchParams({ids:String(item.id)}),{credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
+  if(priceResponse.status===401)return 'Inicia sesión como cliente para calcular importes con tu tarifa.';
+  if(!priceResponse.ok)throw Error('Tarifa HTTP '+priceResponse.status);
+  const prices=await priceResponse.json();
+  const row=Array.isArray(prices.items)?prices.items.find(p=>Number(p.id)===Number(item.id)):null;
+  if(!row||!Number.isSafeInteger(row.price_cents)||row.price_cents<0)return 'No existe un precio verificable para esta referencia en tu tarifa.';
+  const quantityMillis=Math.round(request.amount*1000);
+  const totalCents=Math.round(row.price_cents*quantityMillis/1000);
+  if(!Number.isSafeInteger(totalCents))return 'No puedo calcular con seguridad ese importe.';
+  const euro=c=>(c/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+  return 'Estimación orientativa para '+String(row.name)+': '+request.amount.toLocaleString('es-ES')+' '+String(row.unit)+' × '+euro(row.price_cents)+' = '+euro(totalCents)+'.\nNo es un pedido ni un cobro. El importe definitivo, los impuestos y la disponibilidad se verifican al confirmar la compra.';
+ }catch(error){console.warn('[UCO 7.1S] Estimación:',error);return 'No puedo verificar ahora el catálogo o la tarifa para calcular el importe.';}
+ finally{clearTimeout(timer)}
+}
+// 7.1U: ephemeral draft. Never store prices, credentials or orders.
+let provisionalBudget=null;
+let pendingCartTransfer=null;
+// 7.2A: short-lived, in-tab reference to the last successfully edited cart item.
+// Never persist the reference or infer it from a budget, catalog search or order.
+let lastCartReference=null;
+const CART_REFERENCE_TTL=5*60*1000;
+function cartContextCommand(value){
+ const n=normalizeUco(value);
+ if(!lastCartReference||Date.now()-lastCartReference.at>CART_REFERENCE_TTL){lastCartReference=null;return null;}
+ let m=n.match(/^(?:aumenta|incrementa|suma|anade|agrega|reduce|disminuye|resta|quita) (?:esa cantidad|su cantidad|la cantidad|la|lo|ese producto|esa referencia) (?:en|por) (\d+) (?:unidades?|uds?|piezas?)?(?: (?:del|en|de mi) carrito)?$/);
+ if(m){
+  const verb=n.split(' ')[0];
+  return {action:/^(reduce|disminuye|resta|quita)$/.test(verb)?'cart-decrease':'cart-increase',term:lastCartReference.term,quantity:Number(m[1])};
+ }
+ m=n.match(/^(?:pon|cambia|modifica) (?:su cantidad|la cantidad|la|lo|ese producto|esa referencia) (?:a|por) (\d+) (?:unidades?|uds?|piezas?)?(?: (?:del|en|de mi) carrito)?$/);
+ if(m)return {action:'cart-set',term:lastCartReference.term,quantity:Number(m[1])};
+ if(/^(?:quitalo|quitala|eliminalo|eliminala|quita ese producto|quita esa referencia)(?: (?:del|de mi) carrito)?$/.test(n))return {action:'cart-remove',term:lastCartReference.term};
+ return null;
+}
+
+function parseBudgetCommand(value){
+ const n=normalizeUco(value);
+ // 7.1Z: multiple explicitly named cart changes in one message.
+ // Keep the existing single-line parser as the source of truth for each clause.
+ if(/(?:\s+y\s+|\s*;\s*)/.test(n)&&/carrito/.test(n)){
+  const clauses=n.split(/\s+y\s+|\s*;\s*/).map(x=>x.trim()).filter(Boolean);
+  if(clauses.length>=2&&clauses.length<=8){
+   const commands=clauses.map(x=>parseBudgetCommand(x));
+   if(commands.every(c=>c&&['cart-remove','cart-set','cart-increase','cart-decrease'].includes(c.action)))
+    return {action:'cart-multi',commands};
+  }
+ }
+ // 7.1Y: relative edits explicitly targeting the native cart, not the draft budget.
+ // Never infer a product from conversation context: require a product name/SKU.
+ let relative=n.match(/^(?:anade|agrega|suma|incrementa|aumenta|quita|retira|reduce|disminuye) (\d+) (?:unidades?|uds?|piezas?) (?:mas|menos)? (?:de |a |del )?(.+?) (?:en|del|de mi|al|a mi) carrito$/);
+ if(relative){
+  const verb=n.split(' ')[0];
+  return {action:['quita','retira','reduce','disminuye'].includes(verb)?'cart-decrease':'cart-increase',term:relative[2],quantity:Number(relative[1])};
+ }
+ relative=n.match(/^(?:aumenta|incrementa|reduce|disminuye) (.+?) (?:del|de mi) carrito (?:en|por) (\d+) (?:unidades?|uds?|piezas?)?$/);
+ if(relative)return {action:/^(reduce|disminuye)/.test(n)?'cart-decrease':'cart-increase',term:relative[1],quantity:Number(relative[2])};
+ // 7.1X: native cart editing, never the provisional budget.
+ let cm=n.match(/^(?:quita|quitar|elimina|eliminar|borra|borrar) (.+?) (?:del|de mi) carrito$/);
+ if(cm)return {action:'cart-remove',term:cm[1]};
+ cm=n.match(/^(?:cambia|cambiar|modifica|modificar|pon) (.+?) (?:del|de mi) carrito (?:a|por) (\d+) (?:unidades?|uds?|piezas?)?$/);
+ if(cm)return {action:'cart-set',term:cm[1],quantity:Number(cm[2])};
+ if(/^(?:revisar|comprobar|ayuda con|ayudame con|que falta en|estado de) (?:los |mis |el |mi )?(?:datos de entrega|direccion de entrega|formulario de entrega)$/.test(n))return {action:'delivery-guide'};
+ if(/^(?:iniciar|abrir|continuar|empezar|preparar) (?:el |mi |la )?(?:proceso de )?(?:compra|pedido|checkout)$/.test(n)||/^(?:ir a|abrir) (?:la )?(?:pantalla de )?(?:finalizar compra|tramitar pedido)$/.test(n))return {action:'cart-checkout-open'};
+ if(/^(?:revisar|revisa|resumen de|resumen del|comprobar|comprueba|revisar mi compra|preparar compra|antes de comprar)(?: mi| el| del)? (?:carrito|compra|pedido)$/.test(n)||/^(?:revisar mi compra|resumen de mi compra|antes de confirmar el pedido)$/.test(n))return {action:'cart-review'};
+ if(/^(?:ver|mostrar|consultar)(?: mi| el)? carrito$/.test(n))return {action:'cart-show'};
+ if(/^(?:pasar|pasalo|pasar el|enviar|anadir|agregar|llevar)(?: mi| el)? presupuesto (?:al|a mi) carrito$/.test(n)||/^(?:pasar|anadir|agregar) (?:al|a mi) carrito$/.test(n))return {action:'cart'};
+ if(/^(?:confirmar|confirmo) (?:paso|traspaso|envio) (?:al )?carrito$/.test(n))return {action:'cart-confirm'};
+ if(/^(?:ver|mostrar|muestra|recalcular|recalcula|resumen)(?: mi| el)? presupuesto$/.test(n))return {action:'show'};
+ if(/^(?:borrar|vaciar|cancelar|limpiar)(?: mi| el)? presupuesto$/.test(n))return {action:'clear'};
+ let m=n.match(/^(?:quita|quitar|elimina|eliminar|borra|borrar) (.+?)(?: del presupuesto)?$/);
+ if(m)return {action:'remove',term:m[1]};
+ m=n.match(/^(?:cambia|cambiar|modifica|modificar|pon) (.+?) (?:a|por) (\d+(?:[.,]\d{1,3})?)\s*(kg|kilos?|kilogramos?|g|gramos?|unidades?|uds?|piezas?|cajas?|caja|bandejas?|bandeja|bolsas?|bolsa)$/);
+ if(m)return {action:'change',term:m[1],quantity:parseQuantityRequest(m[2]+' '+m[3]+' referencia')};
+ m=n.match(/^(?:anade|agrega|agregar|incluye|incluir|suma) (.+)$/);
+ if(m)return {action:'add',request:parseQuantityRequest(m[1])};
+ return null;
+}
+function budgetMatch(term){
+ const n=normalizeUco(term);
+ const matches=(provisionalBudget||[]).filter(p=>normalizeUco(p.name)===n||normalizeUco(p.name).includes(n));
+ return matches.length===1?matches[0]:null;
+}
+async function showProvisionalBudget(){
+ if(!provisionalBudget?.length)return 'No tienes ningún presupuesto provisional en esta conversación.';
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),9000);
+ try{
+  const response=await fetch('/api/assistant-prices-71i.php?'+new URLSearchParams({ids:[...new Set(provisionalBudget.map(p=>p.id))].join(',')}),{credentials:'same-origin',cache:'no-store',signal:ctrl.signal,headers:{Accept:'application/json'}});
+  if(response.status===401)return 'Inicia sesión como cliente para consultar tu tarifa.';
+  if(!response.ok)throw Error('Tarifa HTTP '+response.status);
+  const data=await response.json();if(!Array.isArray(data.items))throw Error('Tarifa inválida');
+  const byId=new Map(data.items.map(p=>[Number(p.id),p]));
+  let total=0;const rows=[];
+  const euro=c=>(c/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+  for(const line of provisionalBudget){
+   const row=byId.get(line.id);
+   if(!row||!Number.isSafeInteger(row.price_cents)||row.price_cents<0||sellingUnit(row.unit)!==line.canonical)return 'No puedo verificar todas las tarifas y unidades. No mostraré un presupuesto parcial.';
+   const cents=Math.round(row.price_cents*Math.round(line.amount*1000)/1000);
+   if(!Number.isSafeInteger(cents)||!Number.isSafeInteger(total+cents))return 'El importe supera el límite seguro.';
+   total+=cents;rows.push('• '+row.name+': '+line.amount.toLocaleString('es-ES')+' '+row.unit+' × '+euro(row.price_cents)+' = '+euro(cents));
+  }
+  return 'Presupuesto provisional según tu tarifa actual:\n'+rows.join('\n')+'\nTotal estimado: '+euro(total)+'\nNo es un pedido ni un cobro. Impuestos y disponibilidad se verifican al confirmar la compra.';
+ }catch(error){console.warn('[UCO 7.1U] Presupuesto provisional:',error);return 'No puedo consultar ahora tu tarifa para recalcular el presupuesto.';}
+ finally{clearTimeout(timer)}
+}
+// 7.1W: Read-only cart consultation through the existing authenticated client controller.
+async function requestNativeCartSummary(){
+ return new Promise(resolve=>{
+  const id='uco-cart-read-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const timer=setTimeout(()=>{document.removeEventListener('uco:assistant-cart-summary-result',listener);resolve('No he recibido respuesta del carrito. Abre «Carrito» para consultarlo.')},8000);
+  const listener=e=>{if(e.detail?.id!==id)return;clearTimeout(timer);document.removeEventListener('uco:assistant-cart-summary-result',listener);resolve(String(e.detail.message||'No puedo consultar el carrito ahora.'))};
+  document.addEventListener('uco:assistant-cart-summary-result',listener);
+  document.dispatchEvent(new CustomEvent('uco:assistant-cart-summary',{detail:{id}}));
+ });
+}
+async function requestNativeCartEdit(command){
+ return new Promise(resolve=>{
+  const id='uco-cart-edit-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const listener=e=>{if(e.detail?.id!==id)return;clearTimeout(timer);document.removeEventListener('uco:assistant-cart-edit-result',listener);resolve(String(e.detail.message||'No se ha podido modificar el carrito.'))};
+  const timer=setTimeout(()=>{document.removeEventListener('uco:assistant-cart-edit-result',listener);resolve('El carrito no ha respondido. Comprueba su estado antes de repetir la operación.')},12000);
+  document.addEventListener('uco:assistant-cart-edit-result',listener);
+  document.dispatchEvent(new CustomEvent('uco:assistant-cart-edit',{detail:{id,action:command.action,term:command.term,quantity:command.quantity}}));
+ });
+}
+function requestNativeCheckoutOpen(){
+ return new Promise(resolve=>{
+  const id='uco-checkout-open-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const listener=e=>{if(e.detail?.id!==id)return;clearTimeout(timer);document.removeEventListener('uco:assistant-checkout-open-result',listener);resolve(String(e.detail.message||'No se ha podido abrir la revisión.'))};
+  const timer=setTimeout(()=>{document.removeEventListener('uco:assistant-checkout-open-result',listener);resolve('El área de clientes no ha respondido. Abre «Carrito» para continuar.')},10000);
+  document.addEventListener('uco:assistant-checkout-open-result',listener);
+  document.dispatchEvent(new CustomEvent('uco:assistant-checkout-open',{detail:{id}}));
+ });
+}
+// 7.2D: request field-completeness only; never send delivery PII through chat.
+function requestNativeDeliveryGuide(){
+ return new Promise(resolve=>{
+  const id='uco-delivery-guide-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const listener=e=>{if(e.detail?.id!==id)return;clearTimeout(timer);document.removeEventListener('uco:assistant-delivery-guide-result',listener);resolve(String(e.detail.message||'No puedo comprobar el formulario ahora.'))};
+  const timer=setTimeout(()=>{document.removeEventListener('uco:assistant-delivery-guide-result',listener);resolve('No he recibido respuesta del formulario de entrega. Ábrelo desde el carrito.')},10000);
+  document.addEventListener('uco:assistant-delivery-guide-result',listener);
+  document.dispatchEvent(new CustomEvent('uco:assistant-delivery-guide',{detail:{id}}));
+ });
+}
+function requestNativeCartReview(){
+ return new Promise(resolve=>{
+  const id='uco-cart-review-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const listener=e=>{if(e.detail?.id!==id)return;clearTimeout(timer);document.removeEventListener('uco:assistant-cart-review-result',listener);resolve(String(e.detail.message||'No puedo revisar el carrito ahora.'))};
+  const timer=setTimeout(()=>{document.removeEventListener('uco:assistant-cart-review-result',listener);resolve('No he recibido respuesta del carrito. Abre «Carrito» para revisarlo.')},10000);
+  document.addEventListener('uco:assistant-cart-review-result',listener);
+  document.dispatchEvent(new CustomEvent('uco:assistant-cart-review',{detail:{id}}));
+ });
+}
+async function updateProvisionalBudget(command){
+ if(!command)return null;
+ if(command.action==='cart-multi'){
+  lastCartReference=null;
+  // The native controller performs authorization, item matching and stock checks.
+  // Sequential writes are not atomic: always disclose any partial completion.
+  const results=[];
+  for(let i=0;i<command.commands.length;i++){
+   const result=await requestNativeCartEdit(command.commands[i]);
+   results.push((i+1)+'. '+result);
+   if(!/^He (?:quitado|actualizado)/.test(result)){
+    return 'He detenido la operación en el cambio '+(i+1)+' de '+command.commands.length+'. Los cambios anteriores pueden haberse aplicado.\n'+results.join('\n')+'\nComprueba el carrito antes de repetir la instrucción.';
+   }
+  }
+  return 'He procesado '+results.length+' cambios en tu carrito:\n'+results.join('\n')+'\nRevisa el carrito para confirmar cantidades y precios.';
+ }
+ if(['cart-remove','cart-set','cart-increase','cart-decrease'].includes(command.action)){
+  const result=await requestNativeCartEdit(command);
+  if(/^He (?:quitado|actualizado)/.test(result)){
+   lastCartReference=command.action==='cart-remove'?null:{term:command.term,at:Date.now()};
+  }else lastCartReference=null;
+  return result;
+ }
+ if(command.action==='delivery-guide')return requestNativeDeliveryGuide();
+ if(command.action==='cart-checkout-open')return requestNativeCheckoutOpen();
+ if(command.action==='cart-review')return requestNativeCartReview();
+ if(command.action==='cart-show'){
+  const result=await requestNativeCartSummary();
+  return result;
+ }
+ if(command.action==='clear'){pendingCartTransfer=null;provisionalBudget=null;return 'He descartado el presupuesto provisional. No se ha creado ningún pedido.';}
+ if(command.action==='cart'){
+  if(!provisionalBudget?.length)return 'Primero prepara un presupuesto con productos y cantidades.';
+  const invalid=provisionalBudget.find(p=>!Number.isSafeInteger(p.id)||p.id<1||!Number.isSafeInteger(p.amount)||p.amount<1||p.amount>99999);
+  if(invalid)return 'El carrito admite exclusivamente cantidades enteras entre 1 y 99999. Corrige las cantidades fraccionarias del presupuesto antes de transferirlo.';
+  const detail=await showProvisionalBudget();
+  if(!detail.startsWith('Presupuesto provisional según tu tarifa actual:'))return detail;
+  pendingCartTransfer=provisionalBudget.map(p=>({id:p.id,quantity:p.amount}));
+  return detail+'\n\nPara añadir estas cantidades a tu carrito actual, escribe «confirmar paso al carrito». Se sumarán a lo que ya tengas y no se creará ningún pedido ni cobro.';
+ }
+ if(command.action==='cart-confirm'){
+  if(!pendingCartTransfer?.length)return 'Primero di «pasar presupuesto al carrito» para revisar y confirmar las cantidades.';
+  const lines=pendingCartTransfer;pendingCartTransfer=null;
+  const result=await new Promise(resolve=>{
+   const id='uco-budget-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+   const timeout=setTimeout(()=>{document.removeEventListener('uco:budget-cart-result',listener);resolve({ok:false,message:'No he recibido respuesta del carrito de clientes.'})},20000);
+   const listener=e=>{if(e.detail?.id!==id)return;clearTimeout(timeout);document.removeEventListener('uco:budget-cart-result',listener);resolve(e.detail)};
+   document.addEventListener('uco:budget-cart-result',listener);
+   document.dispatchEvent(new CustomEvent('uco:budget-cart-transfer',{detail:{id,lines}}));
+  });
+  if(result.ok){provisionalBudget=null;return 'He añadido '+result.count+' referencia(s) al carrito existente. Abre «Carrito» para revisar cantidades, existencias y precios antes de continuar. No se ha creado ningún pedido ni cobro.';}
+  return 'No se ha podido completar el traspaso: '+String(result.message||'Error del carrito')+'. Revisa el carrito antes de reintentarlo; algunas líneas podrían haberse añadido.';
+ }
+ if(command.action==='show')return showProvisionalBudget();
+ if(!provisionalBudget?.length)return 'Primero calcula un presupuesto con productos y cantidades.';
+ pendingCartTransfer=null;
+ if(command.action==='remove'||command.action==='change'){
+  const target=budgetMatch(command.term);
+  if(!target)return 'No identifico una única línea con ese nombre. Dime el nombre exacto del producto del presupuesto.';
+  if(command.action==='remove'){
+   provisionalBudget=provisionalBudget.filter(p=>p!==target);
+   return provisionalBudget.length?await showProvisionalBudget():'El presupuesto ha quedado vacío. No se ha creado ningún pedido.';
+  }
+  const q=command.quantity;
+  if(!q||q.canonical!==target.canonical)return 'La cantidad debe ser válida y utilizar la misma unidad de venta ('+target.canonical+').';
+  target.amount=q.amount;return showProvisionalBudget();
+ }
+ if(command.action==='add'){
+  const q=command.request;
+  if(!q||!q.subject)return 'Indica una cantidad, unidad y producto concretos. Ejemplo: «añade 2 kg de zanahorias».';
+  if(provisionalBudget.length>=8)return 'El presupuesto admite un máximo de ocho líneas.';
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),8500);
+  try{
+   const response=await fetch('/api/assistant-logic-71e.php?'+new URLSearchParams({q:q.subject}),{credentials:'same-origin',cache:'no-store',signal:ctrl.signal,headers:{Accept:'application/json'}});
+   if(!response.ok)throw Error('Catálogo HTTP '+response.status);
+   const data=await response.json();
+   const real=Array.isArray(data.items)?data.items.filter(p=>!p.is_demo):[];
+   if(!data.ok||data.negated||data.clarity?.alternative||data.clarity?.multiple_requests||data.truncated||real.length!==1)return 'No identifico una única referencia comercial para añadir. Concreta el producto.';
+   const item=real[0];if(sellingUnit(item.unit)!==q.canonical)return 'La unidad indicada no coincide con la unidad de venta del catálogo.';
+   if(provisionalBudget.some(p=>p.id===Number(item.id)))return 'Ese producto ya está en el presupuesto. Utiliza «cambia '+item.name+' a ...» para modificar su cantidad.';
+   // Do not mutate the draft unless its current tariff is verifiable.
+   const price=await fetch('/api/assistant-prices-71i.php?'+new URLSearchParams({ids:String(item.id)}),{credentials:'same-origin',cache:'no-store',signal:ctrl.signal,headers:{Accept:'application/json'}});
+   if(price.status===401)return 'Inicia sesión como cliente para consultar tu tarifa.';
+   if(!price.ok)throw Error('Tarifa HTTP '+price.status);
+   const priced=await price.json();const row=Array.isArray(priced.items)?priced.items.find(p=>Number(p.id)===Number(item.id)):null;
+   if(!row||!Number.isSafeInteger(row.price_cents)||row.price_cents<0||sellingUnit(row.unit)!==q.canonical)return 'No puedo verificar la tarifa o la unidad de ese producto.';
+   provisionalBudget.push({id:Number(item.id),name:String(item.name),amount:q.amount,canonical:q.canonical});
+   return showProvisionalBudget();
+  }catch(error){console.warn('[UCO 7.1U] Añadir:',error);return 'No puedo verificar el producto o su tarifa ahora.';}
+  finally{clearTimeout(timer)}
+ }
+ return null;
+}
+// 7.1T: independent line items; one authenticated tariff lookup, no order creation.
+function parseMultiQuantityRequest(question){
+ const normalized=normalizeUco(question);
+ // Require an explicit monetary/estimate question, not a purchase instruction.
+ if(!/\b(cuanto|cuesta|cuestan|costaria|costarian|presupuesto|importe|calcula|calcular|total)\b/.test(normalized))return null;
+ const quantityPattern=/(?:^|\s)(\d+(?:[.,]\d{1,3})?)\s*(kg|kilos?|kilogramos?|g|gramos?|unidades?|uds?|piezas?|cajas?|caja|bandejas?|bandeja|bolsas?|bolsa)(?=\s|$)/g;
+ const matches=[...normalized.matchAll(quantityPattern)];
+ if(matches.length<2)return null;
+ if(matches.length>8)return {error:'Puedo calcular como máximo ocho líneas en una consulta. Divide el presupuesto en varias preguntas.'};
+ const lines=[];
+ for(let i=0;i<matches.length;i++){
+  const match=matches[i];
+  const end=match.index+match[0].length;
+  const next=i+1<matches.length?matches[i+1].index:normalized.length;
+  const raw=normalized.slice(end,next).replace(/\b(?:y|ademas|tambien|mas|de|del|el|la|los|las|un|una|unos|unas|por|favor|total|importe|cuanto|cuesta|cuestan|costaria|costarian|presupuesto)\b/g,' ').trim();
+  // Every quantity must have a distinct, explicit product; no guessing.
+  const request=parseQuantityRequest(match[1]+' '+match[2]+' '+raw);
+  if(!request||!request.subject)return {error:'Indica un producto concreto después de cada cantidad, por ejemplo: «2 kg de patatas y 3 kg de tomates».'};
+  lines.push(request);
+ }
+ return {lines};
+}
+async function askMultiQuantityEstimate(question){
+ const request=parseMultiQuantityRequest(question);
+ if(!request)return null;
+ if(request.error)return request.error;
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+ try{
+  const products=[];
+  for(const line of request.lines){
+   const response=await fetch('/api/assistant-logic-71e.php?'+new URLSearchParams({q:line.subject}),{credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
+   if(!response.ok)throw Error('Catálogo HTTP '+response.status);
+   const data=await response.json();
+   if(!data.ok||data.negated||data.clarity?.alternative||data.clarity?.multiple_requests||data.intent==='comparison')return 'Hay condiciones ambiguas en el presupuesto. Indica cada producto con su cantidad y unidad.';
+   const real=Array.isArray(data.items)?data.items.filter(p=>!p.is_demo):[];
+   if(real.length!==1||data.truncated)return 'No puedo identificar una única referencia comercial para «'+line.subject+'». Concreta el producto antes de calcular el presupuesto.';
+   const product=real[0];
+   if(sellingUnit(product.unit)!==line.canonical)return 'La unidad solicitada para «'+product.name+'» no coincide con su unidad de venta ('+String(product.unit||'sin especificar')+'). No haré conversiones.';
+   products.push({...product,amount:line.amount,canonical:line.canonical});
+  }
+  const ids=[...new Set(products.map(p=>Number(p.id)))];
+  const response=await fetch('/api/assistant-prices-71i.php?'+new URLSearchParams({ids:ids.join(',')}),{credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
+  if(response.status===401)return 'Inicia sesión como cliente para calcular un presupuesto con tu tarifa.';
+  if(!response.ok)throw Error('Tarifa HTTP '+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data.items))throw Error('Tarifa inválida');
+  const byId=new Map(data.items.map(p=>[Number(p.id),p]));
+  let total=0;const rows=[];
+  const euro=c=>(c/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+  for(const product of products){
+   const price=byId.get(Number(product.id));
+   if(!price||!Number.isSafeInteger(price.price_cents)||price.price_cents<0)return 'No existe un precio verificable para «'+product.name+'» en tu tarifa. No calcularé un total incompleto.';
+   if(sellingUnit(price.unit)!==product.canonical)return 'La unidad de tarifa de «'+product.name+'» no coincide con la cantidad solicitada.';
+   const cents=Math.round(price.price_cents*Math.round(product.amount*1000)/1000);
+   if(!Number.isSafeInteger(cents))return 'El importe calculado supera el límite seguro.';
+   total+=cents;
+   if(!Number.isSafeInteger(total))return 'El total supera el límite seguro.';
+   rows.push('• '+String(price.name||product.name)+': '+product.amount.toLocaleString('es-ES')+' '+String(price.unit)+' × '+euro(price.price_cents)+' = '+euro(cents));
+  }
+  provisionalBudget=products.map(p=>({id:Number(p.id),name:String(p.name),amount:p.amount,canonical:p.canonical}));
+  return 'Presupuesto orientativo según tu tarifa:\n'+rows.join('\n')+'\nTotal estimado: '+euro(total)+'\nPuedes decir «cambia patatas a 3 kg», «quita tomates», «añade 2 kg de zanahorias» o «ver presupuesto». No es un pedido ni un cobro. Impuestos, disponibilidad e importe definitivo se verifican antes de confirmar la compra.';
+ }catch(error){console.warn('[UCO 7.1T] Presupuesto:',error);return 'No puedo verificar ahora el catálogo o tu tarifa para calcular el presupuesto.';}
+ finally{clearTimeout(timer)}
+}
 async function askUcoLogic(question){
  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),8500);
  try{
@@ -241,6 +608,7 @@ async function askUcoLogic(question){
   if(data.clarity?.multiple_requests)return 'Puedo ayudarte con ambas cuestiones, pero para no mezclar resultados, ¿cuál quieres resolver primero?';
 
   const real=items.filter(p=>!p.is_demo),demo=items.filter(p=>p.is_demo);
+  if(data.intent==='price'&&!real.length&&demo.length)return 'He encontrado referencias de demostración, pero no productos comerciales activos para esta consulta. Los precios de venta solo pueden consultarse para referencias reales publicadas en el catálogo de clientes.';
   const topic=(data.topics||[]).find(t=>HELP_TOPICS[t]);
   if(!items.length){
    if(data.filter_applied)return 'No encuentro coincidencias tras excluir las referencias indicadas en el catálogo. Esto no certifica características o ausencia de ingredientes.';
@@ -362,12 +730,18 @@ async function askOwnPrices(products){
   if(response.status===401)return 'Inicia sesión como cliente para consultar los precios correspondientes a tu tarifa.';
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();if(!Array.isArray(data.items))throw Error('Respuesta inválida');
-  if(!data.items.length)return 'No hay precios comerciales disponibles para esas referencias.';
+  if(!data.items.length){
+   const reasons=Array.isArray(data.unavailable)?data.unavailable.map(x=>x.reason):[];
+   if(reasons.includes('demo'))return 'Las referencias encontradas son de demostración, no productos comerciales activos. Administración debe publicar productos reales para consultar tarifas.';
+   if(reasons.includes('inactive')||reasons.includes('category_inactive'))return 'La referencia está inactiva o su categoría está desactivada. No puedo mostrarla como producto comercial.';
+   return 'No encuentro productos comerciales activos con precio consultable para esta búsqueda.';
+  }
   const rows=data.items.slice(0,9).map(p=>{
    const amount=p.price_cents===null?'Sin precio asignado':(Number(p.price_cents)/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
    return '• '+String(p.name||'Producto')+': '+amount+(p.unit?' / '+p.unit:'');
   });
-  return 'Precios según tu cuenta de cliente:\n'+rows.join('\n')+'\nLos importes pueden variar hasta confirmar el pedido.';
+  const missing=(Array.isArray(data.unavailable)?data.unavailable:[]).filter(x=>x.reason==='price_missing').length;
+  return 'Precios según tu cuenta de cliente:\n'+rows.join('\n')+(missing?'\nHay '+missing+' referencia(s) sin precio asignado.':'')+'\nLos importes pueden variar hasta confirmar el pedido.';
  }catch(error){console.warn('[UCO 7.1I] Precios:',error);return 'No puedo verificar tus precios ahora mismo. Consulta tu área de cliente.';}
  finally{clearTimeout(timer)}
 }
@@ -495,15 +869,21 @@ form.addEventListener('submit',async e=>{
  const submit=form.querySelector('button[type="submit"]');if(submit)submit.disabled=true;
  try{
   if(isReset(value)){
-   clearCatalogContext();lastOwnOrderId=null;lastComparedProducts=null;append('bot','He borrado el contexto de esta conversación. ¿Qué necesitas consultar?');
+   clearCatalogContext();lastOwnOrderId=null;lastComparedProducts=null;provisionalBudget=null;pendingCartTransfer=null;lastCartReference=null;append('bot','He borrado el contexto de esta conversación. ¿Qué necesitas consultar?');
   }else{
+   const budgetCommand=area==='client'?(parseBudgetCommand(value)||cartContextCommand(value)):null;
+   if(!budgetCommand)lastCartReference=null;
+   const budgetReply=budgetCommand?await updateProvisionalBudget(budgetCommand):null;
+   if(budgetReply!==null){append('bot',budgetReply);return;}
    const compareFollowup=lastComparedProducts&&isComparisonFollowup(value);
    const prior=readCatalogContext();
    const follow=isFollowup(value);
    const routeHint=contextualRoute(value);
    const query=follow&&prior&&routeHint!=='order'&&routeHint!=='document'?value+' '+prior.term:value;
    const route=contextualRoute(value);
-   const reply=route==='document'?await askOwnDocuments(value):(route==='order'?await askOwnOrders(value):(compareFollowup?await askComparedPrices():(guideFromQuestion(value)||await askUcoLogic(query))));
+   const multiEstimate=route!=='order'&&route!=='document'?await askMultiQuantityEstimate(value):null;
+   const estimate=multiEstimate!==null?multiEstimate:(route!=='order'&&route!=='document'?await askQuantityEstimate(value):null);
+   const reply=estimate!==null?estimate:(route==='document'?await askOwnDocuments(value):(route==='order'?await askOwnOrders(value):(compareFollowup?await askComparedPrices():(guideFromQuestion(value)||await askUcoLogic(query)))));
    append('bot',reply);
   }
  }finally{busy=false;if(submit)submit.disabled=false}

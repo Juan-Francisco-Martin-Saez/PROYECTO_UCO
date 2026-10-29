@@ -38,13 +38,21 @@ try {
  $s=$db->prepare('SELECT password_hash,group_id FROM customers WHERE id=? AND active=1');
  $s->execute([$cid]);$user=$s->fetch();
  if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',(string)$user['password_hash'])))reply71i(['error'=>'Sesión caducada'],401);
- $out=[];$stmt=$db->prepare('SELECT p.id,p.name,p.unit FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.active=1 AND p.is_demo=0 AND (c.id IS NULL OR c.active=1)');
+ $out=[];$unavailable=[];
+ $inspect=$db->prepare('SELECT p.id,p.active,p.is_demo,c.active AS category_active FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=?');
+ $stmt=$db->prepare('SELECT p.id,p.name,p.unit FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.active=1 AND p.is_demo=0 AND (c.id IS NULL OR c.active=1)');
  foreach($clean as $pid){
   $stmt->execute([$pid]);$p=$stmt->fetch();
-  if(!$p)continue;
+  if(!$p){
+   $inspect->execute([$pid]);$state=$inspect->fetch();
+   $reason=!$state?'not_found':((int)$state['is_demo']===1?'demo':((int)$state['active']!==1?'inactive':'category_inactive'));
+   $unavailable[]=['id'=>$pid,'reason'=>$reason];
+   continue;
+  }
   $price=commercialPrice($db,$pid,$cid,isset($user['group_id'])?(int)$user['group_id']:null);
+  if($price['price_cents']===null)$unavailable[]=['id'=>$pid,'reason'=>'price_missing'];
   $out[]=['id'=>(int)$p['id'],'name'=>$p['name'],'unit'=>$p['unit'],
    'price_cents'=>$price['price_cents'],'price_source'=>$price['price_source']];
  }
- reply71i(['items'=>$out,'authenticated'=>true]);
+ reply71i(['items'=>$out,'unavailable'=>$unavailable,'authenticated'=>true]);
 }catch(Throwable $e){error_log('[UCO 7.1I precios] '.$e->getMessage());reply71i(['error'=>'No se pudieron consultar los precios'],503);}

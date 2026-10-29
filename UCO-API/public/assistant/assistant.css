@@ -188,3 +188,7 @@
 /* 7.0H: a slightly more translucent but still readable white layer. */
 #uco-assistant-root .uco-ai-panel{background:rgba(255,255,255,.84)!important}
 #uco-assistant-root .uco-ai-actions,#uco-assistant-root .uco-ai-form,#uco-assistant-root .uco-ai-foot{background:rgba(255,255,255,.87)!important}
+
+/* 7.1T.1: two client-only shortcuts to existing floating windows. */
+#uco-assistant-root[data-area="client"] .uco-ai-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+#uco-assistant-root[data-area="client"] .uco-ai-actions button{min-width:0;font-size:clamp(11px,2.8vw,13px)!important;padding:10px 7px!important;letter-spacing:0!important}

@@ -1,0 +1,15 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const source=fs.readFileSync(require('path').join(__dirname,'../public/assistant/assistant.js'),'utf8');
+const a=source.slice(source.indexOf('function parseQuantityRequest('),source.indexOf('async function askQuantityEstimate('));
+const b=source.slice(source.indexOf('function parseMultiQuantityRequest('),source.indexOf('async function askMultiQuantityEstimate('));
+const sandbox={normalizeUco:s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9.,\s]/g,' ').replace(/\s+/g,' ').trim()};
+vm.runInNewContext(a+'\n'+b,sandbox);
+let r=sandbox.parseMultiQuantityRequest('¿Cuánto cuestan 2 kg de patatas y 3 kg de tomates?');
+assert.strictEqual(r.lines.length,2);
+assert.strictEqual(r.lines[0].subject,'patatas');
+assert.strictEqual(r.lines[1].subject,'tomates');
+assert.strictEqual(r.lines[1].amount,3);
+assert.strictEqual(sandbox.parseMultiQuantityRequest('2 kg de patatas y 3 kg de tomates'),null);
+assert.strictEqual(sandbox.parseMultiQuantityRequest('¿Cuánto cuestan 2 kg de patatas?'),null);
+assert.ok(sandbox.parseMultiQuantityRequest('¿Cuánto cuestan 2 kg de patatas y 3 kg?').error);
+console.log('7.1T multi-quantity parsing OK');

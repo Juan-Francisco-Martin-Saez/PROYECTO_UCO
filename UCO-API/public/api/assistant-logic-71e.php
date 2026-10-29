@@ -54,6 +54,12 @@ try{
    'category'=>$p['category'],'is_demo'=>(bool)$p['is_demo'],
    'score'=>$rank['score'],'matched'=>$rank['matched'],'coverage'=>$rank['coverage']];
  }
+ // Price requests must not be dominated by demonstration records.
+ // Only the existing commercial price API may return customer-specific amounts.
+ if($intent==='price'){
+  $commercial=array_values(array_filter($found,static fn($p)=>!$p['is_demo']));
+  if($commercial)$found=$commercial;
+ }
  $found=uco_semantic_filter($found,count($expanded));
  usort($found,static fn($a,$b)=>($b['coverage']<=>$a['coverage'])?:($b['score']<=>$a['score'])?:($a['is_demo']<=>$b['is_demo'])?:strcmp($a['name'],$b['name']));
  // Register unknown vocabulary as suggestions only; no raw conversation is stored.
@@ -72,7 +78,7 @@ try{
  }
  answer(['ok'=>true,'intent'=>$intent,'terms'=>$tokens,'topics'=>$topics,
  'items'=>array_slice($found,0,12),'truncated'=>count($found)>12,
- 'source'=>'active_catalog+approved_dictionary_71m','negated'=>($analysis['negated']||($clarity['exclusion']&&!$filter['active'])),'filter_applied'=>$filter['active'],'filter_type'=>$filter['active']?'explicit_catalog_exclusion':null,'clarity'=>$clarity,'count'=>count($found)]);
+ 'source'=>'active_catalog+approved_dictionary_71m','commercial_matches'=>count(array_filter($found,static fn($p)=>!$p['is_demo'])),'negated'=>($analysis['negated']||($clarity['exclusion']&&!$filter['active'])),'filter_applied'=>$filter['active'],'filter_type'=>$filter['active']?'explicit_catalog_exclusion':null,'clarity'=>$clarity,'count'=>count($found)]);
 }catch(Throwable $e){
  error_log('[UCO assistant 7.1E] '.$e->getMessage());
  answer(['ok'=>false,'error'=>'No se puede consultar el catálogo en este momento'],503);

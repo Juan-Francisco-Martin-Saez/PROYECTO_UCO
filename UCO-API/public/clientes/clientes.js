@@ -83,6 +83,98 @@ async function refreshCart(){
 }
 async function updateEconomyQuote(){const footer=document.querySelector('#cart-view .uco-cart-footer');if(!footer)return;let box=footer.querySelector('.uco-economy-quote');if(!box){box=document.createElement('div');box.className='uco-economy-quote';footer.querySelector('.uco-cart-total')?.after(box);}try{const r=await fetch('../api/economy-quote.php',{credentials:'same-origin',cache:'no-store'}),q=await r.json();if(!r.ok)throw Error(q.error||'Error de cálculo');const money=c=>(c/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});box.innerHTML=q.ready?`<div><span>IVA</span><strong>${money(q.tax_cents)}</strong></div><div><span>Transporte</span><strong>${money(q.shipping_cents)}</strong></div><div class="uco-economy-grand"><span>TOTAL DEL PEDIDO</span><strong>${money(q.total_cents)}</strong></div>`:`<p class="uco-economy-pending">Total pendiente de configurar: ${q.issues.map(x=>esc(x)).join(' · ')}</p>`;}catch(e){box.textContent='No se pudo calcular el importe definitivo.'}}
 
+// 7.1W: Authenticated, read-only cart summary; no duplicate cart state or prices.
+document.addEventListener('uco:assistant-cart-summary',async event=>{
+ const id=event.detail?.id;
+ const reply=message=>document.dispatchEvent(new CustomEvent('uco:assistant-cart-summary-result',{detail:{id,message}}));
+ if(!customer||!csrf)return reply('Inicia sesión como cliente para consultar tu carrito.');
+ try{
+  const data=await cart.list();
+  if(!Array.isArray(data.items)||!data.items.length)return reply('Tu carrito está vacío. Puedes añadir productos desde el catálogo o transferir un presupuesto.');
+  const lines=data.items.slice(0,30).map(l=>'• '+String(l.name||'Referencia '+l.product_id)+': '+Number(l.quantity)+' '+String(l.unit||'uds.'));
+  reply('Tu carrito actual contiene '+data.items.length+' referencia(s):\n'+lines.join('\n')+'\nAbre «Carrito» para revisar precios, disponibilidad e importe definitivo antes de confirmar. No he modificado tu compra.');
+ }catch(error){reply('No he podido consultar tu carrito: '+String(error?.message||'Error de conexión'))}
+});
+
+// 7.2B: read-only purchase review, using the native authenticated cart and quote.
+document.addEventListener('uco:assistant-cart-review',async event=>{
+ const id=event.detail?.id;
+ const done=message=>document.dispatchEvent(new CustomEvent('uco:assistant-cart-review-result',{detail:{id,message}}));
+ if(!customer||!csrf)return done('Inicia sesión como cliente para revisar tu compra.');
+ try{
+  const data=await cart.list();const items=Array.isArray(data.items)?data.items:[];
+  if(!items.length)return done('Tu carrito está vacío. Añade productos antes de revisar la compra.');
+  const lines=items.slice(0,30).map(item=>'• '+String(item.name||'Referencia '+item.product_id)+': '+Number(item.quantity)+' '+String(item.unit||'uds.'));
+  const extra=items.length>30?'\nHay más referencias; consulta la ventana «Carrito» para verlas todas.':'';
+  let total='Importe definitivo pendiente de verificar en «Carrito».';
+  try{
+   const response=await fetch('../api/economy-quote.php',{credentials:'same-origin',cache:'no-store'});
+   const quote=await response.json();if(!response.ok)throw Error('quote');
+   if(quote.ready&&Number.isSafeInteger(quote.total_cents)&&quote.total_cents>=0){
+    const eur=c=>(c/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+    total='Desglose calculado: IVA '+eur(quote.tax_cents)+'; transporte '+eur(quote.shipping_cents)+'; total '+eur(quote.total_cents)+'.';
+   }else if(Array.isArray(quote.issues)&&quote.issues.length){total='El cálculo todavía no está listo: '+quote.issues.slice(0,5).map(String).join('; ')+'.';}
+  }catch(_){/* Never fabricate prices if the quote cannot be verified. */}
+  done('Revisión de tu carrito ('+items.length+' referencias):\n'+lines.join('\n')+extra+'\n'+total+'\nAbre «Carrito» para comprobar disponibilidad, reserva y condiciones antes de continuar. No he confirmado el pedido ni realizado ningún cobro.');
+ }catch(error){done('No he podido revisar tu carrito ahora: '+String(error?.message||'Error de conexión'))}
+});
+
+// 7.1X: conversational changes use the same authenticated cart controller and validations.
+let assistantCartEditBusy=false;
+document.addEventListener('uco:assistant-cart-edit',async event=>{
+ const detail=event.detail||{},id=detail.id;
+ const done=message=>document.dispatchEvent(new CustomEvent('uco:assistant-cart-edit-result',{detail:{id,message}}));
+ if(assistantCartEditBusy)return done('Ya se está modificando el carrito. Espera un momento.');
+ if(!customer||!csrf)return done('Inicia sesión como cliente para modificar tu carrito.');
+ if(!['cart-remove','cart-set','cart-increase','cart-decrease'].includes(detail.action)||typeof detail.term!=='string'||detail.term.length>100)return done('Instrucción de carrito no válida.');
+ if(['cart-set','cart-increase','cart-decrease'].includes(detail.action)&&(!Number.isSafeInteger(detail.quantity)||detail.quantity<1||detail.quantity>99999))return done('La cantidad debe ser un número entero entre 1 y 99999.');
+ assistantCartEditBusy=true;
+ try{
+  const data=await cart.list(),items=Array.isArray(data.items)?data.items:[];
+  const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const term=norm(detail.term);
+  if(term.length<3)return done('Indica un nombre de producto más concreto.');
+  const exact=items.filter(x=>norm(x.name)===term||norm(x.sku)===term);
+  const matches=exact.length?exact:items.filter(x=>norm(x.name).includes(term));
+  if(matches.length!==1)return done(matches.length?'Hay varias referencias que coinciden. Indica el nombre completo o el código del producto.':'Ese producto no está en tu carrito.');
+  const item=matches[0];
+  const current=Number(item.quantity);
+  if(!Number.isSafeInteger(current)||current<1||current>99999)return done('La cantidad actual del producto no es válida. Revisa el carrito.');
+  const qty=detail.action==='cart-remove'?0:detail.action==='cart-increase'?current+detail.quantity:detail.action==='cart-decrease'?current-detail.quantity:detail.quantity;
+  if(!Number.isSafeInteger(qty)||qty<0||qty>99999)return done('La cantidad resultante queda fuera del intervalo permitido (0 a 99999).');
+  if(detail.action==='cart-decrease'&&qty===0)return done('La reducción dejaría el producto a cero. Para retirarlo, escribe «quita '+item.name+' del carrito».');
+  await cart.set(item.product_id,qty);
+  await refreshCart();
+  done(qty===0?'He quitado «'+item.name+'» de tu carrito.':'He actualizado «'+item.name+'» a '+qty+' unidad(es) en tu carrito.');
+ }catch(error){await refreshCart().catch(()=>{});done('No se ha podido actualizar el carrito: '+String(error?.message||'Error de conexión'))}
+ finally{assistantCartEditBusy=false}
+});
+
+// 7.1V: The authenticated client controller is the only writer of cart lines.
+// The assistant supplies IDs and integer quantities; native cart service applies
+// session, CSRF, stock and price checks. No checkout or payment is triggered.
+let budgetCartBusy=false;
+document.addEventListener('uco:budget-cart-transfer',async event=>{
+ const detail=event.detail||{};
+ const done=(ok,message,count=0)=>document.dispatchEvent(new CustomEvent('uco:budget-cart-result',{detail:{id:detail.id,ok,message,count}}));
+ if(budgetCartBusy)return done(false,'Ya se está actualizando el carrito');
+ if(!customer||!csrf)return done(false,'Inicia sesión como cliente');
+ const lines=detail.lines;
+ if(!Array.isArray(lines)||!lines.length||lines.length>8||lines.some(l=>!Number.isSafeInteger(l.id)||l.id<1||!Number.isSafeInteger(l.quantity)||l.quantity<1||l.quantity>99999)||new Set(lines.map(l=>l.id)).size!==lines.length)return done(false,'Cantidades o referencias no válidas');
+ budgetCartBusy=true;
+ let count=0;
+ try{
+  const current=await cart.list();
+  const existing=new Map(current.items.map(l=>[Number(l.product_id),Number(l.quantity)]));
+  // Validate all final quantities before changing any line.
+  const updates=lines.map(l=>({id:l.id,quantity:(existing.get(l.id)||0)+l.quantity}));
+  if(updates.some(l=>!Number.isSafeInteger(l.quantity)||l.quantity>99999))return done(false,'Una cantidad supera el máximo del carrito');
+  for(const line of updates){await cart.set(line.id,line.quantity);count++}
+  await refreshCart();
+  done(true,'Añadido al carrito',count);
+ }catch(error){await refreshCart().catch(()=>{});done(false,error?.message||'Error al actualizar el carrito',count)}
+ finally{budgetCartBusy=false}
+});
 async function cartAction(fn){try{await fn();await refreshCart()}catch(e){alert(e.details?.available!==undefined?`${e.message}. Disponibles: ${e.details.available}`:e.message);await refreshCart().catch(()=>{})}}
 function login(){app.innerHTML=`<uco-client-login></uco-client-login>`;document.querySelector('#register').onclick=register;document.querySelector('#login-form').onsubmit=async e=>{e.preventDefault();try{const d=await request('login',{method:'POST',body:new FormData(e.currentTarget)});csrf=d.csrf;customer=d.customer;panel()}catch(err){document.querySelector('#error').textContent=err.message}}}
 function register(){app.innerHTML=`<uco-client-register></uco-client-register>`;document.querySelector('#back-login').onclick=login;document.querySelector('#register-form').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,button=form.querySelector('[type=submit]'),error=document.querySelector('#error');error.textContent='';button.disabled=true;try{const data=await request('register',{method:'POST',body:new FormData(form)});login();const note=document.querySelector('#error');note.style.color='hsl(109 52% 25%)';note.textContent=data.message}catch(err){error.textContent=err.message}finally{button.disabled=false}}}
@@ -127,6 +219,39 @@ const cartCount=document.querySelector('#cart-count');const headerCartCount=docu
 const syncHeaderCartCount=()=>{headerCartCount.textContent=cartCount.textContent;};syncHeaderCartCount();
 new MutationObserver(syncHeaderCartCount).observe(cartCount,{childList:true,characterData:true,subtree:true});
 document.querySelector('#uco-purchase-history').onclick=()=>{setHeaderMenu(purchases,purchaseToggle,false);openPurchaseHistory();};
+// 7.2D: guidance checks the existing native form, without copying personal details into the chat.
+document.addEventListener('uco:assistant-delivery-guide',event=>{
+ const id=event.detail?.id;
+ const reply=message=>document.dispatchEvent(new CustomEvent('uco:assistant-delivery-guide-result',{detail:{id,message}}));
+ if(!customer||!csrf)return reply('Inicia sesión como cliente para consultar los datos de entrega.');
+ const host=document.querySelector('#cart-view');
+ const form=host?.querySelector('#uco-delivery-form');
+ if(!form||host.hidden)return reply('Abre «Carrito», pulsa «Preparar pedido» y completa los datos de entrega. Después podré indicarte qué campos faltan.');
+ const fields=[['contact','persona de contacto'],['phone','teléfono'],['address','dirección de entrega'],['postal_code','código postal'],['city','localidad'],['province','provincia']];
+ const missing=fields.filter(([name])=>!String(form.elements.namedItem(name)?.value||'').trim()).map(([,label])=>label);
+ const invalid=fields.filter(([name])=>{const input=form.elements.namedItem(name);return input&&String(input.value||'').trim()&&!input.checkValidity()}).map(([,label])=>label);
+ let message=missing.length?'Faltan estos campos obligatorios: '+missing.join(', ')+'.':'Los campos obligatorios están cumplimentados.';
+ if(invalid.length)message+=' Revisa el formato de: '+invalid.join(', ')+'.';
+ message+=' Comprueba que los datos sean correctos en el formulario. No he guardado ni enviado datos, reservado existencias, confirmado pedidos ni realizado cobros.';
+ reply(message);
+});
+// 7.2C: the assistant can open the existing checkout review UI, never submit delivery, reserve stock or charge.
+document.addEventListener('uco:assistant-checkout-open',async event=>{
+ const id=event.detail?.id;
+ const reply=message=>document.dispatchEvent(new CustomEvent('uco:assistant-checkout-open-result',{detail:{id,message}}));
+ if(!customer||!csrf)return reply('Inicia sesión como cliente para continuar con la compra.');
+ try{
+  const data=await cart.list();
+  if(!Array.isArray(data.items)||!data.items.length)return reply('Tu carrito está vacío. Añade productos antes de iniciar la compra.');
+  const host=document.querySelector('#cart-view');
+  if(!host)return reply('No encuentro la ventana de compra. Abre el carrito manualmente.');
+  if(host.hidden)await openCart();
+  const checkout=host.querySelector('[data-order-checkout]');
+  if(!checkout||checkout.disabled)return reply('El carrito no permite continuar todavía. Revisa disponibilidad y condiciones.');
+  if(!host.querySelector('.uco-cart-checkout-active'))checkout.click();
+  reply('He abierto la revisión de compra del carrito. Comprueba las existencias y completa los datos de entrega en la ventana. No he reservado productos, confirmado pedidos ni realizado cobros.');
+ }catch(error){reply('No he podido abrir la revisión de compra: '+String(error?.message||'Error de conexión'))}
+});
 document.querySelector('#cart-toggle').onclick=()=>{setHeaderMenu(purchases,purchaseToggle,false);const el=document.querySelector('#cart-view');if(el.hidden)openCart();else closeCart();};function showCheckoutNotice(message){
  const panel=document.querySelector('#cart-view .uco-cart-panel');
  if(!panel)return;
