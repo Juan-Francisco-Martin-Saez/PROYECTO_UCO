@@ -1,1 +1,18 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>UCO · Área de clientes</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../admin/admin.css?v=1.9.6.4"><link rel="stylesheet" href="./clientes.css?v=1.9.7.cart-modal"><link rel="stylesheet" href="../assistant/assistant.css?v=7.0.0"></head><body><main id="app"><div class="loading">Cargando área de clientes…</div></main><script type="module" src="./clientes.js"></script><script src="../assistant/assistant.js?v=7.0.0" data-area="client" defer></script></body></html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>UCO · Área de clientes</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../admin/admin.css?v=1.9.6.4"><link rel="stylesheet" href="./clientes.css?v=1.9.7.cart-modal"><link rel="stylesheet" href="../assistant/assistant.css?v=7.0.0"></head><body><main id="app"><div class="loading">Cargando área de clientes…</div></main><script type="module">
+import('./clientes.js?v=7.1N.1').catch(error => {
+ console.error('[UCO CLIENTES] Fallo al iniciar el módulo:', error);
+ const app = document.getElementById('app');
+ if (!app || !app.querySelector('.loading')) return;
+ const section = document.createElement('section');
+ section.className = 'login client-login';
+ section.style.cssText = 'max-width:540px;margin:7vh auto;padding:2rem;text-align:center';
+ const heading = document.createElement('h1');
+ heading.textContent = 'No se ha podido iniciar el área de clientes';
+ const message = document.createElement('p');
+ message.textContent = 'No se ha podido cargar un componente. Recarga la página. Si continúa, comprueba que estén instalados todos los archivos de clientes y services.';
+ const retry = document.createElement('button');
+ retry.type = 'button'; retry.className = 'primary'; retry.textContent = 'Reintentar';
+ retry.onclick = () => location.reload();
+ section.append(heading, message, retry); app.replaceChildren(section);
+});
+</script><script src="../assistant/assistant.js?v=7.0.0" data-area="client" defer></script></body></html>
