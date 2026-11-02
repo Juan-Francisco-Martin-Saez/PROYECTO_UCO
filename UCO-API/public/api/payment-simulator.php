@@ -1,21 +1,66 @@
 <?php
 declare(strict_types=1);
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: DENY');
+
+// Fase 3E.4E: limitar el tamaño de las solicitudes de escritura antes de procesarlas.
+// No cambia el formato admitido por las rutas existentes (formularios o JSON).
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $ucoMaxPostBytes = 262144; // 256 KiB
+    $ucoLength = $_SERVER['CONTENT_LENGTH'] ?? null;
+    if ($ucoLength !== null && (!ctype_digit((string)$ucoLength) || (float)$ucoLength > $ucoMaxPostBytes)) {
+        http_response_code(413);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+        echo json_encode(['error' => 'La solicitud supera el tamaño permitido.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store,private');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOCLIENT');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
+require_once dirname(__DIR__,2).'/private/session-security.php';
+// 3E.4G: las operaciones POST de pago reciben campos de formulario en $_POST.
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $ucoMediaType = strtolower(trim(explode(';', (string)($_SERVER['CONTENT_TYPE'] ?? ''), 2)[0]));
+    if (!in_array($ucoMediaType, ['application/x-www-form-urlencoded', 'multipart/form-data'], true)) {
+        http_response_code(415);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Formato de solicitud no admitido'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+if(!empty($_SESSION['customer_id']) && ucoSecurityIdleExpired()){
+ http_response_code(401);
+ header('Content-Type: application/json; charset=utf-8');
+ echo json_encode(['error'=>'Sesión caducada por inactividad. Vuelve a iniciar sesión.','authenticated'=>false],JSON_UNESCAPED_UNICODE);
+ exit;
+}
+
 require_once __DIR__.'/commercial.php';
 require_once dirname(__DIR__,2).'/private/economy.php';
 function simReply(array $v,int $code=200):never{http_response_code($code);echo json_encode($v,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 try{
  if(($_SERVER['REQUEST_METHOD']??'')!=='POST')simReply(['error'=>'Método no permitido'],405);
- if(empty($_SESSION['customer_csrf'])||!hash_equals((string)$_SESSION['customer_csrf'],(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))simReply(['error'=>'Solicitud no válida'],403);
+ if(empty($_SESSION['customer_csrf'])||!ucoSecurityCsrfValid('customer_csrf'))simReply(['error'=>'Solicitud no válida'],403);
  $cid=(int)($_SESSION['customer_id']??0);if(!$cid)simReply(['error'=>'Inicia sesión'],401);
  $db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
  $db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=10000');commercialDb($db);
  $s=$db->prepare('SELECT password_hash FROM customers WHERE id=? AND active=1');$s->execute([$cid]);$user=$s->fetch();
  if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',$user['password_hash'])))simReply(['error'=>'Sesión caducada'],401);
- $oid=filter_var($_POST['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
- $action=(string)($_POST['action']??'');$method=(string)($_POST['method']??'');
- if(!$oid||!in_array($action,['start','approve','reject','cancel'],true))simReply(['error'=>'Solicitud inválida'],422);
+ // 3E.4K: validar campos escalares antes de convertirlos o iniciar la transacción.
+ $rawOrderId=$_POST['order_id']??null;
+ $rawAction=$_POST['action']??null;
+ $rawMethod=$_POST['method']??'';
+ if(!is_string($rawOrderId)||!preg_match('/^[1-9][0-9]*$/D',$rawOrderId)
+    ||!is_string($rawAction)||!is_string($rawMethod))simReply(['error'=>'Solicitud inválida'],422);
+ $oid=filter_var($rawOrderId,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ $action=$rawAction;$method=$rawMethod;
+ if($oid===false||!in_array($action,['start','approve','reject','cancel'],true))simReply(['error'=>'Solicitud inválida'],422);
  $db->exec('BEGIN IMMEDIATE');
  try{
   $db->exec("CREATE TABLE IF NOT EXISTS uco_simulated_payments(order_id INTEGER PRIMARY KEY REFERENCES uco_orders(id),customer_id INTEGER NOT NULL,method TEXT NOT NULL CHECK(method IN ('redsys','paypal','bizum','transfer')),state TEXT NOT NULL CHECK(state IN ('pending','approved','rejected','cancelled')),subtotal_cents INTEGER NOT NULL,tax_cents INTEGER NOT NULL,shipping_cents INTEGER NOT NULL,total_cents INTEGER NOT NULL,delivery_json TEXT NOT NULL,tax_json TEXT NOT NULL,reference TEXT NOT NULL UNIQUE,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
@@ -32,7 +77,7 @@ try{
    $quote=ucoEconomyQuote($db,$items,$delivery);
    if(!$quote['ready']||(int)$quote['subtotal_cents']!==(int)$order['subtotal_cents']){$db->rollBack();simReply(['error'=>'Revisa el importe y los datos de entrega antes de continuar','issues'=>$quote['issues']],409);}
    // Validación del stock: una reserva pendiente no puede competir con otra.
-   $s=$db->prepare("SELECT p.stock,COALESCE((SELECT SUM(l2.quantity) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>? AND o2.status='reserved' AND o2.expires_at>?),0) AS others,l.quantity FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");
+   $s=$db->prepare("SELECT p.stock,COALESCE((SELECT SUM(l2.quantity) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>? AND o2.status IN ('reserved','pending_payment') AND o2.expires_at>?),0) AS others,l.quantity FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");
    $s->execute([$oid,time(),$oid]);
    foreach($s->fetchAll() as $v)if((int)$v['stock']-(int)$v['others']<(int)$v['quantity']){$db->rollBack();simReply(['error'=>'Existencias insuficientes'],409);}
    $reference='SIM-'.strtoupper(bin2hex(random_bytes(8)));
@@ -49,7 +94,7 @@ try{
   if($action==='approve' && (int)$order['expires_at']<=time()){$db->rollBack();simReply(['error'=>'La operación ha caducado; no se puede aprobar'],409);}
   if($action==='approve'){
    // Stock se descuenta exactamente una vez, en la misma transacción que la aprobación.
-   $s=$db->prepare("SELECT l.product_id,l.quantity,p.stock,(SELECT COALESCE(SUM(l2.quantity),0) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>l.order_id AND o2.status='reserved' AND o2.expires_at>CAST(strftime('%s','now') AS INTEGER)) AS others FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");$s->execute([$oid]);$lines=$s->fetchAll();
+   $s=$db->prepare("SELECT l.product_id,l.quantity,p.stock,(SELECT COALESCE(SUM(l2.quantity),0) FROM uco_order_lines l2 JOIN uco_orders o2 ON o2.id=l2.order_id WHERE l2.product_id=l.product_id AND o2.id<>l.order_id AND o2.status IN ('reserved','pending_payment') AND o2.expires_at>CAST(strftime('%s','now') AS INTEGER)) AS others FROM uco_order_lines l JOIN products p ON p.id=l.product_id WHERE l.order_id=?");$s->execute([$oid]);$lines=$s->fetchAll();
    foreach($lines as $v)if((int)$v['stock']-(int)$v['others']<(int)$v['quantity']){$db->rollBack();simReply(['error'=>'Stock insuficiente para aprobar el pago simulado'],409);}
    // El trigger de reservas puede bloquear decrementos: primero cambiar estado en la transacción.
    $change=$db->prepare("UPDATE uco_orders SET status='paid',payment_status='simulated_approved',updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='pending_payment'");$change->execute([$oid]);if($change->rowCount()!==1)throw new RuntimeException('Estado de pedido no válido');

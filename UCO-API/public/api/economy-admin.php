@@ -1,7 +1,55 @@
 <?php
 declare(strict_types=1);
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: DENY');
+
+// Fase 3E.4E: limitar el tamaño de las solicitudes de escritura antes de procesarlas.
+// No cambia el formato admitido por las rutas existentes (formularios o JSON).
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $ucoMaxPostBytes = 262144; // 256 KiB
+    $ucoLength = $_SERVER['CONTENT_LENGTH'] ?? null;
+    if ($ucoLength !== null && (!ctype_digit((string)$ucoLength) || (float)$ucoLength > $ucoMaxPostBytes)) {
+        http_response_code(413);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+        echo json_encode(['error' => 'La solicitud supera el tamaño permitido.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
-ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();
+require_once dirname(__DIR__,2).'/private/session-security.php';
+if(!empty($_SESSION['uco_user_id']) && ucoSecurityIdleExpired()){
+ http_response_code(401);
+ header('Content-Type: application/json; charset=utf-8');
+ echo json_encode(['error'=>'Sesión caducada por inactividad. Vuelve a iniciar sesión.','authenticated'=>false],JSON_UNESCAPED_UNICODE);
+ exit;
+}
+
+// 3E.4F: permitir solo los métodos previstos por la API de configuración económica.
+$ucoMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if (!in_array($ucoMethod, ['GET', 'POST'], true)) {
+    header('Allow: GET, POST');
+    http_response_code(405);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Método no permitido'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($ucoMethod === 'POST') {
+    // La interfaz actual envía FormData; aceptar sus dos codificaciones habituales.
+    $ucoContentType = strtolower(trim(explode(';', (string)($_SERVER['CONTENT_TYPE'] ?? ''), 2)[0]));
+    if (!in_array($ucoContentType, ['application/x-www-form-urlencoded', 'multipart/form-data'], true)) {
+        http_response_code(415);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Formato de solicitud no admitido'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
 require_once dirname(__DIR__,2).'/private/economy.php';
 function reply(array $a,int $status=200):never{http_response_code($status);echo json_encode($a,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 try{
@@ -14,7 +62,7 @@ try{
  if(!$current||$current['role']!=='admin'||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',(string)$current['password_hash'])))reply(['error'=>'Sesión o permisos no válidos. Vuelve a iniciar sesión.'],403);
  ucoEconomySchema($db);
  if($_SERVER['REQUEST_METHOD']==='POST'){
-  if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))reply(['error'=>'Sesión no válida'],403);
+  if(!ucoSecurityCsrfValid('csrf'))reply(['error'=>'Sesión no válida'],403);
   $db->exec('BEGIN IMMEDIATE');
   try{
    $type=(string)($_POST['type']??'');

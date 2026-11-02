@@ -1,7 +1,12 @@
 <?php
 declare(strict_types=1);
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: DENY');
+
 ini_set('display_errors','0');header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
-ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);session_start();
+ini_set('session.use_strict_mode','1');session_name('UCOADMIN');session_set_cookie_params(['httponly'=>true,'secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','samesite'=>'Strict','path'=>'/']);ini_set('session.use_only_cookies','1');
+ini_set('session.use_trans_sid','0');
+session_start();require_once dirname(__DIR__,2).'/private/session-security.php';
 function respond($v,int $code=200):never{http_response_code($code);echo json_encode($v,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 function norm(string $s):string{$s=mb_strtolower($s,'UTF-8');if(class_exists('Normalizer'))$s=Normalizer::normalize($s,Normalizer::FORM_D);return strtr($s,['á'=>'a','à'=>'a','ä'=>'a','â'=>'a','é'=>'e','è'=>'e','ë'=>'e','ê'=>'e','í'=>'i','ì'=>'i','ï'=>'i','î'=>'i','ó'=>'o','ò'=>'o','ö'=>'o','ô'=>'o','ú'=>'u','ù'=>'u','ü'=>'u','û'=>'u']);}
 function db():PDO{$db=new PDO('sqlite:'.dirname(__DIR__,2).'/private/database/catalogo.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$db->exec('PRAGMA foreign_keys=ON');$db->exec('PRAGMA busy_timeout=5000');return $db;}
@@ -13,24 +18,28 @@ function adminOnly():void{if(($_SESSION['uco_role']??'')!=='admin')respond(['err
 function userInfo(array $u):array{return ['id'=>(int)$u['id'],'username'=>$u['username'],'display_name'=>$u['display_name'],'email'=>$u['email'],'avatar'=>$u['avatar']??'','role'=>$u['role'],'active'=>(int)$u['active'],'created_at'=>$u['created_at']];}
 function validatePassword(string $p):void{if(strlen($p)<12||strlen($p)>256)respond(['error'=>'La contraseña debe tener entre 12 y 256 caracteres.'],422);}
 function activeAdmins(PDO $db):int{return (int)$db->query("SELECT COUNT(*) FROM admin_users WHERE role='admin' AND active=1")->fetchColumn();}
-function csrf():void{if(!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_CSRF_TOKEN']??'')))respond(['error'=>'Sesión no válida. Actualiza la página.'],403);}
+function csrf():void{if(!ucoSecurityCsrfValid('csrf'))respond(['error'=>'Sesión no válida. Actualiza la página.'],403);}
 $action=(string)($_GET['action']??'session');$method=$_SERVER['REQUEST_METHOD'];
 try{
 if($action==='session'&&$method==='GET'){
  if(!authorized())respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
+  if(ucoSecurityIdleExpired())respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
  $sessionDb=db();
  $sessionCheck=$sessionDb->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');
  $sessionCheck->execute([(int)$_SESSION['uco_user_id']]);
  $sessionUser=$sessionCheck->fetch();
  if(!$sessionUser||!ucoIdentitySessionValid($sessionDb,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',(string)$sessionUser['password_hash']))){
-  $_SESSION=[];session_destroy();respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
+  ucoSecurityLogout();respond(['authenticated'=>false,'csrf'=>null,'user'=>null]);
  }
  $_SESSION['uco_role']=$sessionUser['role'];$_SESSION['uco_user']=userInfo($sessionUser);
+ require_once dirname(__DIR__,2).'/private/access-permissions.php';
+ $_SESSION['uco_user']['permissions']=array_keys(ucoAdminCapabilities($sessionDb,(int)$sessionUser['id'],(string)$sessionUser['role'])+ucoOrderCapabilities($sessionDb,(int)$sessionUser['id'],(string)$sessionUser['role']));
  respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf']??null,'user'=>$_SESSION['uco_user']]);
 }
 if($action==='login'&&$method==='POST'){
  $username=trim((string)($_POST['username']??''));$password=(string)($_POST['password']??'');
- $db=usersDb();$existing=(int)$db->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();
+ if(ucoSecurityThrottle('admin',$username))respond(['error'=>'Demasiados intentos. Prueba de nuevo en 15 minutos.'],429);
+  $db=usersDb();$existing=(int)$db->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();
  // Migración segura: el primer usuario conserva la contraseña ya configurada en el servidor.
  if($existing===0&&strcasecmp($username,'Administrador')===0){
   $legacy=(string)(getenv('UCO_ADMIN_PASSWORD_HASH')?:'');
@@ -42,25 +51,42 @@ if($action==='login'&&$method==='POST'){
  if(!$u||!(int)$u['active']||!password_verify($password,$u['password_hash'])){usleep(450000);respond(['error'=>'Usuario o contraseña incorrectos.'],401);}
  if(password_needs_rehash($u['password_hash'],PASSWORD_DEFAULT)){$db->prepare('UPDATE admin_users SET password_hash=? WHERE id=?')->execute([password_hash($password,PASSWORD_DEFAULT),$u['id']]);}
  $identityId=ucoIdentityResolve($db,'staff',(int)$u['id'],true);if($identityId===null)respond(['error'=>'No se pudo vincular la identidad.'],503);
- session_regenerate_id(true);$_SESSION['uco_user_id']=(int)$u['id'];$_SESSION['uco_identity_id']=$identityId;$_SESSION['uco_role']=$u['role'];$_SESSION['uco_user']=userInfo($u);$_SESSION['uco_auth_stamp']=hash('sha256',$u['password_hash']);$_SESSION['csrf']=bin2hex(random_bytes(32));respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf'],'user'=>$_SESSION['uco_user']]);
+ require_once dirname(__DIR__,2).'/private/access-permissions.php';$u['permissions']=array_keys(ucoAdminCapabilities($db,(int)$u['id'],(string)$u['role'])+ucoOrderCapabilities($db,(int)$u['id'],(string)$u['role']));
+ ucoSecurityThrottle('admin',$username,true);session_regenerate_id(true);ucoSecurityLoginSuccess();$_SESSION['uco_user_id']=(int)$u['id'];$_SESSION['uco_identity_id']=$identityId;$_SESSION['uco_role']=$u['role'];$_SESSION['uco_user']=userInfo($u);$_SESSION['uco_user']['permissions']=$u['permissions'];$_SESSION['uco_auth_stamp']=hash('sha256',$u['password_hash']);$_SESSION['csrf']=bin2hex(random_bytes(32));respond(['authenticated'=>true,'csrf'=>$_SESSION['csrf'],'user'=>$_SESSION['uco_user']]);
 }
 if(!authorized())respond(['error'=>'Acceso no autorizado'],401);
-if($action==='logout'&&$method==='POST'){csrf();$_SESSION=[];session_destroy();respond(['ok'=>true]);}
+if(ucoSecurityIdleExpired())respond(['error'=>'Sesión caducada por inactividad. Vuelve a entrar.'],401);
+if($action==='logout'&&$method==='POST'){csrf();ucoSecurityLogout();respond(['ok'=>true]);}
 $db=usersDb();
 $cols=array_column($db->query('PRAGMA table_info(products)')->fetchAll(),'name');if(!in_array('description',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN description TEXT NOT NULL DEFAULT ''");if(!in_array('unit',$cols,true))$db->exec("ALTER TABLE products ADD COLUMN unit TEXT NOT NULL DEFAULT 'unidad'");
 // Si una cuenta se desactiva o cambia de rol, las sesiones anteriores dejan de autorizarse.
 $check=$db->prepare('SELECT * FROM admin_users WHERE id=? AND active=1');$check->execute([$_SESSION['uco_user_id']]);$current=$check->fetch();
-if(!$current||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){$_SESSION=[];session_destroy();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
+if(!$current||!ucoIdentitySessionValid($db,'staff',(int)$_SESSION['uco_user_id'],$_SESSION['uco_identity_id']??null)||!hash_equals((string)($_SESSION['uco_auth_stamp']??''),hash('sha256',$current['password_hash']))){ucoSecurityLogout();respond(['error'=>'La sesión ya no es válida. Vuelve a entrar.'],401);}
 $_SESSION['uco_role']=$current['role'];$_SESSION['uco_user']=userInfo($current);
+require_once dirname(__DIR__,2).'/private/access-permissions.php';
+$ucoCaps=ucoAdminCapabilities($db,(int)$current['id'],(string)$current['role']);
+$_SESSION['uco_user']['permissions']=array_keys($ucoCaps+ucoOrderCapabilities($db,(int)$current['id'],(string)$current['role']));
+// 3E.3B: lista blanca de operaciones. Nunca aceptar acciones desconocidas.
+$ucoGet=['list','commercial_list','account_history_index','account_history','account_receipt','identity_links','access_roles','users'];
+$ucoPost=['save','customer_save','customer_delete','group_save','group_delete','price_save','price_update','price_delete','base_save','discount_save','promotion_save','promotion_delete','identity_link','identity_unlink','access_roles_save','user_save','user_delete','change_password'];
+if(!in_array($action,$method==='GET'?$ucoGet:($method==='POST'?$ucoPost:[]),true))respond(['error'=>'Operación o método no permitido'],405);
+// Las operaciones administrativas de escritura nunca dependen solo de un permiso RBAC.
+if($method==='POST'&&$action!=='change_password'&&$current['role']!=='admin')respond(['error'=>'Solo administración puede modificar estos datos'],403);
+// Historial de clientes: lectura autorizada; justificantes protegidos por el mismo permiso.
+if(in_array($action,['account_history_index','account_history','account_receipt'],true)&&!isset($ucoCaps['customers.view']))respond(['error'=>'No tienes permiso para consultar historiales de clientes'],403);
+
+if($action==='list'&&!isset($ucoCaps['catalog.view']))respond(['error'=>'No tienes permiso para consultar el catálogo'],403);
+if($action==='save'&&!isset($ucoCaps['catalog.manage']))respond(['error'=>'No tienes permiso para modificar el catálogo'],403);
+if($action==='save'&&$current['role']!=='admin')respond(['error'=>'Solo administración puede modificar el catálogo'],403);
+if($action==='commercial_list'&&!isset($ucoCaps['customers.view'])&&!isset($ucoCaps['pricing.view']))respond(['error'=>'No tienes acceso al área comercial'],403);
+if(in_array($action,['customer_save','customer_delete','group_save','group_delete','price_save','price_update','price_delete','base_save','discount_save','promotion_save','promotion_delete'],true)&&$current['role']!=='admin')respond(['error'=>'Solo administración puede modificar los datos comerciales'],403);
 if($action==='account_history_index'&&$method==='GET'){
- adminOnly();
  $counts=[];
  $q=$db->query('SELECT customer_id,COUNT(*) AS n FROM uco_orders GROUP BY customer_id');
  foreach($q->fetchAll() as $r)$counts[(string)$r['customer_id']]=(int)$r['n'];
  respond(['counts'=>$counts]);
 }
 if($action==='account_receipt'&&$method==='GET'){
- adminOnly();
  $oid=filter_var($_GET['order_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
  if(!$oid)respond(['error'=>'Pedido no válido'],422);
  $st=$db->prepare('SELECT o.id,o.customer_id,o.status,o.payment_status,o.created_at,p.method,p.state,p.reference,p.subtotal_cents,p.tax_cents,p.shipping_cents,p.total_cents,p.delivery_json,p.tax_json,p.updated_at AS operation_at FROM uco_orders o JOIN uco_simulated_payments p ON p.order_id=o.id WHERE o.id=?');
@@ -74,7 +100,6 @@ if($action==='account_receipt'&&$method==='GET'){
  respond(['simulation'=>true,'order_id'=>(int)$order['id'],'status'=>$order['status'],'method'=>$order['method'],'state'=>$order['state'],'reference'=>$order['reference'],'created_at'=>$order['created_at'],'operation_at'=>$order['operation_at'],'delivery'=>is_array($delivery)?$delivery:[],'tax_lines'=>is_array($tax)?$tax:[],'items'=>$items,'subtotal_cents'=>(int)$order['subtotal_cents'],'tax_cents'=>(int)$order['tax_cents'],'shipping_cents'=>(int)$order['shipping_cents'],'total_cents'=>(int)$order['total_cents']]);
 }
 if($action==='account_history'&&$method==='GET'){
- adminOnly();
  $cid=filter_var($_GET['customer_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
  if(!$cid)respond(['error'=>'Cliente inválido'],422);
  $check=$db->prepare('SELECT id FROM customers WHERE id=?');$check->execute([$cid]);
@@ -122,6 +147,37 @@ if($action==='identity_unlink'&&$method==='POST'){
  error_log('UCO identity unlink staff_id='.(int)$staffId.' customer_id='.(int)$customerId.' by_admin='.(int)$_SESSION['uco_user_id']);
  respond(['ok'=>true]);
 }
+/* Fase 3E.2 · Perfiles configurables: solo lectura y asignación, sin activar autorización RBAC. */
+if($action==='access_roles'&&$method==='GET'){
+ adminOnly();
+ try{
+  $roles=$db->query('SELECT id,code,label,description FROM uco_access_roles ORDER BY id')->fetchAll();
+  $permissions=$db->query('SELECT p.code,p.label,p.area,rp.role_id FROM uco_access_permissions p JOIN uco_access_role_permissions rp ON rp.permission_code=p.code ORDER BY p.area,p.label')->fetchAll();
+  $assignments=$db->query('SELECT staff_id,role_id FROM uco_access_staff_roles ORDER BY staff_id,role_id')->fetchAll();
+  $staff=$db->query('SELECT id,display_name,username,role,active FROM admin_users ORDER BY display_name,id')->fetchAll();
+  respond(['roles'=>$roles,'permissions'=>$permissions,'assignments'=>$assignments,'staff'=>$staff,'enforced'=>true]);
+ }catch(Throwable $e){error_log('UCO 3E.2 read: '.$e->getMessage());respond(['error'=>'No se pudieron consultar los perfiles. Comprueba la migración 3E.1.'],500);}
+}
+if($action==='access_roles_save'&&$method==='POST'){
+ csrf();adminOnly();
+ $staffId=filter_var($_POST['staff_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+ $raw=(string)($_POST['role_ids']??'');
+ if(!$staffId||strlen($raw)>1500)respond(['error'=>'Selección de empleado o perfiles incorrecta.'],422);
+ $ids=json_decode($raw,true);
+ if(!is_array($ids)||count($ids)>30||count($ids)!==count(array_unique(array_map('strval',$ids))))respond(['error'=>'Selección de perfiles incorrecta.'],422);
+ foreach($ids as $id){if(!is_int($id)||$id<1)respond(['error'=>'Perfil no válido.'],422);}
+ try{
+  $q=$db->prepare('SELECT id,role FROM admin_users WHERE id=?');$q->execute([$staffId]);$staff=$q->fetch();$q->closeCursor();
+  if(!$staff)respond(['error'=>'El usuario ya no existe.'],404);
+  if($ids){$marks=implode(',',array_fill(0,count($ids),'?'));$q=$db->prepare("SELECT COUNT(*) FROM uco_access_roles WHERE id IN ($marks)");$q->execute($ids);if((int)$q->fetchColumn()!==count($ids))respond(['error'=>'Hay perfiles inexistentes.'],422);$q->closeCursor();}
+  if($staff['role']!=='admin'&&$ids){$marks=implode(',',array_fill(0,count($ids),'?'));$q=$db->prepare("SELECT COUNT(*) FROM uco_access_roles WHERE id IN ($marks) AND code='administrator'");$q->execute($ids);if((int)$q->fetchColumn()>0)respond(['error'=>'El perfil Administrador solo puede asignarse a una cuenta administradora.'],403);$q->closeCursor();}
+  $db->exec('BEGIN IMMEDIATE');
+  $db->prepare('DELETE FROM uco_access_staff_roles WHERE staff_id=?')->execute([$staffId]);
+  $q=$db->prepare('INSERT INTO uco_access_staff_roles(staff_id,role_id) VALUES(?,?)');foreach($ids as $id)$q->execute([$staffId,$id]);
+  $db->commit();error_log('UCO 3E.2 perfiles staff_id='.$staffId.' role_ids='.implode(',',$ids).' actor='.(int)$_SESSION['uco_user_id']);
+  respond(['ok'=>true,'enforced'=>true]);
+ }catch(Throwable $e){if($db->inTransaction())$db->rollBack();error_log('UCO 3E.2 save: '.$e->getMessage());respond(['error'=>'No se pudo guardar la asignación de perfiles.'],500);}
+}
 if($action==='users'&&$method==='GET'){adminOnly();respond(['users'=>array_map('userInfo',$db->query('SELECT * FROM admin_users ORDER BY id')->fetchAll())]);}
 if($action==='user_save'&&$method==='POST'){
  csrf();adminOnly();$id=(int)($_POST['id']??0);$username=trim((string)($_POST['username']??''));$display=trim((string)($_POST['display_name']??''));$email=trim((string)($_POST['email']??''));$role=(string)($_POST['role']??'manager');$active=(string)($_POST['active']??'1')==='1'?1:0;$pass=(string)($_POST['password']??'');
@@ -149,7 +205,7 @@ if($action==='change_password'&&$method==='POST'){
 }
 // v1.9: administración comercial, separada de las cuentas de empleados.
 if(in_array($action,['commercial_list','customer_save','customer_delete','group_save','group_delete','price_save','price_update','price_delete','base_save','discount_save','promotion_save','promotion_delete'],true)){
- adminOnly();commercialDb($db);
+ if($action!=='commercial_list')adminOnly();commercialDb($db);
  if($action==='commercial_list'&&$method==='GET'){
   $customers=$db->query('SELECT id,company,tax_id,contact,email,group_id,active FROM customers ORDER BY company COLLATE NOCASE')->fetchAll();
   $groups=$db->query('SELECT id,name,active FROM customer_groups ORDER BY name COLLATE NOCASE')->fetchAll();
@@ -158,6 +214,8 @@ if(in_array($action,['commercial_list','customer_save','customer_delete','group_
   $base=$db->query('SELECT product_id,price_cents FROM base_prices ORDER BY product_id')->fetchAll();
   $discounts=$db->query('SELECT group_id,percent_bp FROM group_discounts')->fetchAll();
   $promotions=$db->query('SELECT id,name,scope,group_id,percent_bp,starts_at,ends_at,active FROM promotions ORDER BY active DESC,ends_at DESC,id DESC')->fetchAll();
+  if(!isset($ucoCaps['customers.view'])){$customers=[];$groups=[];}
+  if(!isset($ucoCaps['pricing.view'])){$prices=[];$base=[];$discounts=[];$promotions=[];}
   respond(['customers'=>array_map('customerPublic',$customers),'groups'=>$groups,'prices'=>$prices,'products'=>$catalog,'base'=>$base,'discounts'=>$discounts,'promotions'=>$promotions]);
  }
  if($method!=='POST')respond(['error'=>'Método no permitido'],405);csrf();

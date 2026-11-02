@@ -1,0 +1,1 @@
+const fs=require('fs'),assert=require('assert');const s=fs.readFileSync('public/assistant/assistant.js','utf8');assert(s.includes('askOwnPrices(real)'));assert(s.includes('askOwnReceipt(value)'));assert(s.includes('/api/assistant-prices-71i.php'));console.log('7.1I integration: OK');

@@ -1408,3 +1408,526 @@ dialog.uco-order-dialog::backdrop{background:#07132ab8;backdrop-filter:blur(3px)
 .uco-order-history li p{margin:.25rem 0;font-size:.9rem}
 .uco-order-history .uco-history-note{background:#fff;border-left:3px solid #a9df39;padding:.55rem .7rem;border-radius:0 .45rem .45rem 0;overflow-wrap:anywhere}
 @media(max-width:36rem){.uco-order-history{padding:.9rem .75rem}.uco-history-top{flex-direction:column;gap:.2rem}}
+
+/* Confirmación propia UCO tras cambiar la contraseña */
+dialog.uco-password-success{position:fixed;inset:0;margin:auto;width:min(92vw,29rem);max-width:92vw;max-height:90dvh;overflow:auto;padding:0;border:0;border-radius:1.1rem 0 1.1rem 0;background:#fff;color:#232f5d;box-shadow:0 1.5rem 5rem #0a193555}
+dialog.uco-password-success::backdrop{background:#07132ab8;backdrop-filter:blur(3px)}
+.uco-password-success-head{display:flex;align-items:center;gap:.85rem;padding:1.25rem 1.4rem;background:#232f5d;color:#fff}
+.uco-password-success-head h2{margin:0;color:#fff;font-size:clamp(1.2rem,3vw,1.5rem);line-height:1.25}
+.uco-password-success-icon{display:grid;place-items:center;flex:0 0 2.3rem;width:2.3rem;height:2.3rem;border-radius:.65rem 0 .65rem 0;background:#a9df39;color:#232f5d;font-weight:900;font-size:1.3rem}
+.uco-password-success-body{padding:1.4rem;display:grid;gap:1.4rem}
+.uco-password-success-body p{margin:0;line-height:1.55;color:#33486c;text-align:center;text-wrap:balance}
+.uco-password-success-actions{display:flex;justify-content:flex-end}
+.uco-password-success-actions button{min-width:8.5rem;border:0;border-radius:.75rem 0 .75rem 0;background:#a9df39;color:#232f5d;padding:.8rem 1.2rem;font-weight:800;cursor:pointer}
+.uco-password-success-actions button:focus-visible{outline:3px solid #232f5d;outline-offset:3px}
+@media(max-width:36rem){dialog.uco-password-success{width:calc(100vw - 1.5rem);max-width:calc(100vw - 1.5rem)}.uco-password-success-head{padding:1rem}.uco-password-success-body{padding:1rem}.uco-password-success-actions button{width:100%}}
+
+/* Fase 3A: navegación interna de Pedidos, alineada con la identidad UCO. */
+#orders-area .uco-orders-subtabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;margin:0 0 .8rem}
+#orders-area .uco-orders-subtabs button{min-width:0;min-height:3.15rem;padding:.75rem .55rem;background:#fff;border:1px solid #b9cbe0;border-radius:.9rem 0 .9rem 0;color:#232f5d;font:inherit;font-size:.9rem;font-weight:800;cursor:pointer;transition:background .15s ease}
+#orders-area .uco-orders-subtabs button:hover{background:#f1f7e5}
+#orders-area .uco-orders-subtabs button[aria-selected="true"]{background:#a9df39;border-color:#a9df39;color:#18294d}
+#orders-area .uco-orders-subtabs button:focus-visible{outline:3px solid #6b9f21;outline-offset:2px}
+#orders-area .uco-orders-panels>[hidden]{display:none!important}
+#orders-area .uco-orders-workspace{padding:clamp(1.1rem,2.5vw,2rem)}
+#orders-area .uco-orders-workspace h2{margin:0 0 .6rem;font-size:clamp(1.3rem,2.2vw,1.8rem);color:#232f5d;text-align:center}
+#orders-area .uco-orders-workspace>p{margin:0 auto 1.35rem;max-width:55rem;color:#61748e;text-align:center;text-wrap:balance;line-height:1.5}
+#orders-area .uco-orders-work-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;border:1px solid #dce4ee;border-radius:.85rem 0 .85rem 0;padding:1rem;margin:.6rem 0;background:#fff}
+#orders-area .uco-orders-work-row>div{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem 1rem;min-width:0}
+#orders-area .uco-orders-work-row strong{color:#232f5d}
+#orders-area .uco-orders-work-row span{color:#32476b}
+#orders-area .uco-orders-work-row small{color:#6b7e96}
+#orders-area .uco-orders-work-row button{border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;padding:.7rem 1rem;font-weight:800;cursor:pointer;white-space:nowrap}
+#orders-area .uco-orders-work-empty{padding:1.25rem;text-align:center;color:#6b7e96}
+@media(max-width:48rem){#orders-area .uco-orders-subtabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}#orders-area .uco-orders-subtabs button{font-size:.84rem;min-height:3rem}}
+@media(max-width:30rem){#orders-area .uco-orders-work-row{align-items:stretch;flex-direction:column}#orders-area .uco-orders-work-row button{width:100%}}
+
+/* Restauración del estilo original del justificante PDF (Fase 3A) */
+#orders-area .uco-order-meta{display:flex;align-items:center;justify-content:space-between;gap:.85rem 1.25rem;margin-bottom:.9rem}
+#orders-area .uco-order-meta p{flex:1 1 auto;min-width:0;margin:0}
+#orders-area .uco-order-receipt-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:2.65rem;padding:.7rem 1.15rem;background:#a9df39;color:#232f5d;border:0;border-radius:.75rem 0 .75rem 0;font:800 .86rem Manrope,sans-serif;cursor:pointer;text-align:center;transition:background .2s ease}
+#orders-area .uco-order-receipt-button:hover{background:#97cb29}
+#orders-area .uco-order-receipt-button:focus-visible{outline:2px solid #232f5d;outline-offset:3px}
+#orders-area .uco-order-receipt-button:disabled{opacity:.65;cursor:wait}
+@media(max-width:60rem){#orders-area .uco-order-meta{flex-direction:column;align-items:stretch;gap:.7rem;margin-bottom:1rem}#orders-area .uco-order-receipt-button{align-self:flex-start;min-height:2.85rem}}
+@media(max-width:36rem){#orders-area .uco-order-meta{gap:.65rem}#orders-area .uco-order-receipt-button{align-self:stretch;width:100%}}
+
+/* Fase 3B: cola de preparación, sin alterar la navegación ni las operaciones existentes. */
+#orders-area .uco-orders-prep-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;margin:0 0 1.25rem}
+#orders-area .uco-prep-stat{display:grid;gap:.2rem;text-align:center;padding:1rem .45rem;background:#f4f8ed;border:1px solid #dbe9c3;border-radius:.85rem 0 .85rem 0}
+#orders-area .uco-prep-stat strong{font-size:clamp(1.4rem,2.6vw,2rem);line-height:1.15;color:#232f5d}
+#orders-area .uco-prep-stat span{font-size:.8rem;color:#516780;font-weight:700}
+#orders-area .uco-orders-prep-filters{display:grid;grid-template-columns:2fr 1fr;gap:.8rem;margin-bottom:1rem}
+#orders-area .uco-orders-prep-filters label{display:grid;gap:.4rem;font-size:.8rem;font-weight:800;color:#232f5d}
+#orders-area .uco-orders-prep-filters input,#orders-area .uco-orders-prep-filters select{width:100%;min-width:0;padding:.8rem;border:1px solid #cbd8e8;border-radius:.7rem 0 .7rem 0;background:#fff;color:#232f5d;font:inherit}
+#orders-area .uco-prep-card{padding:1rem 1.15rem;margin:.6rem 0;border:1px solid #dce4ee;border-radius:.9rem 0 .9rem 0;background:#fff}
+#orders-area .uco-prep-card-main{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem 1rem}
+#orders-area .uco-prep-card-main strong{color:#232f5d}
+#orders-area .uco-prep-card-main span{color:#32476b}
+#orders-area .uco-prep-card-main small{color:#708199}
+#orders-area .uco-prep-state{margin-left:auto;padding:.35rem .65rem;background:#f1f7e5;border-radius:.5rem 0 .5rem 0;color:#4c7625!important;font-size:.8rem;font-weight:800}
+#orders-area .uco-prep-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:.8rem;padding-top:.8rem;border-top:1px solid #e5ebf2;color:#61748e;font-size:.85rem}
+#orders-area .uco-prep-card-bottom button{padding:.7rem 1rem;border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;font:inherit;font-weight:800;cursor:pointer}
+@media(max-width:48rem){#orders-area .uco-orders-prep-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:30rem){#orders-area .uco-orders-prep-filters{grid-template-columns:1fr}#orders-area .uco-prep-card-bottom{flex-direction:column;align-items:stretch}#orders-area .uco-prep-card-bottom button{width:100%}#orders-area .uco-prep-state{margin-left:0}}
+
+/* Fase 3C.1: responsable de preparación */
+#orders-area .uco-order-assign{display:flex;align-items:end;gap:1rem;flex-wrap:wrap;justify-content:space-between;padding:1.1rem 0;border-top:1px solid #dce4ee;margin-top:1rem}
+#orders-area .uco-order-assign>div{display:grid;gap:.3rem;color:#232f5d}
+#orders-area .uco-order-assign small,#orders-area .uco-prep-assigned{font-size:.82rem;color:#62748b}
+#orders-area .uco-order-assign label{display:grid;gap:.3rem;font-weight:700;font-size:.8rem;color:#232f5d;min-width:min(100%,14rem)}
+#orders-area .uco-order-assign select{border:1px solid #cad6e5;border-radius:.65rem;padding:.7rem;background:white;color:#232f5d}
+#orders-area .uco-order-assign button{border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;padding:.8rem 1.1rem;font-weight:800;cursor:pointer}
+#orders-area .uco-order-assign button:disabled{opacity:.5}
+@media(max-width:48rem){#orders-area .uco-order-assign{display:grid;gap:.85rem}#orders-area .uco-order-assign label,#orders-area .uco-order-assign button{width:100%}}
+
+/* Ajuste visual de controles de asignación y estado; sin cambios funcionales. */
+#orders-area .uco-order-assign,#orders-area .uco-order-actions{box-sizing:border-box;min-width:0;width:100%;display:grid;align-items:end;column-gap:1rem;row-gap:.85rem;padding:1.1rem 1.2rem;margin:0;background:#f7f9fc}
+#orders-area .uco-order-assign{grid-template-columns:minmax(0,1fr) minmax(13rem,18rem) auto;border:1px solid #dce4ee;border-radius:.85rem .85rem 0 0;margin-top:1.15rem}
+#orders-area .uco-order-assign>div{align-self:center;min-width:0;gap:.25rem}
+#orders-area .uco-order-assign>div strong{font-size:.92rem}
+#orders-area .uco-order-assign>div small{line-height:1.4}
+#orders-area .uco-order-assign label,#orders-area .uco-order-actions label{display:grid;gap:.4rem;min-width:0;width:100%;font-size:.8rem;font-weight:800;color:#232f5d}
+#orders-area .uco-order-assign select,#orders-area .uco-order-actions select{box-sizing:border-box;width:100%;min-width:0;min-height:2.85rem;padding:.65rem .85rem;border:1px solid #cbd8e8;border-radius:.7rem 0 .7rem 0;background:#fff;color:#232f5d;font:inherit;font-weight:600}
+#orders-area .uco-order-assign button,#orders-area .uco-order-actions button{box-sizing:border-box;min-height:2.85rem;padding:.7rem 1.1rem;white-space:nowrap;font:800 .86rem Manrope,sans-serif;border-radius:.7rem 0 .7rem 0;transition:background .2s ease}
+#orders-area .uco-order-assign button:hover:not(:disabled),#orders-area .uco-order-actions button:not(.uco-order-reset):hover:not(:disabled){background:#97cb29}
+#orders-area .uco-order-assign button:focus-visible,#orders-area .uco-order-actions button:focus-visible,#orders-area .uco-order-assign select:focus-visible,#orders-area .uco-order-actions select:focus-visible{outline:2px solid #527c19;outline-offset:2px}
+#orders-area .uco-order-actions{grid-template-columns:minmax(0,1fr) minmax(13rem,18rem) auto auto;border:1px solid #dce4ee;border-top:0;border-radius:0 0 .85rem .85rem;padding-top:.9rem;background:#fff}
+#orders-area .uco-order-actions label{grid-column:2}
+#orders-area .uco-order-actions .uco-order-reset{background:#fff;border:1px solid #8abf2b;color:#527c19}
+#orders-area .uco-order-actions .uco-order-reset:hover{background:#f1f7e5}
+@media(max-width:62rem){
+ #orders-area .uco-order-assign{grid-template-columns:minmax(0,1fr) minmax(12rem,1fr)}
+ #orders-area .uco-order-assign>div{grid-column:1/-1}
+ #orders-area .uco-order-assign button{width:100%}
+ #orders-area .uco-order-actions{grid-template-columns:minmax(0,1fr) minmax(12rem,1fr)}
+ #orders-area .uco-order-actions label{grid-column:1/-1}
+ #orders-area .uco-order-actions button{width:100%}
+}
+@media(max-width:36rem){
+ #orders-area .uco-order-assign,#orders-area .uco-order-actions{grid-template-columns:minmax(0,1fr);padding:.95rem;gap:.8rem}
+ #orders-area .uco-order-assign>div,#orders-area .uco-order-actions label{grid-column:1}
+ #orders-area .uco-order-assign label,#orders-area .uco-order-assign button,#orders-area .uco-order-actions label,#orders-area .uco-order-actions select,#orders-area .uco-order-actions button{width:100%;min-width:0}
+ #orders-area .uco-order-assign button,#orders-area .uco-order-actions button{min-height:3rem;white-space:normal}
+}
+
+/* Fase 3D: expedición. Se conservan intactos los estilos de las otras pestañas. */
+#orders-area .uco-orders-shipping-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin:0 0 1.2rem}
+#orders-area .uco-orders-shipping-filters{display:grid;grid-template-columns:2fr 1fr;gap:.85rem;margin:0 0 1rem}
+#orders-area .uco-orders-shipping-filters label,#orders-area .uco-shipping-form label{display:grid;gap:.4rem;min-width:0;color:#232f5d;font-size:.8rem;font-weight:800}
+#orders-area .uco-orders-shipping-filters input,#orders-area .uco-orders-shipping-filters select,#orders-area .uco-shipping-form input{box-sizing:border-box;min-width:0;width:100%;min-height:2.85rem;padding:.7rem .85rem;border:1px solid #cbd8e8;border-radius:.7rem 0 .7rem 0;background:white;color:#232f5d;font:600 .9rem Manrope,sans-serif}
+#orders-area .uco-shipping-card{min-width:0;padding:1.15rem;margin:.7rem 0;background:#fff;border:1px solid #dce4ee;border-radius:.9rem 0 .9rem 0}
+#orders-area .uco-shipping-card-head,#orders-area .uco-shipping-bottom{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+#orders-area .uco-shipping-card-head>div{display:flex;align-items:center;gap:.5rem 1rem;flex-wrap:wrap;min-width:0}
+#orders-area .uco-shipping-card-head strong{color:#232f5d}
+#orders-area .uco-shipping-card-head span{color:#32476b}
+#orders-area .uco-shipping-card-head small,.uco-shipping-info small{color:#708199}
+#orders-area .uco-shipping-info{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem;padding:.8rem;background:#f5f8fc;color:#32476b;border-radius:.6rem 0 .6rem 0;font-size:.85rem}
+#orders-area .uco-shipping-info small{width:100%}
+#orders-area .uco-shipping-form{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-top:1rem;padding:1rem;background:#f7f9fc;border:1px solid #e1e9f2;border-radius:.8rem 0 .8rem 0}
+#orders-area .uco-shipping-note{grid-column:1/-1}
+#orders-area .uco-shipping-form button{justify-self:end;grid-column:1/-1;min-height:2.85rem;padding:.75rem 1.2rem;background:#a9df39;border:0;border-radius:.75rem 0 .75rem 0;color:#232f5d;font:800 .87rem Manrope,sans-serif;cursor:pointer}
+#orders-area .uco-shipping-form button:hover:not(:disabled){background:#97cb29}
+#orders-area .uco-shipping-form button:disabled{opacity:.6;cursor:wait}
+#orders-area .uco-shipping-bottom{margin-top:1rem;padding-top:.85rem;border-top:1px solid #e5ebf2;color:#62748b;font-size:.85rem}
+#orders-area .uco-shipping-bottom button{min-height:2.65rem;padding:.65rem 1rem;border:1px solid #a9df39;border-radius:.7rem 0 .7rem 0;background:#fff;color:#232f5d;font-weight:800;cursor:pointer}
+#orders-area .uco-shipping-history{margin-top:.85rem;color:#32476b;font-size:.85rem}
+#orders-area .uco-shipping-history summary{cursor:pointer;font-weight:800;color:#232f5d}
+#orders-area .uco-shipping-history li{padding:.35rem 0}
+#orders-area .uco-shipping-history li p{margin:.2rem 0}
+@media(max-width:48rem){#orders-area .uco-orders-shipping-filters{grid-template-columns:1fr 1fr}}
+@media(max-width:36rem){#orders-area .uco-orders-shipping-summary{gap:.4rem}#orders-area .uco-orders-shipping-filters,#orders-area .uco-shipping-form{grid-template-columns:1fr}#orders-area .uco-shipping-form button{width:100%}#orders-area .uco-shipping-card-head{align-items:flex-start}#orders-area .uco-shipping-card-head .uco-prep-state{margin-left:0}#orders-area .uco-shipping-bottom button{width:100%}}
+
+
+/* Fase 3C.2: comprobación por artículos y cantidades. */
+#orders-area .uco-order-checks{margin:1.1rem 0;padding:1.15rem;border:1px solid #dce4ee;border-radius:.9rem 0 .9rem 0;background:#f7f9fc}
+#orders-area .uco-checks-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+#orders-area .uco-checks-head h3{margin:0 0 .3rem;color:#232f5d;font-size:1.05rem}
+#orders-area .uco-checks-head p{margin:0;color:#63758e;font-size:.83rem}
+#orders-area .uco-checks-head progress{width:min(11rem,35%);height:.75rem;accent-color:#9acb2b}
+#orders-area .uco-checks-list{display:grid;gap:.7rem}
+#orders-area .uco-check-line{display:grid;grid-template-columns:minmax(12rem,1fr) minmax(0,2fr);gap:1rem;align-items:center;background:#fff;border:1px solid #e1e8f1;border-radius:.7rem 0 .7rem 0;padding:.95rem}
+#orders-area .uco-check-product{display:grid;justify-items:start;gap:.3rem;min-width:0}
+#orders-area .uco-check-product strong{color:#232f5d;overflow-wrap:anywhere}
+#orders-area .uco-check-product small{color:#64758d}
+#orders-area .uco-check-status{font-size:.73rem;font-weight:800;padding:.25rem .55rem;background:#eef1f6;color:#61718b;border-radius:.45rem 0 .45rem 0}
+#orders-area .uco-check-status.is-complete{background:#e9f6d7;color:#4d7a19}
+#orders-area .uco-check-status.is-partial{background:#fff1d7;color:#95630c}
+#orders-area .uco-check-controls{display:grid;grid-template-columns:minmax(7rem,.7fr) minmax(10rem,1.5fr) auto;gap:.65rem;align-items:end}
+#orders-area .uco-check-controls label{display:grid;gap:.3rem;color:#232f5d;font-size:.76rem;font-weight:800;min-width:0}
+#orders-area .uco-check-controls input{width:100%;min-width:0;box-sizing:border-box;min-height:2.75rem;padding:.55rem .7rem;background:#fff;color:#232f5d;border:1px solid #cbd8e8;border-radius:.65rem 0 .65rem 0;font:inherit}
+#orders-area .uco-check-controls button{min-height:2.75rem;padding:.65rem .9rem;border:0;border-radius:.7rem 0 .7rem 0;background:#a9df39;color:#232f5d;font:800 .8rem Manrope,sans-serif;cursor:pointer}
+#orders-area .uco-check-controls button:disabled{opacity:.5}
+@media(max-width:66rem){#orders-area .uco-check-line{grid-template-columns:1fr}#orders-area .uco-check-controls{grid-template-columns:minmax(7rem,1fr) minmax(10rem,2fr) auto}}
+@media(max-width:42rem){#orders-area .uco-order-checks{padding:.8rem}#orders-area .uco-checks-head{align-items:stretch;flex-direction:column}#orders-area .uco-checks-head progress{width:100%}#orders-area .uco-check-controls{grid-template-columns:1fr}#orders-area .uco-check-controls button{width:100%}}
+
+/* Fase 3D UX · Ficha compacta por etapas (conserva CSS de fases anteriores) */
+#orders-area .uco-order-wizard{min-width:0}
+#orders-area .uco-wizard-heading{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;margin:0 0 1rem}
+#orders-area .uco-wizard-kicker{font:800 .68rem Manrope,sans-serif;letter-spacing:.09em;color:#6c7c92}
+#orders-area .uco-wizard-heading h3{font:800 clamp(1.05rem,1.6vw,1.3rem) Manrope,sans-serif;color:#232f5d;margin:0}
+#orders-area .uco-wizard-counter{margin-left:auto;font:700 .8rem Manrope,sans-serif;color:#728097}
+#orders-area .uco-wizard-viewport{min-width:0;min-height:9rem;animation:uco-wizard-in .18s ease-out}
+#orders-area .uco-wizard-page[hidden]{display:none!important}
+#orders-area .uco-wizard-page{min-width:0}
+#orders-area .uco-wizard-page>.uco-order-checks{margin:0}
+#orders-area .uco-wizard-page>.uco-order-history{margin:0}
+#orders-area .uco-wizard-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;border-top:1px solid #e1e7ef;padding-top:1rem;margin-top:1.1rem}
+#orders-area .uco-wizard-dots{display:flex;justify-content:center;align-items:center;gap:clamp(.35rem,1.5vw,1.1rem);min-width:0;flex:1}
+#orders-area .uco-wizard-dot{border:0;background:transparent;padding:.4rem .25rem;display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;color:#63748b;font:700 .68rem Manrope,sans-serif;min-width:0}
+#orders-area .uco-wizard-dot-mark{width:.95rem;height:.95rem;background:#a9df39;border-radius:50%;display:block;transition:transform .18s,box-shadow .18s}
+#orders-area .uco-wizard-dot.is-done .uco-wizard-dot-mark{background:#232f5d}
+#orders-area .uco-wizard-dot.is-current .uco-wizard-dot-mark{box-shadow:0 0 0 3px white,0 0 0 5px #7383a2;transform:scale(1.06)}
+#orders-area .uco-wizard-dot-label{white-space:nowrap}
+#orders-area .uco-wizard-move{min-height:2.6rem;padding:.6rem .85rem;border:1px solid #d4deea;border-radius:.7rem 0 .7rem 0;background:white;color:#232f5d;font:800 .78rem Manrope,sans-serif;cursor:pointer;flex-shrink:0}
+#orders-area .uco-wizard-move.is-next{background:#a9df39;border-color:#a9df39}
+#orders-area .uco-wizard-move:disabled{opacity:.35;cursor:default}
+#orders-area .uco-wizard-article{border:1px solid #dce4ee;border-radius:.8rem 0 .8rem 0;background:#fff;overflow:hidden}
+#orders-area .uco-wizard-article-title{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 1rem;color:#232f5d;font:800 .88rem Manrope,sans-serif;cursor:pointer}
+#orders-area .uco-wizard-article-title::-webkit-details-marker{display:none}
+#orders-area .uco-wizard-article-title:after{content:'+';font-size:1.25rem;color:#69809b}
+#orders-area .uco-wizard-article[open]>.uco-wizard-article-title:after{content:'−'}
+#orders-area .uco-wizard-article>.uco-check-line{border:0;border-top:1px solid #edf1f5;border-radius:0;margin:0}
+#orders-area .uco-wizard-article:not([open])>.uco-check-line{display:none}
+#orders-area .uco-wizard-article:focus-within,#orders-area .uco-wizard-dot:focus-visible{outline:2px solid #8dc92c;outline-offset:2px}
+@keyframes uco-wizard-in{from{opacity:.7;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:48rem){#orders-area .uco-wizard-nav{gap:.4rem}#orders-area .uco-wizard-dot-label{font-size:.58rem}#orders-area .uco-wizard-move{padding:.6rem .55rem}#orders-area .uco-wizard-page>.uco-order-checks{padding:.7rem}}
+@media(max-width:34rem){#orders-area .uco-order-detail{padding:.7rem}#orders-area .uco-wizard-heading{gap:.35rem}#orders-area .uco-wizard-kicker{width:100%}#orders-area .uco-wizard-dot-label{display:none}#orders-area .uco-wizard-dot{padding:.6rem .35rem;min-width:1.6rem}#orders-area .uco-wizard-dot-mark{width:.85rem;height:.85rem}#orders-area .uco-wizard-nav{gap:.35rem}#orders-area .uco-wizard-move{font-size:.72rem;min-height:2.7rem}#orders-area .uco-wizard-article-title{padding:.85rem .7rem}}
+@media(prefers-reduced-motion:reduce){#orders-area .uco-wizard-viewport{animation:none}#orders-area .uco-wizard-dot-mark{transition:none}}
+
+/* Ajuste puntual: estado visible e historial con desplazamiento interno */
+#orders-area .uco-wizard-current-state{display:inline-flex;align-items:center;font:800 .9rem Manrope,sans-serif;color:#232f5d;padding:.35rem .7rem;border-radius:.55rem 0 .55rem 0;background:#edf1f6}
+#orders-area .uco-wizard-current-state[data-state="delivered"]{color:#317514;background:#e8f6d4}
+#orders-area .uco-wizard-current-state[data-state="dispatched"],#orders-area .uco-wizard-current-state[data-state="prepared"]{color:#366f18;background:#edf7e0}
+#orders-area .uco-wizard-page>.uco-order-history{max-height:clamp(17rem,48vh,30rem);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#a9df39 #e8edf4;scroll-padding-block:1rem}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar{width:.55rem}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar-track{background:#e8edf4;border-radius:1rem}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar-thumb{background:#a9df39;border-radius:1rem;border:2px solid #e8edf4}
+#orders-area .uco-wizard-page>.uco-order-history::-webkit-scrollbar-thumb:hover{background:#91c62d}
+@media(max-width:36rem){#orders-area .uco-wizard-page>.uco-order-history{max-height:min(45dvh,23rem)}#orders-area .uco-wizard-current-state{font-size:.82rem;padding:.3rem .55rem}}
+
+/* Ajuste visual puntual: responsable asignado destacado como el estado del pedido */
+#orders-area .uco-order-assign>div small{display:inline-flex;align-items:center;justify-self:start;width:fit-content;max-width:100%;box-sizing:border-box;padding:.35rem .7rem;border-radius:.55rem 0 .55rem 0;background:#e8f6d4;color:#317514;font:800 .9rem Manrope,sans-serif;overflow-wrap:anywhere}
+@media(max-width:36rem){#orders-area .uco-order-assign>div small{font-size:.82rem;padding:.3rem .55rem}}
+
+/* Artículos: distintivo verde solo cuando todas las líneas están verificadas y completas */
+#orders-area .uco-wizard-articles-complete{color:#317514;background:#e8f6d4}
+
+/* Fase 3D: destacar únicamente los pedidos entregados en el listado. */
+#orders-area .uco-order-card.uco-order-card-delivered{border:2px solid #a9df39;background:#fcfef8;box-shadow:inset .2rem 0 0 #a9df39;transition:border-color .2s ease,box-shadow .2s ease}
+#orders-area .uco-order-card.uco-order-card-delivered>summary{background:#f4fae9}
+#orders-area .uco-order-card.uco-order-card-delivered[open]>summary{background:#ecf7d9}
+#orders-area .uco-order-card.uco-order-card-delivered>summary .uco-order-state{display:inline-flex;align-items:center;justify-self:start;width:fit-content;max-width:100%;padding:.4rem .75rem;border-radius:.55rem 0 .55rem 0;background:#e0f2c9;color:#317514;font:800 .88rem Manrope,sans-serif;line-height:1.25}
+@media(max-width:36rem){#orders-area .uco-order-card.uco-order-card-delivered>summary .uco-order-state{font-size:.8rem;padding:.35rem .55rem;justify-self:end}}
+
+/* UCO 3E.2 · Panel responsive de perfiles y permisos */
+.uco-access-dialog{border:0;padding:0;width:min(94vw,55rem);max-height:90dvh;border-radius:1.4rem 0 1.4rem 0;box-shadow:0 1.4rem 4rem #17254b40;color:#232f5d;font-family:Manrope,sans-serif}
+.uco-access-dialog::backdrop{background:#17254b99}
+.uco-access-shell{display:flex;flex-direction:column;max-height:90dvh;min-height:0}
+.uco-access-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:1.45rem 1.7rem;background:#232f5d;color:white}
+.uco-access-head h2{margin:.25rem 0;font-size:clamp(1.35rem,3vw,1.8rem);color:white}
+.uco-access-head p{margin:0;font-size:.87rem;line-height:1.55;color:#e4e9f4}
+.uco-access-head .eyebrow{font-size:.7rem;color:#a9df39;font-weight:800;letter-spacing:.08em}
+.uco-access-close{border:0;background:#a9df39;color:#232f5d;border-radius:.6rem 0 .6rem 0;font-weight:900;font-size:1.2rem;width:2.4rem;height:2.4rem;cursor:pointer;flex-shrink:0}
+.uco-access-content{padding:1.4rem 1.7rem;overflow-y:auto;overscroll-behavior:contain;min-height:0}
+.uco-access-label{display:block;font-weight:800;font-size:.82rem;margin-bottom:.45rem}
+#uco-access-staff{width:100%;min-height:2.8rem;border:1px solid #cbd8ed;border-radius:.7rem 0 .7rem 0;padding:.6rem .8rem;color:#232f5d;background:#fff;font:600 .9rem Manrope,sans-serif}
+.uco-access-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:1.2rem 0}
+.uco-access-role{display:flex;align-items:flex-start;gap:.65rem;border:1px solid #d5e0ef;background:#f7f9fc;border-radius:.8rem 0 .8rem 0;padding:.85rem;cursor:pointer;min-width:0}
+.uco-access-role:has(input:checked){border-color:#a9df39;background:#f1fadf}
+.uco-access-role input{accent-color:#232f5d;width:1.15rem;height:1.15rem;flex-shrink:0;margin:.1rem 0 0}
+.uco-access-role span{min-width:0}.uco-access-role strong{display:block;font-size:.87rem}.uco-access-role small{display:block;margin-top:.3rem;color:#5f7190;font-size:.75rem;line-height:1.45}
+.uco-access-permissions{background:#f5f8fc;border:1px solid #d5e0ef;border-radius:.85rem 0 .85rem 0;padding:1rem}
+.uco-access-permissions h3{font-size:.95rem;margin:0 0 .3rem}.uco-access-permissions p{font-size:.78rem;color:#637695;margin:.2rem 0 .8rem}
+.uco-access-chips{display:flex;flex-wrap:wrap;gap:.4rem}.uco-access-chips span{font-size:.73rem;font-weight:700;color:#375e0f;background:#e7f7c8;border-radius:.5rem 0 .5rem 0;padding:.35rem .55rem}
+.uco-access-error{min-height:1.3rem;margin:.7rem 0 0;font-size:.83rem;color:#a32828}.uco-access-error.is-success{color:#377519}
+.uco-access-actions{display:flex;justify-content:flex-end;gap:.7rem;padding:1rem 1.7rem;border-top:1px solid #d5e0ef;background:white}
+.uco-access-actions button{min-height:2.75rem;padding:.65rem 1.15rem;border-radius:.7rem 0 .7rem 0;font:800 .84rem Manrope,sans-serif;cursor:pointer}
+.uco-access-cancel{border:1px solid #b6c8e2;background:white;color:#232f5d}.uco-access-save{border:0;background:#a9df39;color:#232f5d}.uco-access-save:disabled{opacity:.6;cursor:wait}
+.uco-access-launch{white-space:nowrap}
+@media(max-width:40rem){.uco-access-dialog{width:96vw;max-height:94dvh}.uco-access-shell{max-height:94dvh}.uco-access-head,.uco-access-content{padding:1rem}.uco-access-roles{grid-template-columns:1fr;gap:.5rem}.uco-access-actions{padding:.85rem 1rem}.uco-access-actions button{flex:1}.uco-access-head p{font-size:.8rem}}
+
+/* PARCHE UCO: ficha de expedición de solo lectura. */
+dialog.uco-shipping-snapshot{width:min(94vw,54rem);max-width:94vw;max-height:92dvh;overscroll-behavior:contain}
+.uco-shipping-snapshot .uco-order-dialog-body{gap:.85rem}
+.uco-shipping-snapshot h3{margin:.4rem 0 0;color:#232f5d;font-size:1.05rem}
+.uco-shipping-snapshot-status{font-weight:750;color:#568b17}
+.uco-shipping-snapshot-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem 1rem}
+.uco-shipping-snapshot-lines{border:1px solid #dce5ed;border-radius:.65rem;overflow:hidden}
+.uco-shipping-snapshot-lines>div{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem;border-bottom:1px solid #e6ebf0}
+.uco-shipping-snapshot-lines>div:last-child{border-bottom:0}
+.uco-shipping-snapshot-lines span{display:grid;gap:.25rem;min-width:0}
+.uco-shipping-snapshot-lines small{color:#60738b}
+.uco-shipping-snapshot-total{display:flex;justify-content:space-between;gap:1rem;padding:.7rem 0;border-top:2px solid #a9df39}
+.uco-shipping-snapshot-events{display:grid;gap:.6rem;margin:0;padding-left:1.5rem}
+.uco-shipping-snapshot-events li{padding:.35rem 0}
+.uco-shipping-snapshot-events li span{display:block;margin-top:.2rem}
+@media(max-width:600px){dialog.uco-shipping-snapshot{width:calc(100vw - 1rem);max-width:calc(100vw - 1rem);max-height:94dvh}.uco-shipping-snapshot-meta{grid-template-columns:1fr}.uco-shipping-snapshot .uco-order-dialog-body{padding:1rem}.uco-shipping-snapshot-lines>div{align-items:flex-start}}
+
+
+/* UCO · Parche integrado: botones administrativos y ficha histórica de Expedición */
+:root{--uco-action-lime:#a9df39;--uco-action-ink:#232f5d;--uco-action-green:#568b17}
+.note,.secondary,.commercial-row-actions button:not(.primary):not(.edit),
+.user-table td:last-child button:not(.primary):not(.edit),
+#orders-area .uco-shipping-bottom button{
+ background:transparent;border:1px solid var(--uco-action-lime);
+ color:var(--uco-action-green);font-weight:800;
+}
+.edit,.commercial-row-actions button.edit,.user-table td:last-child button.edit,
+button[data-edit],button[data-edit-product],button[data-edit-client]{
+ background:var(--uco-action-lime);border:1px solid var(--uco-action-lime);
+ color:var(--uco-action-ink);font-weight:800;
+}
+.note:disabled,.secondary:disabled,.edit:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:700px){
+ .note,.edit,.commercial-row-actions button,.user-table td:last-child button{max-width:100%;min-height:2.4rem}
+}
+#orders-area dialog.uco-shipping-snapshot{
+ width:min(94vw,1120px);max-width:94vw;max-height:92dvh;
+ overflow:auto;border:0;padding:0;border-radius:1.1rem;
+ box-shadow:0 28px 90px #091f3470;background:#fff;
+}
+#orders-area .uco-snapshot-shell{min-width:0}
+#orders-area .uco-snapshot-toolbar{
+ display:flex;justify-content:space-between;align-items:center;gap:1rem;
+ padding:.55rem 1rem;background:#232f5d;color:#fff;font:700 .8rem Manrope,sans-serif;
+}
+#orders-area .uco-snapshot-close{background:transparent;color:#fff;border:1px solid #ffffff80;border-radius:.5rem;min-width:2.2rem;min-height:2.2rem;font-size:1.5rem;line-height:1}
+#orders-area .uco-shipping-snapshot .uco-order-card{margin:0;border:2px solid #a9df39;border-radius:0 0 1rem 0;overflow:hidden}
+#orders-area .uco-snapshot-summary{
+ display:grid;grid-template-columns:.8fr 1.4fr 1.3fr .8fr 1fr .9fr;
+ align-items:center;gap:.8rem;padding:1rem;background:#eaf6d9;color:#232f5d;font-size:.87rem;
+}
+#orders-area .uco-snapshot-summary .uco-order-state{justify-self:end;background:#dff0cb;color:#367a18;border-radius:.45rem;padding:.45rem .7rem;font-weight:800}
+#orders-area .uco-shipping-snapshot .uco-order-detail{padding:1rem}
+#orders-area .uco-shipping-snapshot .uco-wizard-page[hidden]{display:none!important}
+#orders-area .uco-shipping-snapshot .uco-wizard-viewport{min-height:14rem}
+#orders-area .uco-shipping-snapshot .uco-order-lines{margin-top:1rem}
+#orders-area .uco-shipping-snapshot .uco-snapshot-history{display:grid;gap:1rem;max-height:55vh;overflow:auto}
+#orders-area .uco-shipping-snapshot .uco-snapshot-history .uco-order-history{max-height:none;overflow:visible}
+#orders-area .uco-shipping-snapshot .uco-snapshot-state{display:grid;justify-items:start;gap:1rem}
+#orders-area .uco-shipping-snapshot .uco-wizard-dot{color:#63748b}
+#orders-area .uco-shipping-snapshot .uco-wizard-dot.is-current{color:#232f5d}
+@media(max-width:760px){
+ #orders-area .uco-snapshot-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+ #orders-area .uco-shipping-snapshot .uco-wizard-nav{gap:.4rem}
+}
+@media(max-width:520px){
+ #orders-area dialog.uco-shipping-snapshot{width:calc(100vw - .6rem);max-width:calc(100vw - .6rem);max-height:96dvh}
+ #orders-area .uco-snapshot-summary{grid-template-columns:1fr 1fr;font-size:.76rem;padding:.7rem}
+ #orders-area .uco-snapshot-summary .uco-order-state{justify-self:start}
+ #orders-area .uco-shipping-snapshot .uco-order-detail{padding:.65rem}
+ #orders-area .uco-shipping-snapshot .uco-wizard-dot-label{display:none}
+ #orders-area .uco-shipping-snapshot .uco-wizard-move{font-size:.7rem;padding:.5rem}
+ #orders-area .uco-shipping-snapshot .uco-order-lines>div{gap:.35rem}
+}
+
+/* Indicadores verdes en los títulos de las etapas de la ficha de Expedición */
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="assigned"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="complete"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="prepared"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="dispatched"],
+#orders-area .uco-shipping-snapshot .uco-wizard-current-state[data-state="delivered"]{color:#317514;background:#e8f6d4}
+
+/* UCO · Uniformidad de botones de acción administrativos.
+   Mantiene anchos naturales y no afecta iconos, puntos del asistente ni controles de cierre. */
+:root{--uco-admin-action-height:3.25rem;--uco-admin-action-pad-x:1.2rem}
+@media(min-width:701px){
+  .user-table td:last-child button,
+  .commercial-row-actions button,
+  .commercial-actions button,
+  .users-panel>.buttons button,
+  .tablewrap td.actions button,
+  #orders-area .uco-orders-work-row>button,
+  #orders-area .uco-prep-card-bottom>button,
+  #orders-area .uco-shipping-bottom>button,
+  #orders-area .uco-shipping-form>button,
+  #orders-area .uco-order-actions>button,
+  #orders-area .uco-order-meta>button,
+  #orders-area .uco-check-controls button,
+  .modal .buttons button,
+  .security-form .buttons button{
+    box-sizing:border-box;
+    min-height:var(--uco-admin-action-height);
+    padding-block:.8rem;
+    padding-inline:var(--uco-admin-action-pad-x);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    line-height:1.25;
+    font-size:.95rem;
+    font-weight:800;
+    vertical-align:middle;
+  }
+}
+@media(max-width:700px){
+  .user-table td:last-child button,
+  .commercial-row-actions button,
+  .commercial-actions button,
+  .users-panel>.buttons button,
+  #orders-area .uco-orders-work-row>button,
+  #orders-area .uco-prep-card-bottom>button,
+  #orders-area .uco-shipping-bottom>button,
+  #orders-area .uco-shipping-form>button,
+  #orders-area .uco-order-actions>button,
+  #orders-area .uco-order-meta>button,
+  #orders-area .uco-check-controls button,
+  .modal .buttons button,
+  .security-form .buttons button{
+    box-sizing:border-box;
+    min-height:2.75rem;
+    height:auto;
+    max-width:100%;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.25;
+  }
+}
+
+
+/* UCO · Catálogo: acciones de Observaciones y Editar equilibradas (26/10/2026).
+   Sólo afecta a celdas que contienen botones .note / .edit; mantiene el scroll
+   horizontal y no cambia la distribución de las demás columnas. */
+.tablewrap td:has(> .note),
+.tablewrap td:has(> .edit),
+.tablewrap td.actions:has(.note),
+.tablewrap td.actions:has(.edit){
+  text-align:center;
+  vertical-align:middle;
+}
+.tablewrap td .note,
+.tablewrap td .edit{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  min-width:7.4rem;
+  min-height:3.25rem;
+  padding:.75rem 1.1rem;
+  font-size:.95rem;
+  line-height:1.25;
+  font-weight:800;
+  white-space:nowrap;
+  vertical-align:middle;
+}
+/* Mantener centradas las cabeceras correspondientes, sin tocar el resto. */
+.tablewrap table:has(td > .note) th:nth-last-child(-n+2),
+.tablewrap table:has(td > .edit) th:nth-last-child(-n+2){text-align:center}
+/* En móvil y tableta, las tablas siguen desplazándose horizontalmente. */
+@media(max-width:1050px){
+  .tablewrap td .note,.tablewrap td .edit{
+    min-width:7.4rem;
+    min-height:3.25rem;
+    padding:.75rem 1.1rem;
+    max-width:none;
+  }
+}
+
+/* Control de pagos: quinta pestaña integrada */
+.admin-section-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.65rem}
+.admin-section-nav button{min-width:0}
+.payments-integrated{padding-top:1rem}
+.payments-intro{text-align:center;margin:1rem 0 1.75rem}
+.payments-intro p{margin:.6rem 0 0}
+#payments-frame{display:block;width:100%;min-height:850px;border:0;background:transparent}
+@media(max-width:850px){.admin-section-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:440px){.admin-section-nav{grid-template-columns:1fr}}
+
+/* Ventanas de consulta de pagos: mismo lenguaje visual de UCO */
+body.uco-modal-open{overflow:hidden}
+.uco-payment-dialog{position:fixed;inset:0;margin:auto;width:min(1120px,calc(100vw - 2rem));height:min(850px,calc(100dvh - 2rem));max-width:none;max-height:none;padding:0;border:1px solid #dce4e9;border-radius:1.7rem 0 1.7rem 0;background:#f7f8f3;color:#10283a;box-shadow:0 24px 80px #10283a40;overflow:hidden}
+.uco-payment-dialog::backdrop{background:#0d1c35a8;backdrop-filter:blur(3px)}
+.uco-payment-dialog-head{height:76px;background:#232f5d;color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.uco-payment-dialog-head h2{font:700 clamp(1.15rem,2vw,1.6rem) 'Space Grotesk',sans-serif;margin:0}
+.uco-payment-dialog-close{background:#a9e13f;color:#10283a;font-weight:800;border:0;border-radius:1rem 0 1rem 0;padding:.65rem 1.1rem}
+.uco-payment-dialog-frame{width:100%;height:calc(100% - 76px);display:block;border:0;background:#f7f8f3}
+@media(max-width:650px){.uco-payment-dialog{width:100vw;height:100dvh;border-radius:0}.uco-payment-dialog-head{padding:.8rem 1rem;height:66px}.uco-payment-dialog-frame{height:calc(100% - 66px)}}
+
+/* Ventanas de pagos: altura útil y cabecera sin saltos de línea */
+.uco-payment-dialog{width:min(1120px,calc(100vw - 24px));height:min(850px,calc(100dvh - 24px));max-width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
+.uco-payment-dialog-head{min-width:0;gap:.65rem}
+.uco-payment-dialog-head h2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(1rem,2vw,1.5rem);line-height:1.2}
+.uco-payment-dialog-close{flex:0 0 auto;white-space:nowrap;font-size:.84rem;padding:.65rem .9rem}
+@media(max-width:650px){.uco-payment-dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border:0;border-radius:0}.uco-payment-dialog-head{height:58px;padding:.55rem .75rem}.uco-payment-dialog-head h2{font-size:clamp(.92rem,4.3vw,1.15rem)}.uco-payment-dialog-close{font-size:.76rem;padding:.5rem .65rem}.uco-payment-dialog-frame{height:calc(100% - 58px)}}
+
+/* UCO · modal: iframe ocupa el 100 % de la altura útil, sin franja inferior.
+   Cabecera fija dentro del dialog; scroll exclusivamente dentro del iframe. */
+.uco-payment-dialog{
+ display:flex!important;
+ flex-direction:column!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ min-height:0!important;
+}
+.uco-payment-dialog-head{
+ box-sizing:border-box!important;
+ flex:0 0 76px!important;
+ height:76px!important;
+ min-height:0!important;
+ width:100%!important;
+}
+.uco-payment-dialog-frame{
+ box-sizing:border-box!important;
+ display:block!important;
+ flex:1 1 0%!important;
+ min-height:0!important;
+ height:auto!important;
+ width:100%!important;
+ border:0!important;
+ overflow:auto;
+}
+@media(max-width:650px){
+ .uco-payment-dialog-head{flex-basis:58px!important;height:58px!important}
+}
+@media(max-height:450px){
+ .uco-payment-dialog-head{flex-basis:48px!important;height:48px!important;padding:.35rem .7rem!important}
+}
+
+
+/* UCO: ficha histórica, modal autónomo con el lenguaje visual de pedidos */
+.uco-shipping-history-modal{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(1080px,calc(100vw - 2rem));max-width:none;max-height:none;height:min(830px,calc(100dvh - 2rem));padding:0;border:1px solid #dce4e9;border-radius:1.7rem 0 1.7rem 0;background:#f7f8f3;color:#232f5d;overflow:hidden;box-shadow:0 22px 80px #12204166}
+.uco-shipping-history-modal::backdrop{background:#14213baa}
+.uco-shipping-history-modal .uco-shipping-modal-scope{display:flex;flex-direction:column;min-height:0;height:100%;width:100%;padding:0}
+.uco-shipping-history-modal .uco-shipping-modal-toolbar{flex:0 0 76px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#232f5d;color:#fff;padding:0 clamp(16px,2.2vw,28px);font:800 clamp(1rem,2vw,1.35rem) Manrope,sans-serif}
+.uco-shipping-history-modal .uco-shipping-modal-close{flex:none;display:grid;place-items:center;width:46px;height:40px;border:0;border-radius:14px 0 14px 0;background:#a9e13f;color:#232f5d;font:800 1.35rem Manrope,sans-serif;cursor:pointer}
+.uco-shipping-history-modal .uco-order-card{display:flex;flex-direction:column;flex:1 1 0;min-height:0;min-width:0;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#f7f8f3!important;overflow:hidden!important}
+.uco-shipping-history-modal .uco-shipping-modal-summary{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem 1rem;padding:12px clamp(16px,2.5vw,28px);background:#eaf2e1;border-bottom:1px solid #dce4e9;font-size:.85rem;line-height:1.5}
+.uco-shipping-history-modal .uco-shipping-modal-summary>*{min-width:0;overflow-wrap:anywhere}
+.uco-shipping-history-modal .uco-shipping-modal-summary>strong:first-child{font-size:1rem}
+.uco-shipping-history-modal .uco-order-detail{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:0!important;margin:0!important}
+.uco-shipping-history-modal .uco-order-wizard{display:flex;flex-direction:column;flex:1 1 0;min-height:0;padding:clamp(12px,2vw,24px)!important;margin:0!important}
+.uco-shipping-history-modal .uco-wizard-heading{flex:none;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:12px}
+.uco-shipping-history-modal .uco-wizard-heading h3{font:800 clamp(1.25rem,2.5vw,1.75rem) 'Space Grotesk',Manrope,sans-serif;margin:0}
+.uco-shipping-history-modal .uco-wizard-counter{margin-left:auto}
+.uco-shipping-history-modal .uco-wizard-viewport{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 2px 12px}
+.uco-shipping-history-modal .uco-wizard-nav{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #dce4e9;padding:12px 0 0}
+.uco-shipping-history-modal .uco-wizard-dots{display:flex;align-items:center;justify-content:center;gap:clamp(4px,1.5vw,20px);min-width:0;flex:1}
+.uco-shipping-history-modal .uco-wizard-move{flex:none;border:0;border-radius:12px 0 12px 0;padding:11px 14px;background:#e8ecee;color:#232f5d;font-weight:800}
+.uco-shipping-history-modal .uco-wizard-move.is-next{background:#a9e13f}
+.uco-shipping-history-modal .uco-wizard-move:disabled{opacity:.35}
+.uco-shipping-history-modal .uco-wizard-dot{display:flex;align-items:center;flex-direction:column;gap:4px;border:0;background:transparent;color:#60728d;font-size:.68rem;cursor:pointer}
+.uco-shipping-history-modal .uco-wizard-dot-mark{width:15px;height:15px;border-radius:50%;background:#232f5d}
+.uco-shipping-history-modal .uco-wizard-dot.is-current .uco-wizard-dot-mark{outline:2px solid #232f5d;outline-offset:3px}
+.uco-shipping-history-modal .uco-order-lines>div{display:flex;align-items:center;gap:14px;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e5e9ec}
+.uco-shipping-history-modal .uco-order-lines>div>span:first-child{flex:1}
+.uco-shipping-history-modal .uco-order-lines small{display:block;color:#697c94}
+.uco-shipping-history-modal .uco-order-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.uco-shipping-history-modal .uco-order-receipt-button{background:#a9e13f;color:#232f5d;border:0;border-radius:12px 0 12px 0;padding:12px 16px;font-weight:800}
+@media(max-width:650px){
+ .uco-shipping-history-modal{width:100vw;height:100dvh;border-radius:0}
+ .uco-shipping-history-modal .uco-shipping-modal-toolbar{flex-basis:58px}
+ .uco-shipping-history-modal .uco-shipping-modal-summary{gap:5px 12px}
+ .uco-shipping-history-modal .uco-wizard-nav{gap:4px}
+ .uco-shipping-history-modal .uco-wizard-move{font-size:.72rem;padding:10px 7px}
+ .uco-shipping-history-modal .uco-wizard-dot-label{display:none}
+}
+
+/* 28/10: marco modal completo, iframe hasta el borde inferior, sin franja vacía */
+.uco-payment-dialog{position:fixed!important;display:block!important;box-sizing:border-box!important;overflow:hidden!important;padding:0!important}
+.uco-payment-dialog-head{position:absolute!important;left:0!important;right:0!important;top:0!important;box-sizing:border-box!important;height:76px!important;min-height:0!important;max-height:76px!important;margin:0!important}
+.uco-payment-dialog-frame{position:absolute!important;left:0!important;right:0!important;top:76px!important;bottom:0!important;width:100%!important;height:calc(100% - 76px)!important;min-height:0!important;max-height:none!important;display:block!important;border:0!important;margin:0!important;padding:0!important}
+.uco-shipping-history-modal .uco-wizard-snapshot-state{display:inline-flex;align-items:center;padding:6px 11px;background:#e7f5d4;color:#33600f;border:1px solid #b9df90;border-radius:11px 2px 11px 2px;font:800 .78rem Manrope,Arial,sans-serif;white-space:normal}
+.uco-shipping-history-modal .uco-wizard-snapshot-state[data-status=pending],.uco-shipping-history-modal .uco-wizard-snapshot-state[data-status=none]{background:#fff3dd;color:#755018;border-color:#ead5a8}
+.uco-shipping-history-modal .uco-wizard-snapshot-state[data-status=incident]{background:#ffe8e8;color:#9c2525;border-color:#eab9b9}
+@media(max-width:650px){.uco-payment-dialog-head{height:58px!important;max-height:58px!important}.uco-payment-dialog-frame{top:58px!important;height:calc(100% - 58px)!important}.uco-shipping-history-modal .uco-wizard-snapshot-state{font-size:.7rem;padding:5px 8px}}
+@media(max-height:450px){.uco-payment-dialog-head{height:48px!important;max-height:48px!important}.uco-payment-dialog-frame{top:48px!important;height:calc(100% - 48px)!important}}

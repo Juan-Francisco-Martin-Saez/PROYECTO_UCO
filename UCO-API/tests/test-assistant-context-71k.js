@@ -1,0 +1,1 @@
+const fs=require('fs'),assert=require('assert');const s=fs.readFileSync('public/assistant/assistant.js','utf8');assert(s.includes('function contextualRoute(value)'));assert(s.includes("route==='document'"));assert(s.includes("route==='order'"));assert(s.includes("routeHint!=='order'"));console.log('7.1K: routing integration OK');

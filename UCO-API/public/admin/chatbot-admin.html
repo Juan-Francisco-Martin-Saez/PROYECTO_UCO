@@ -1,0 +1,26 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>UCO · Preparación del chatbot</title><link rel="stylesheet" href="./admin.css"><style>
+*{box-sizing:border-box}html{overflow-x:hidden}body{margin:0;background:#f7f8f3;color:#232f5d;font-family:Manrope,Arial,sans-serif}
+body.modal header{display:none}body.modal main{max-width:none;width:100%;padding:clamp(8px,1.5vw,18px);margin:0 auto}body.modal .panel{margin:10px 0;padding:clamp(12px,1.8vw,18px)}body.modal .notice{margin:0 0 12px;padding:12px 14px}body.modal .stats{gap:8px}body.modal .stat{padding:10px 12px}header{background:#232f5d;color:#fff;padding:18px clamp(16px,3vw,35px)}header a{color:#a9e13f;font-weight:800}header h1{font-family:'Space Grotesk',Manrope,Arial,sans-serif;font-size:clamp(1.4rem,3vw,2rem);margin:10px 0 0}
+main{max-width:1100px;margin:auto;padding:clamp(12px,2.8vw,28px)}h2{font-family:'Space Grotesk',Manrope,Arial,sans-serif;font-size:clamp(1.1rem,2vw,1.4rem);margin:0 0 10px}
+.panel{background:#fff;border:1px solid #dce4e9;border-radius:20px 4px 20px 4px;padding:clamp(14px,2.5vw,24px);margin:14px 0;min-width:0;box-shadow:0 5px 20px #232f5d0b}
+.notice{background:#eff7e4;border-left:4px solid #a9e13f;border-radius:12px 4px 12px 4px;padding:14px;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{background:#f4f7f0;border:1px solid #e2e9d9;padding:12px;border-radius:12px 4px 12px 4px;min-width:0}.stat strong{display:block;font-size:1.5rem}.stat span{font-size:.75rem;overflow-wrap:anywhere}
+.form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}.form label{display:grid;gap:6px;font-weight:800;font-size:.8rem}
+input,select,button{font:inherit;padding:10px 12px;border-radius:11px 3px 11px 3px;border:1px solid #bac8d0;max-width:100%;min-width:0}
+button{background:#a9e13f;color:#232f5d;font-weight:800;cursor:pointer;min-height:42px}button:disabled{opacity:.5;cursor:not-allowed}
+button.secondary{background:#eaf0e2}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.muted{color:#5c6d82;font-size:.83rem;line-height:1.6}
+.list{display:grid;gap:8px}.item{padding:12px;background:#f9fbf7;border:1px solid #e2e8e4;border-radius:12px 3px 12px 3px;overflow-wrap:anywhere}
+.item strong{display:block}.item small{display:block;color:#62738a;margin-top:4px}#status{min-height:1.5rem}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.form{grid-template-columns:1fr}.form button{width:100%}}
+@media(max-width:360px){.stats{grid-template-columns:1fr}.actions button{width:100%}}
+body.modal h2{font-family:'Space Grotesk',Manrope,Arial,sans-serif!important;font-weight:800!important;font-size:clamp(1.2rem,2.3vw,1.55rem)!important;line-height:1.2!important;color:#232f5d!important;margin:0 0 12px!important}body.modal .stat strong{font-family:Manrope,Arial,sans-serif!important;font-weight:800!important;font-size:1.35rem!important}body.modal .panel{border-radius:18px 3px 18px 3px!important}body.modal button{font-family:Manrope,Arial,sans-serif!important}</style></head><body><script>if(new URLSearchParams(location.search).get("modal")==="1")document.body.classList.add("modal");</script><header><a href="./">← Administración</a><h1>Preparación del chatbot</h1></header><main>
+<p class="notice"><strong>Fase 6.41 · Entorno de preparación.</strong> El chatbot no está activado. Los permisos administrativos no equivalen al consentimiento del cliente. Ningún cambio de esta pantalla autoriza cobros ni crea pedidos.</p>
+<section class="panel"><h2>Estado de preparación</h2><div class="stats" id="stats"></div><p class="muted">Los pedidos sin origen registrado siguen siendo «sin clasificar»; no se atribuyen automáticamente a la web.</p></section>
+<section class="panel"><h2>Acceso administrativo por cliente</h2><p class="muted">Permite o bloquea el uso futuro del bot por ID de cliente. El cliente tendrá que aceptar expresamente el servicio y autenticarse cuando se implemente la fase 7.</p>
+<div class="form"><label>ID de cliente<input id="customer-id" type="number" min="1" step="1" placeholder="ID existente"></label><button id="lookup" type="button">Consultar cliente</button></div>
+<div id="customer" class="item" style="margin-top:12px" aria-live="polite">Introduce un ID y consulta su estado.</div>
+<div class="actions"><button id="allow" type="button" disabled>Permitir uso futuro</button><button id="block" type="button" class="secondary" disabled>Bloquear uso</button></div></section>
+<section class="panel"><h2>Errores operativos recientes</h2><div id="errors" class="list"></div></section>
+<section class="panel"><h2>Origen de pedidos registrado</h2><div id="origins" class="list"></div></section>
+<section class="panel"><h2>Auditoría de autorizaciones</h2><div id="audit" class="list"></div></section>
+<p id="status" role="status" aria-live="polite"></p></main><script src="./chatbot-admin-641.js" defer></script></body></html>

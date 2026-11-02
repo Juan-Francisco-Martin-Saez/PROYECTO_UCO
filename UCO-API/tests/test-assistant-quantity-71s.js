@@ -1,0 +1,12 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const source=fs.readFileSync(require('path').join(__dirname,'../public/assistant/assistant.js'),'utf8');
+const code=source.slice(source.indexOf('function parseQuantityRequest('),source.indexOf('async function askQuantityEstimate('));
+const sandbox={normalizeUco:s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9.,\s]/g,' ').replace(/\s+/g,' ').trim()};
+vm.runInNewContext(code,sandbox);
+const q=sandbox.parseQuantityRequest('¿Cuánto cuestan 2,5 kg de patatas?');
+assert.strictEqual(q.amount,2.5);assert.strictEqual(q.canonical,'kg');assert.strictEqual(q.subject,'patatas');
+assert.strictEqual(sandbox.parseQuantityRequest('¿Cuánto cuestan las patatas?'),null);
+assert.strictEqual(sandbox.parseQuantityRequest('100000 kg de patatas'),null);
+assert.strictEqual(sandbox.sellingUnit('unidad'),'ud');assert.strictEqual(sandbox.sellingUnit('kg'),'kg');
+assert.strictEqual(sandbox.sellingUnit('saco 25kg'),null);
+console.log('7.1S quantity parsing OK');

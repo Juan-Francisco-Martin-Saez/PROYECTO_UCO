@@ -1,0 +1,10 @@
+const fs=require('fs'),assert=require('assert');
+const api=fs.readFileSync('public/api/assistant-logic-71e.php','utf8');
+const ui=fs.readFileSync('public/assistant/assistant.js','utf8');
+const audit=fs.readFileSync('tools/diagnostico-catalogo-precios.php','utf8');
+assert(api.includes("if($intent==='price')"));
+assert(api.includes("if($commercial)$found=$commercial"));
+assert(ui.includes("data.intent==='price'&&!real.length&&demo.length"));
+assert(audit.includes("PHP_SAPI!=='cli'"));
+assert(audit.includes('mode=ro'));
+console.log('7.1U.2 static checks OK');
