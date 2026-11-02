@@ -1,0 +1,2234 @@
+[
+  {
+    "reference": "02040007",
+    "productName": "CANÓNIGOS",
+    "format": "125 GR.",
+    "price": 2.7
+  },
+  {
+    "reference": "02040011",
+    "productName": "ESPINACAS HOJA BABY",
+    "format": "250 GR.",
+    "price": 2.25
+  },
+  {
+    "reference": "02040060",
+    "productName": "ENSALADA ITALIANA",
+    "format": "500 GR.",
+    "price": 2.46
+  },
+  {
+    "reference": "02040070",
+    "productName": "ENSALADA PAYESA",
+    "format": "1 KG.",
+    "price": 3.23
+  },
+  {
+    "reference": "02040080",
+    "productName": "ENSALADA MEDITERRÁNEA",
+    "format": "500 GR.",
+    "price": 2.77
+  },
+  {
+    "reference": "02043000",
+    "productName": "BROTES DE HOJAS, MEZCLUM MARCA UCO",
+    "format": "1 KG.",
+    "price": 9.39
+  },
+  {
+    "reference": "02043005",
+    "productName": "MEZCLUM SABORES VARIADOS",
+    "format": "1 KG.",
+    "price": 9.67
+  },
+  {
+    "reference": "02040015",
+    "productName": "CALABAZA CUADRO",
+    "format": "10 KG.",
+    "price": 2.87
+  },
+  {
+    "reference": "02040131",
+    "productName": "CALABACÍN RODAJA",
+    "format": "1 KG.",
+    "price": 2.76
+  },
+  {
+    "reference": "02040009",
+    "productName": "COLIFLOR PICADA",
+    "format": "1 KG.",
+    "price": 3.29
+  },
+  {
+    "reference": "02040100",
+    "productName": "COL BLANCA RALLADA",
+    "format": "1 KG.",
+    "price": 2.42
+  },
+  {
+    "reference": "02040090",
+    "productName": "COL LOMBARDA RALLADA",
+    "format": "1 KG.",
+    "price": 3.11
+  },
+  {
+    "reference": "02040092",
+    "productName": "COL RIZADA 9 MM",
+    "format": "1 KG.",
+    "price": 2.72
+  },
+  {
+    "reference": "02041200",
+    "productName": "GERMINADO DE SOJA",
+    "format": "1 KG.",
+    "price": 4.9
+  },
+  {
+    "reference": "02040001",
+    "productName": "LECHUGA ICEBERG 20 MM",
+    "format": "1 KG.",
+    "price": 2.87
+  },
+  {
+    "reference": "02040030",
+    "productName": "LECHUGA ICEBERG 9 MM",
+    "format": "1 KG.",
+    "price": 2.87
+  },
+  {
+    "reference": "02040119",
+    "productName": "PIMIENTO ROJO DADO PEQUEÑO",
+    "format": "1 KG.",
+    "price": 4.45
+  },
+  {
+    "reference": "02040120",
+    "productName": "PIMIENTO ROJO CUADRO",
+    "format": "1 KG.",
+    "price": 4.45
+  },
+  {
+    "reference": "02040121",
+    "productName": "PIMIENTO ROJO TIRAS",
+    "format": "1 KG.",
+    "price": 4.45
+  },
+  {
+    "reference": "02040122",
+    "productName": "PIMIENTO VERDE TIRAS",
+    "format": "1 KG.",
+    "price": 4.45
+  },
+  {
+    "reference": "02040125",
+    "productName": "PIMIENTO VERDE CUADRO",
+    "format": "1 KG.",
+    "price": 4.45
+  },
+  {
+    "reference": "02040126",
+    "productName": "PIMIENTO VERDE DADO PEQUEÑO",
+    "format": "1 KG.",
+    "price": 4.45
+  },
+  {
+    "reference": "02040165",
+    "productName": "PEPINO RODAJAS",
+    "format": "1 KG.",
+    "price": 2.54
+  },
+  {
+    "reference": "02040150",
+    "productName": "SOFRITO RODAJA",
+    "format": "1 KG.",
+    "price": 7.65
+  },
+  {
+    "reference": "02040190",
+    "productName": "TOMATE DADO",
+    "format": "2.5 KG.",
+    "price": 2.76
+  },
+  {
+    "reference": "02040010",
+    "productName": "ZANAHORIA ENTERA PELADA",
+    "format": "1 KG.",
+    "price": 2.3
+  },
+  {
+    "reference": "02040021",
+    "productName": "ZANAHORIA TIRAS/BASTÓN",
+    "format": "1 KG.",
+    "price": 2.3
+  },
+  {
+    "reference": "02040020",
+    "productName": "ZANAHORIA JULIANA",
+    "format": "1 KG.",
+    "price": 2.3
+  },
+  {
+    "reference": "02042425",
+    "productName": "ZANAHORIA RODAJA 3 MM",
+    "format": "1 KG.",
+    "price": 2.3
+  },
+  {
+    "reference": "02042430",
+    "productName": "ZANAHORIA CUBO ENSALADILLA",
+    "format": "1 KG.",
+    "price": 2.3
+  },
+  {
+    "reference": "02021123",
+    "productName": "CEBOLLA PELADA ENTERA",
+    "format": "5 KG.",
+    "price": 2.49
+  },
+  {
+    "reference": "02021124",
+    "productName": "CEBOLLA PELADA DADO",
+    "format": "1 KG.",
+    "price": 2.51
+  },
+  {
+    "reference": "02021129",
+    "productName": "CEBOLLA PELADA JULIANA",
+    "format": "1 KG.",
+    "price": 2.51
+  },
+  {
+    "reference": "02021137",
+    "productName": "CEBOLLA MORADA PELADA ENTERA",
+    "format": "10 KG.",
+    "price": 3.14
+  },
+  {
+    "reference": "02040014",
+    "productName": "CEBOLLA MORADA PELADA JULIANA",
+    "format": "1 KG.",
+    "price": 3.14
+  },
+  {
+    "reference": "02021203",
+    "productName": "AJO PELADO",
+    "format": "1 KG.",
+    "price": 4.7
+  },
+  {
+    "reference": "01050200",
+    "productName": "PATATA PELADA Y CORTADA CUADROS",
+    "format": "4 KG.",
+    "price": 1.35
+  },
+  {
+    "reference": "01050800",
+    "productName": "PATATA PELADA Y CORTADA STEAK",
+    "format": "4 KG.",
+    "price": 1.35
+  },
+  {
+    "reference": "01050700",
+    "productName": "PATATA PELADA Y CORTADA STEAK/CON PIEL",
+    "format": "4 KG.",
+    "price": 1.35
+  },
+  {
+    "reference": "01050400",
+    "productName": "PATATA PELADA ENTERA",
+    "format": "3 KG.",
+    "price": 1.35
+  },
+  {
+    "reference": "01050500",
+    "productName": "PATATA PELADA Y CORTADA PANADERA",
+    "format": "4 KG.",
+    "price": 1.35
+  },
+  {
+    "reference": "01050600",
+    "productName": "PATATA PELADA PATATÓ RIZOLADA",
+    "format": "4 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "01050900",
+    "productName": "PATATA PELADA Y CORTADA ESPAÑOLA",
+    "format": "4 KG.",
+    "price": 1.35
+  },
+  {
+    "reference": "01050901",
+    "productName": "PATATA PELADA Y CORTADA ESPAÑOLA/CON PIEL",
+    "format": "4 KG.",
+    "price": 1.35
+  },
+  {
+    "reference": "01050411",
+    "productName": "PATATA AGRIA PELADA Y CORTADA CUADROS",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050903",
+    "productName": "PATATA AGRIA PELADA Y CORTADA STEAK",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050904",
+    "productName": "PATATA AGRIA PELADA Y CORTADA STEAK/CON PIEL",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050410",
+    "productName": "PATATA AGRIA PELADA ENTERA",
+    "format": "3 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050902",
+    "productName": "PATATA AGRIA PELADA Y CORTADA ESPAÑOLA",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050903",
+    "productName": "PATATA AGRIA PELADA Y CORTADA STEAK",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050906",
+    "productName": "PATATA PELADA Y CORTADA CUADROS. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050907",
+    "productName": "PATATA PELADA Y CORTADA STEAK. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050908",
+    "productName": "PATATA PELADA Y CORTADA STEAK/CON PIEL. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050909",
+    "productName": "PATATA PELADA ENTERA. Cor del Raiguer KM 0*",
+    "format": "3 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050910",
+    "productName": "PATATA PELADA Y CORTADA PANADERA. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050911",
+    "productName": "PATATA PELADA PATATÓ RIZOLADA. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "01050912",
+    "productName": "PATATA PELADA Y CORTADA ESPAÑOLA. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050913",
+    "productName": "PATATA PELADA CORTADA ESPAÑOLA/CON PIEL. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.45
+  },
+  {
+    "reference": "01050914",
+    "productName": "PATATA AGRIA PELADA Y CORTADA CUADROS. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "01050915",
+    "productName": "PATATA AGRIA PELADA Y CORTADA STEAK. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "01050916",
+    "productName": "PATATA AGRIA PELADA CORTADA STEAK/CON PIEL. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "01050917",
+    "productName": "PATATA AGRIA PELADA Y CORTADA ENTERA. Cor del Raiguer KM 0*",
+    "format": "3 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "01050918",
+    "productName": "PATATA AGRIA PELADA Y CORTADA ESPAÑOLA. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "01050919",
+    "productName": "PATATA AGRIA PELADA CORTADA ESPAÑOLA/CON PIEL. Cor del Raiguer KM 0*",
+    "format": "4 KG.",
+    "price": 1.55
+  },
+  {
+    "reference": "02041315",
+    "productName": "COGOLLOS CORAZÓN 6 UDS. Cor del Raiguer KM 0*",
+    "format": "6 X 6",
+    "price": 1.6
+  },
+  {
+    "reference": "02041316",
+    "productName": "COGOLLOS 3 UDS. Cor del Raiguer KM 0*",
+    "format": "6 X 12",
+    "price": 1.0
+  },
+  {
+    "reference": "09060331",
+    "productName": "BOMBÓN DE FOIE Y CROCANTI ABUELA CANDIDA CAJA 48 UDS.",
+    "format": "48 UDS.",
+    "price": 31.26
+  },
+  {
+    "reference": "11900016",
+    "productName": "ESCALIVADA (berenjena, cebolla y pimiento)",
+    "format": "0",
+    "price": 5.45
+  },
+  {
+    "reference": "09040123",
+    "productName": "FRITO MALLORQUÍN 10 KG",
+    "format": "10 KG.",
+    "price": 16.31
+  },
+  {
+    "reference": "09060332",
+    "productName": "LOLLIPOPS FOIE HIGOS ABUELA CANDIDA CAJA 40 UDS",
+    "format": "40 UDS.",
+    "price": 26.08
+  },
+  {
+    "reference": "09060333",
+    "productName": "LOLLIPOPS QUESO MEMBRILLO ABUELA CANDIDA CAJA 40 UDS",
+    "format": "40 UDS.",
+    "price": 23.96
+  },
+  {
+    "reference": "09060334",
+    "productName": "LOLLIPOPS FOIE CHOCOLATE ABUELA CANDIDA CAJA 40 UDS",
+    "format": "40 UDS.",
+    "price": 26.08
+  },
+  {
+    "reference": "09060335",
+    "productName": "LOLLIPOPS MANGO TOMATE ABUELA CANDIDA CAJA 40 UDS",
+    "format": "40 UDS.",
+    "price": 23.96
+  },
+  {
+    "reference": "01060010",
+    "productName": "PATATA COCIDA PARISINA",
+    "format": "16 KG.",
+    "price": 2.11
+  },
+  {
+    "reference": "01060025",
+    "productName": "PATATA COCIDA BRAVA",
+    "format": "16 KG.",
+    "price": 2.07
+  },
+  {
+    "reference": "01060020",
+    "productName": "PATATA COCIDA PANADERA",
+    "format": "16 KG.",
+    "price": 2.07
+  },
+  {
+    "reference": "11900012",
+    "productName": "PIMIENTOS ASADOS EN TIRAS",
+    "format": "2,5 KG*3",
+    "price": 4.75
+  },
+  {
+    "reference": "11900014",
+    "productName": "PIMIENTOS ASADOS ENTEROS",
+    "format": "2,5 KG*3",
+    "price": 4.75
+  },
+  {
+    "reference": "09060336",
+    "productName": "PIRULETAS FOIE FRAMBUESA ABUELA CANDIDA CAJA 40 UDS",
+    "format": "40 UDS.",
+    "price": 26.08
+  },
+  {
+    "reference": "09060337",
+    "productName": "PIRULETAS QUESO Y ARÁNDANOS ABUELA CANDIDA CAJA 40 UDS",
+    "format": "40 UDS.",
+    "price": 23.96
+  },
+  {
+    "reference": "09039901",
+    "productName": "PATATA PREF. PREMIUM Foodmen PF 7/16 11X11 A++ X PALE",
+    "format": "4*2.5*80 KG",
+    "price": 1.38
+  },
+  {
+    "reference": "09039999",
+    "productName": "PATATA PREF. PREMIUM Foodmen PF 7/16 11X11 A++",
+    "format": "4*2.5 KG",
+    "price": 1.45
+  },
+  {
+    "reference": "09039002",
+    "productName": "PATATA PREF. PREMIUM Fontane 3/8 A+ PALE",
+    "format": "4*2.5*80 KG",
+    "price": 1.35
+  },
+  {
+    "reference": "09039998",
+    "productName": "PATATA PREF. PREMIUM Fontane 3/8 A+",
+    "format": "4*2.5 KG",
+    "price": 1.42
+  },
+  {
+    "reference": "09039903",
+    "productName": "PATATA PREF. UCO 11x11 PALE",
+    "format": "4*2.5*80 KG",
+    "price": 1.33
+  },
+  {
+    "reference": "09030213",
+    "productName": "PATATA PREF. UCO 11x11",
+    "format": "4*2.5 KG.",
+    "price": 1.4
+  },
+  {
+    "reference": "09039004",
+    "productName": "PATATA PREF. PREMIER 3/8 PALE",
+    "format": "4*2.5*80 KG",
+    "price": 1.31
+  },
+  {
+    "reference": "09030610",
+    "productName": "PATATA PREF. PREMIER 3/8",
+    "format": "4*2.5 KG.",
+    "price": 1.38
+  },
+  {
+    "reference": "09030110",
+    "productName": "PATATA CON PUNTAS PIEL 3/8 SKIN",
+    "format": "4*2.5 KG.",
+    "price": 1.5
+  },
+  {
+    "reference": "09030112",
+    "productName": "PATATA SUPER CRUNCH XL 3/8",
+    "format": "4*2.5 KG.",
+    "price": 1.69
+  },
+  {
+    "reference": "09039905",
+    "productName": "PATATA JULIEN CLA PALE",
+    "format": "4*2.5*80 KG",
+    "price": 1.43
+  },
+  {
+    "reference": "09030414",
+    "productName": "PATATA JULIEN CLA",
+    "format": "4*2.5 KG.",
+    "price": 1.5
+  },
+  {
+    "reference": "09030114",
+    "productName": "PATATA JULIEN SUPER CRUNCH 7/7",
+    "format": "4*2.5 KG.",
+    "price": 1.73
+  },
+  {
+    "reference": "09039906",
+    "productName": "PATATA STEAKHOUSE CLA PALE",
+    "format": "4*2.5*80 KG",
+    "price": 1.42
+  },
+  {
+    "reference": "09030411",
+    "productName": "PATATA STEAKHOUSE CLA",
+    "format": "4*2.5 KG.",
+    "price": 1.5
+  },
+  {
+    "reference": "09030601",
+    "productName": "PATATA RIZADA CLA",
+    "format": "4*2.5 KG.",
+    "price": 1.51
+  },
+  {
+    "reference": "09030612",
+    "productName": "PATATA BRAVA",
+    "format": "4*2.5 KG.",
+    "price": 1.46
+  },
+  {
+    "reference": "09039906",
+    "productName": "PATATA STEAKHOUSE CLA PALE",
+    "format": "4*2.5*80 KG",
+    "price": 1.42
+  },
+  {
+    "reference": "09030814",
+    "productName": "PATATA ROESTIC",
+    "format": "4*2.5 KG.",
+    "price": 2.22
+  },
+  {
+    "reference": "09030713",
+    "productName": "PATATA PARISINA PREFRITA",
+    "format": "4*2.5 KG.",
+    "price": 2.18
+  },
+  {
+    "reference": "09030115",
+    "productName": "PATATA DOLAR",
+    "format": "4*2.5 KG.",
+    "price": 1.66
+  },
+  {
+    "reference": "09030118",
+    "productName": "PATATA TEJA 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.07
+  },
+  {
+    "reference": "09030116",
+    "productName": "PATATA WEDGES (patata gajo con piel, cebolla, ajo y pimienta)",
+    "format": "4*2.5 KG.",
+    "price": 1.61
+  },
+  {
+    "reference": "09030117",
+    "productName": "PATATA CRISCUT SABORIZADA",
+    "format": "4*2.5 KG.",
+    "price": 2.04
+  },
+  {
+    "reference": "09030113",
+    "productName": "PATATA DIPPER FRIES CON HIERBAS",
+    "format": "4*2.5 KG.",
+    "price": 1.89
+  },
+  {
+    "reference": "09030611",
+    "productName": "PATATA DUQUESA",
+    "format": "4*2.5 KG.",
+    "price": 1.94
+  },
+  {
+    "reference": "09030613",
+    "productName": "PATATA SWEET POTATO 3/8 (BONIATO)",
+    "format": "4*2.5 KG.",
+    "price": 2.82
+  },
+  {
+    "reference": "09031012",
+    "productName": "BOCADITOS DE PATATA",
+    "format": "4*2.5 KG.",
+    "price": 1.96
+  },
+  {
+    "reference": "09010161",
+    "productName": "AGUACATE CUBOS CONG. 6 KG",
+    "format": "6 KG.",
+    "price": 4.51
+  },
+  {
+    "reference": "09010104",
+    "productName": "ALCACHOFA TROCEADA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.74
+  },
+  {
+    "reference": "09013106",
+    "productName": "ALCACHOFA TROCEADA FINDUS",
+    "format": "4*2.5 KG.",
+    "price": 6.55
+  },
+  {
+    "reference": "09020110",
+    "productName": "ARROZ CINCO DELICIAS",
+    "format": "4*1.5 KG.",
+    "price": 2.65
+  },
+  {
+    "reference": "09010156",
+    "productName": "BONIATO DADOS CONG. 20x20",
+    "format": "4*2.5 KG.",
+    "price": 2.28
+  },
+  {
+    "reference": "09013102",
+    "productName": "BROCOLI I.Q.F. 60/80 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.82
+  },
+  {
+    "reference": "09012000",
+    "productName": "CALABACÍN CUBO 6*1 KG. FINDUS",
+    "format": "6*1 KG.",
+    "price": 2.09
+  },
+  {
+    "reference": "09012100",
+    "productName": "CALABAZA CUBO 6*1 KG. FINDUS",
+    "format": "6*1 KG.",
+    "price": 2.4
+  },
+  {
+    "reference": "09010301",
+    "productName": "CEBOLLA DADO CONG. 10 K",
+    "format": "10 KG.",
+    "price": 2.06
+  },
+  {
+    "reference": "09010031",
+    "productName": "CEBOLLA JULIANA CONG. 10 K",
+    "format": "4*2.5 KG.",
+    "price": 1.75
+  },
+  {
+    "reference": "09013001",
+    "productName": "CEBOLLA PERLA CONG. 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.38
+  },
+  {
+    "reference": "09010810",
+    "productName": "CHAMPIÑÓN ENTERO 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.6
+  },
+  {
+    "reference": "09010911",
+    "productName": "CHAMPIÑÓN LAMINADO 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.87
+  },
+  {
+    "reference": "09013107",
+    "productName": "CHAMPIÑÓN LAMINADO 6*1 KG. FINDUS",
+    "format": "6*1 KG.",
+    "price": 4.53
+  },
+  {
+    "reference": "09021099",
+    "productName": "CÓCTEL DE SETAS BABY 6*1 KG. FINDUS",
+    "format": "6 KG.",
+    "price": 6.17
+  },
+  {
+    "reference": "09010600",
+    "productName": "COL BERZA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.68
+  },
+  {
+    "reference": "09010601",
+    "productName": "COLES DE BRUSELAS (30/35) 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.57
+  },
+  {
+    "reference": "09010401",
+    "productName": "COLIFLOR 40/60. 6 KG",
+    "format": "6 KG.",
+    "price": 1.66
+  },
+  {
+    "reference": "09012001",
+    "productName": "COSTILLAS DE MAÍZ \"CORN RIBS\"",
+    "format": "4*2.5 KG.",
+    "price": 4.12
+  },
+  {
+    "reference": "09020317",
+    "productName": "COUSCOUS ORIENTAL 6 KG.",
+    "format": "6 KG.",
+    "price": 4.97
+  },
+  {
+    "reference": "09020900",
+    "productName": "ENSALADA DE ARROZ 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.13
+  },
+  {
+    "reference": "09020606",
+    "productName": "ENSALADA DE GAMBAS 5 KG",
+    "format": "5 KG.",
+    "price": 5.37
+  },
+  {
+    "reference": "09020210",
+    "productName": "ENSALADA SOMBRERO 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 4.1
+  },
+  {
+    "reference": "09020610",
+    "productName": "ENSALADILLA COMÚN 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.53
+  },
+  {
+    "reference": "09013108",
+    "productName": "ENSALADILLA SELECTA 10 KG. FINDUS",
+    "format": "10*1 KG.",
+    "price": 1.73
+  },
+  {
+    "reference": "09010175",
+    "productName": "ESPÁRRAGO TRIGUERO ENTERO 5*1 KG",
+    "format": "5 KG.",
+    "price": 5.23
+  },
+  {
+    "reference": "09013109",
+    "productName": "ESPÁRRAGO TRIGUERO ENTERO 6*1 FINDUS",
+    "format": "6*1 KG.",
+    "price": 11.71
+  },
+  {
+    "reference": "09011110",
+    "productName": "ESPINACA HOJA MINI PORCIÓN 4*2 KG. FINDUS",
+    "format": "4*2 KG.",
+    "price": 2.05
+  },
+  {
+    "reference": "09011111",
+    "productName": "ESPINACA HOJA PORCIONES 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.57
+  },
+  {
+    "reference": "09100050",
+    "productName": "FRESAS CONGELADAS 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.18
+  },
+  {
+    "reference": "09100010",
+    "productName": "FRUTAS TROPICALES 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 3.26
+  },
+  {
+    "reference": "09100020",
+    "productName": "FRUTAS DEL BOSQUE 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 4.2
+  },
+  {
+    "reference": "09040173",
+    "productName": "GRATINADO DE BRÓCOLI 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 5.35
+  },
+  {
+    "reference": "09040147",
+    "productName": "GRATINADO DE CALABACÍN 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 5.29
+  },
+  {
+    "reference": "09040175",
+    "productName": "GRATINADO DE PATATA 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 5.33
+  },
+  {
+    "reference": "09041299",
+    "productName": "GRATINADO PATATA CON QUESO CREMA",
+    "format": "9 KG.",
+    "price": 5.75
+  },
+  {
+    "reference": "09011411",
+    "productName": "GUISANTE COMÚN 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.5
+  },
+  {
+    "reference": "09011410",
+    "productName": "GUISANTE SUPERFINO 4*2.5 KG FINDUS",
+    "format": "4*2.5 KG.",
+    "price": 2.88
+  },
+  {
+    "reference": "09011601",
+    "productName": "HABAS FINAS 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.93
+  },
+  {
+    "reference": "09011811",
+    "productName": "JUDÍA ENTERA M.FINA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.78
+  },
+  {
+    "reference": "09011821",
+    "productName": "JUDÍA ENTERA EXTRA FINA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.13
+  },
+  {
+    "reference": "09010501",
+    "productName": "JUDÍA VERDE PLANA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.63
+  },
+  {
+    "reference": "09011701",
+    "productName": "JUDÍA VERDE TROCEADA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.6
+  },
+  {
+    "reference": "09020324",
+    "productName": "JULIANA DE PIMIENTOS 6*1 KG FINDUS",
+    "format": "6*1 KG.",
+    "price": 4.22
+  },
+  {
+    "reference": "09020319",
+    "productName": "MAÍZ ASADO A LA MEXICANA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 3.45
+  },
+  {
+    "reference": "09012010",
+    "productName": "MAÍZ GRANO I.Q.F. 10 KG",
+    "format": "10 KG.",
+    "price": 2.31
+  },
+  {
+    "reference": "09100040",
+    "productName": "MANGO CONGELADO 10 KG",
+    "format": "2*5 KG.",
+    "price": 2.94
+  },
+  {
+    "reference": "09012900",
+    "productName": "MAZORCA DE MAÍZ GRANDE 5 KG",
+    "format": "5 KG.",
+    "price": 2.19
+  },
+  {
+    "reference": "09012901",
+    "productName": "MAZORCA MAÍZ BABY 1*10 KG",
+    "format": "10*1 KG.",
+    "price": 3.24
+  },
+  {
+    "reference": "09100070",
+    "productName": "MELOCOTÓN CUBOS CONGELADO 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 3.34
+  },
+  {
+    "reference": "09021010",
+    "productName": "MENESTRA BÁSICA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.63
+  },
+  {
+    "reference": "09021101",
+    "productName": "MENESTRA ESPECIAL 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.73
+  },
+  {
+    "reference": "09021401",
+    "productName": "MENESTRA KAISER MIX 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.74
+  },
+  {
+    "reference": "09013110",
+    "productName": "MENESTRA DE LA HUERTA 4*2.5 KG. FINDUS",
+    "format": "6*1 KG.",
+    "price": 2.81
+  },
+  {
+    "reference": "09021701",
+    "productName": "MEZCLA CALIFORNIA 10 KG",
+    "format": "10 KG.",
+    "price": 1.9
+  },
+  {
+    "reference": "09021601",
+    "productName": "MEZCLA CHINA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.15
+  },
+  {
+    "reference": "09021801",
+    "productName": "MEZCLA PRIMAVERA 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.02
+  },
+  {
+    "reference": "09021901",
+    "productName": "MEZCLA RATATOUILLE 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 1.66
+  },
+  {
+    "reference": "09100061",
+    "productName": "PAPAYA CUBOS CONGELADA 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.55
+  },
+  {
+    "reference": "09031101",
+    "productName": "PATATA DADO CRUDA",
+    "format": "4*2.5 KG.",
+    "price": 1.49
+  },
+  {
+    "reference": "09012104",
+    "productName": "PIMIENTO ROJO DADO CONG. 1*10 KG",
+    "format": "10 KG.",
+    "price": 2.03
+  },
+  {
+    "reference": "09012103",
+    "productName": "PIMIENTO ROJO TIRAS 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.22
+  },
+  {
+    "reference": "09012200",
+    "productName": "PIMIENTO VERDE DADO CONG. 1*10 KG.",
+    "format": "10 KG.",
+    "price": 1.94
+  },
+  {
+    "reference": "09100080",
+    "productName": "PIÑA CUBOS CONGELADA 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 3.15
+  },
+  {
+    "reference": "09012201",
+    "productName": "PUERRO EN RODAJA 10 KG",
+    "format": "10 KG.",
+    "price": 1.54
+  },
+  {
+    "reference": "09020704",
+    "productName": "QUINOA CON VERDURAS 6 KG FINDUS",
+    "format": "6 KG.",
+    "price": 5.23
+  },
+  {
+    "reference": "09020323",
+    "productName": "RELLENO PARA FAJITAS 5 KG",
+    "format": "5 KG.",
+    "price": 4.65
+  },
+  {
+    "reference": "09022310",
+    "productName": "REVUELTO DE TRIGUEROS, GAMBAS Y AJETES 6 KG",
+    "format": "4*1.5 KG.",
+    "price": 5.23
+  },
+  {
+    "reference": "09040120",
+    "productName": "RISOTTO DE SETAS 5 KG.",
+    "format": "5 KG.",
+    "price": 2.64
+  },
+  {
+    "reference": "09010102",
+    "productName": "ROMANESCU COL 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.27
+  },
+  {
+    "reference": "09070200",
+    "productName": "SALPICÓN DE MARISCO 5 KG.",
+    "format": "5 KG.",
+    "price": 5.57
+  },
+  {
+    "reference": "09012301",
+    "productName": "SALSIFIS 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 3.06
+  },
+  {
+    "reference": "09020315",
+    "productName": "SALTEADO BAMBÚ 6 KG. FINDUS",
+    "format": "4*1.5 KG.",
+    "price": 4.57
+  },
+  {
+    "reference": "09020312",
+    "productName": "SALTEADO CAMPESTRE 10 KG",
+    "format": "4*1.5 KG.",
+    "price": 2.46
+  },
+  {
+    "reference": "09020211",
+    "productName": "SALTEADO CON PUNTAS DE ESPÁRRAGO 6 KG.",
+    "format": "6 KG.",
+    "price": 6.28
+  },
+  {
+    "reference": "09020310",
+    "productName": "SALTEADO MEDITERRÁNEO 6 KG. FINDUS",
+    "format": "4*1.5 KG.",
+    "price": 2.95
+  },
+  {
+    "reference": "09021915",
+    "productName": "SALTEADO NASI GORENG (CON POLLO) 6*1.5 KG.",
+    "format": "6*1.5 KG.",
+    "price": 4.95
+  },
+  {
+    "reference": "09020322",
+    "productName": "SALTEADO ROMANESCU & ITALIA 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 5.5
+  },
+  {
+    "reference": "09020318",
+    "productName": "SALTEADO THAI 6 KG. FINDUS",
+    "format": "4*1.5 KG.",
+    "price": 4.3
+  },
+  {
+    "reference": "09020311",
+    "productName": "SALTEADO TRADICIONAL 5 KG.",
+    "format": "5 KG.",
+    "price": 2.52
+  },
+  {
+    "reference": "09020410",
+    "productName": "SAUTE MIX 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.29
+  },
+  {
+    "reference": "09021501",
+    "productName": "SETAS DEL BOSQUE FINDUS",
+    "format": "6 KG.",
+    "price": 5.21
+  },
+  {
+    "reference": "09010110",
+    "productName": "TOMATE DADO CONGELADO",
+    "format": "4*2.5 KG.",
+    "price": 1.65
+  },
+  {
+    "reference": "09021910",
+    "productName": "VERDURA DE PISTO 10 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.12
+  },
+  {
+    "reference": "09013111",
+    "productName": "VERDURA PARA PISTO 6X1 KG FINDUS",
+    "format": "6*1 KG.",
+    "price": 3.18
+  },
+  {
+    "reference": "09022110",
+    "productName": "VERDURA PARA PAELLA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 2.04
+  },
+  {
+    "reference": "09022010",
+    "productName": "VERDURA PARA SOFRITO 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 2.02
+  },
+  {
+    "reference": "09022001",
+    "productName": "VERDURA PARA SOPA 4*2.5 KG.",
+    "format": "4*2.5 KG.",
+    "price": 1.67
+  },
+  {
+    "reference": "09040161",
+    "productName": "VERDURAS SURTIDAS A LA PARRILLA 10 KG",
+    "format": "10 KG.",
+    "price": 3.2
+  },
+  {
+    "reference": "09020604",
+    "productName": "WOK INDONESIA 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 4.9
+  },
+  {
+    "reference": "09020602",
+    "productName": "WORLD MIX MARRAKECH 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 5.16
+  },
+  {
+    "reference": "09012411",
+    "productName": "ZANAHORIA BABY 14/18 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 1.59
+  },
+  {
+    "reference": "09013112",
+    "productName": "ZANAHORIA BABY 6X1 KG FINDUS",
+    "format": "6*1 KG.",
+    "price": 2.27
+  },
+  {
+    "reference": "09012501",
+    "productName": "ZANAHORIA CUBO 10 KG",
+    "format": "4*2.5 KG.",
+    "price": 1.41
+  },
+  {
+    "reference": "09012701",
+    "productName": "ZANAHORIA PARISINA 24/28 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 1.91
+  },
+  {
+    "reference": "09012801",
+    "productName": "ZANAHORIA RODAJA 4*2.5 KG",
+    "format": "4*2.5 KG.",
+    "price": 1.44
+  },
+  {
+    "reference": "09040903",
+    "productName": "ALBÓNDIGA 0% CARNE 2 KG FINDUS",
+    "format": "2 KG.",
+    "price": 8.59
+  },
+  {
+    "reference": "09040850",
+    "productName": "ALBÓNDIGAS MIXTAS 6 KG",
+    "format": "6 KG.",
+    "price": 2.79
+  },
+  {
+    "reference": "09040154",
+    "productName": "ALCACHOFA REBOZADA 6 KG.",
+    "format": "6 KG.",
+    "price": 3.79
+  },
+  {
+    "reference": "09041202",
+    "productName": "ALITAS DE POLLO AMERICANAS-REBOZADAS 3 KG FINDUS",
+    "format": "3 KG.",
+    "price": 8.39
+  },
+  {
+    "reference": "09041201",
+    "productName": "ALITAS DE POLLO CONDIMENTADAS 5 KG.",
+    "format": "5 KG.",
+    "price": 3.71
+  },
+  {
+    "reference": "09040545",
+    "productName": "AROS DE CEBOLLA REBOZADA 6 KG.",
+    "format": "6 KG.",
+    "price": 3.42
+  },
+  {
+    "reference": "09041308",
+    "productName": "AROS DE CEBOLLA REBOZADOS 6X1 KG FINDUS",
+    "format": "6*1 KG.",
+    "price": 4.2
+  },
+  {
+    "reference": "09041030",
+    "productName": "ARROZ BLANCO COCIDO 6*1 KG. FINDUS",
+    "format": "6*1 KG.",
+    "price": 3.15
+  },
+  {
+    "reference": "09040490",
+    "productName": "BACALAO REBOZADO - NUGGET - 6 KG. (15-30grs)",
+    "format": "6 KG.",
+    "price": 4.31
+  },
+  {
+    "reference": "09041110",
+    "productName": "BASE DE PIZZA CON TOMATE 26*38 CM. FINDUS",
+    "format": "14 UDS.",
+    "price": 2.59
+  },
+  {
+    "reference": "09040902",
+    "productName": "BASE DE PIZZA 40 CM Host 25 UND.",
+    "format": "25 UDS.",
+    "price": 2.19
+  },
+  {
+    "reference": "09040115",
+    "productName": "BASE DE PIZZA 30*50 CM 30 UDS.",
+    "format": "30 UDS.",
+    "price": 2.55
+  },
+  {
+    "reference": "09040168",
+    "productName": "BASE PARA TORTILLA PATATA/CEBOLLA 6 KG FINDUS",
+    "format": "6*1 KG.",
+    "price": 3.69
+  },
+  {
+    "reference": "09040505",
+    "productName": "BERENJENA A LA PARMESANA 10 KG",
+    "format": "10 KG.",
+    "price": 7.35
+  },
+  {
+    "reference": "09040180",
+    "productName": "BERENJENA RELLENA CARNE 6 KG",
+    "format": "6 KG.",
+    "price": 5.14
+  },
+  {
+    "reference": "09040160",
+    "productName": "BERENJENA RODAJA REBOZADA 5 KG",
+    "format": "5 KG.",
+    "price": 3.21
+  },
+  {
+    "reference": "09040170",
+    "productName": "BRÓCOLI FLORETE REBOZADO 6 KG.",
+    "format": "6 KG.",
+    "price": 3.13
+  },
+  {
+    "reference": "09040480",
+    "productName": "BUÑUELO DE BACALAO 4 KG.",
+    "format": "4 KG.",
+    "price": 3.12
+  },
+  {
+    "reference": "09040904",
+    "productName": "BURGUER 0% CARNE 2 KG (100gr/und) FINDUS",
+    "format": "2 KG.",
+    "price": 7.61
+  },
+  {
+    "reference": "09040880",
+    "productName": "BURGUER DE KALE Y QUINOA 3.6 KG FINDUS",
+    "format": "3.6 KG.",
+    "price": 7.91
+  },
+  {
+    "reference": "09041309",
+    "productName": "CALABACÍN FRIES TEMPURA MAHESO",
+    "format": "5*800 GR.",
+    "price": 6.52
+  },
+  {
+    "reference": "09040453",
+    "productName": "CALABACÍN RELLENO DE CARNE 6 KG",
+    "format": "6 KG.",
+    "price": 5.14
+  },
+  {
+    "reference": "09040500",
+    "productName": "CALABACÍN RELLENO DE ESPINACA 6 KG.",
+    "format": "6 KG.",
+    "price": 5.47
+  },
+  {
+    "reference": "09040145",
+    "productName": "CALABACÍN RODAJA REBOZADO 5 KG.",
+    "format": "5 KG.",
+    "price": 2.98
+  },
+  {
+    "reference": "09040445",
+    "productName": "CALAMAR ROMANA 4 KG",
+    "format": "4 KG.",
+    "price": 4.11
+  },
+  {
+    "reference": "09040446",
+    "productName": "CALAMAR ROMANA EXTRA 6 KG",
+    "format": "6 KG.",
+    "price": 4.82
+  },
+  {
+    "reference": "09060338",
+    "productName": "CANELÓN XXL POLLO DE CORRAL MAHESO 1,2 KG x 3 uds.",
+    "format": "3,6 KG",
+    "price": 10.64
+  },
+  {
+    "reference": "09060339",
+    "productName": "GRAN CANELÓN CONFIT DE PATO CAJA 50 UDS 150 GR.",
+    "format": "7,5 KG",
+    "price": 23.59
+  },
+  {
+    "reference": "09060340",
+    "productName": "GRAN CANELÓN CARRILLERA AL PEDRO XIMÉNEZ CAJA 50 UDS 150 GR.",
+    "format": "7,5 KG",
+    "price": 24.19
+  },
+  {
+    "reference": "09060341",
+    "productName": "GRAN CANELÓN LONGANIZA BOLETUS Y TRUFA CAJA 50 UDS 150 GR.",
+    "format": "7,5 KG",
+    "price": 17.21
+  },
+  {
+    "reference": "09060342",
+    "productName": "GRAN CANELÓN BACALAO CAJA 50 UDS 150 GR.",
+    "format": "7,5 KG",
+    "price": 23.59
+  },
+  {
+    "reference": "09040948",
+    "productName": "CANELONES DE CARNE 6 KG.",
+    "format": "6 KG.",
+    "price": 2.85
+  },
+  {
+    "reference": "09040949",
+    "productName": "CANELONES DE ESPINACA 4 KG",
+    "format": "4 KG.",
+    "price": 3.65
+  },
+  {
+    "reference": "09030120",
+    "productName": "CHEDAR CHEESE JALAPEÑOS 3 KG (con jalapeño y queso)",
+    "format": "3 KG.",
+    "price": 7.29
+  },
+  {
+    "reference": "09040121",
+    "productName": "CHILI CON CARNE 10 KG",
+    "format": "5*2 KG.",
+    "price": 6.32
+  },
+  {
+    "reference": "09040155",
+    "productName": "COLIFLOR REBOZADA 6 KG.",
+    "format": "6 KG.",
+    "price": 2.99
+  },
+  {
+    "reference": "09040950",
+    "productName": "CORDON BLUE MEDIA LUNA CRUSTY DE AVE 6 KG.",
+    "format": "6 KG.",
+    "price": 4.31
+  },
+  {
+    "reference": "09040953",
+    "productName": "CORDON BLUE MEDIA LUNA CRUSTY DE CERDO 6 KG (80grs.)",
+    "format": "6 KG.",
+    "price": 4.31
+  },
+  {
+    "reference": "09040356",
+    "productName": "CROQUETA DE BACALAO 6 KG.",
+    "format": "6 KG.",
+    "price": 2.4
+  },
+  {
+    "reference": "09040350",
+    "productName": "CROQUETA CASERA DE ESPINACAS 4 KG.",
+    "format": "4 KG.",
+    "price": 4.88
+  },
+  {
+    "reference": "09040370",
+    "productName": "CROQUETA CASERA DE POLLO 5 KG. (fin existencias)",
+    "format": "5 KG.",
+    "price": 5.17
+  },
+  {
+    "reference": "09040371",
+    "productName": "CROQUETA CASERA JAMÓN 5 KG. (fin existencias)",
+    "format": "5 KG.",
+    "price": 5.33
+  },
+  {
+    "reference": "09040280",
+    "productName": "CROQUETA DE JAMÓN 6 KG.",
+    "format": "6 KG.",
+    "price": 2.4
+  },
+  {
+    "reference": "09040256",
+    "productName": "CROQUETA DE POLLO 6 KG.",
+    "format": "6 KG.",
+    "price": 2.4
+  },
+  {
+    "reference": "09060344",
+    "productName": "CROQUETA BACALAO RECETA MAESTRA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 8.98
+  },
+  {
+    "reference": "09060345",
+    "productName": "CROQUETA CHIPIRONES RECETA MAESTRA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 8.45
+  },
+  {
+    "reference": "09060346",
+    "productName": "CROQUETAS COCIDO RECETA MAESTRA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 8.8
+  },
+  {
+    "reference": "09060347",
+    "productName": "CROQUETAS DE JAMÓN RECETA MAMA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 4.47
+  },
+  {
+    "reference": "09060348",
+    "productName": "CROQUETA JAMÓN IBÉRICO RECETA MAESTRA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 6.48
+  },
+  {
+    "reference": "09060349",
+    "productName": "CROQUETAS DE POLLO RECETA MAMA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 4.35
+  },
+  {
+    "reference": "09060350",
+    "productName": "CROQUETA POLLO RECETA MAESTRA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 9.08
+  },
+  {
+    "reference": "09060351",
+    "productName": "CROQUETÓN BACALAO RECETA MAMA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 4.61
+  },
+  {
+    "reference": "09060352",
+    "productName": "CROQUETÓN COCIDO RECETA MAMA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 4.82
+  },
+  {
+    "reference": "09060353",
+    "productName": "CROQUETÓN POLLO RECETA MAMA MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 4.61
+  },
+  {
+    "reference": "09060354",
+    "productName": "CROQUETÓN JAMÓN IBÉRICO RECETA MAESTRO MAHESO",
+    "format": "4 X 1 KG.",
+    "price": 6.48
+  },
+  {
+    "reference": "09040667",
+    "productName": "EMPANADA GALLEGA ATÚN Y PISTO 30*40",
+    "format": "4*2.5 KG.",
+    "price": 10.1
+  },
+  {
+    "reference": "09040666",
+    "productName": "EMPANADILLA DE ATÚN 3 KG",
+    "format": "3 KG.",
+    "price": 2.75
+  },
+  {
+    "reference": "09040668",
+    "productName": "EMPANADILLA MINI DE ATÚN 4 KG",
+    "format": "4 KG.",
+    "price": 2.81
+  },
+  {
+    "reference": "09040922",
+    "productName": "ESCALOPE DE CERDO EMPANADO 6 KG.",
+    "format": "6 KG.",
+    "price": 3.35
+  },
+  {
+    "reference": "09040951",
+    "productName": "ESCALOPE DE TERNERA 6 KG",
+    "format": "6 KG.",
+    "price": 3.5
+  },
+  {
+    "reference": "09040925",
+    "productName": "FALAFEL 2 KG FINDUS",
+    "format": "2 KG.",
+    "price": 6.19
+  },
+  {
+    "reference": "09040450",
+    "productName": "FILETE DE MERLUZA REBOZADO 6 KG",
+    "format": "6 KG.",
+    "price": 5.8
+  },
+  {
+    "reference": "09040360",
+    "productName": "FINGERS DE PECHUGA POLLO 5 KG FINDUS",
+    "format": "5 KG.",
+    "price": 7.12
+  },
+  {
+    "reference": "09040448",
+    "productName": "FISH & CHIPS GOURMET 168 GR FINDUS",
+    "format": "4.4 KG.",
+    "price": 9.79
+  },
+  {
+    "reference": "09040746",
+    "productName": "FLAMENQUÍN DE YORK 7 KG",
+    "format": "7 KG.",
+    "price": 3.15
+  },
+  {
+    "reference": "09040165",
+    "productName": "FOCACCIA ACEITE Y ROMERO 30*50 CM. 6 UND.",
+    "format": "6 UDS.",
+    "price": 5.04
+  },
+  {
+    "reference": "09060355",
+    "productName": "FOCACCIA DE ACEITUNAS UDS. 30X50 CMS 6 UDS",
+    "format": "6 UDS.",
+    "price": 5.66
+  },
+  {
+    "reference": "09060356",
+    "productName": "FOCACCIA DE CEBOLLAS UDS. 30X50 CMS 6 UDS",
+    "format": "6 UDS.",
+    "price": 5.04
+  },
+  {
+    "reference": "09040166",
+    "productName": "FOCACCIA PIMIENTOS ASADOS 30*50 CM. 6 UND.",
+    "format": "6 UDS.",
+    "price": 5.76
+  },
+  {
+    "reference": "09040877",
+    "productName": "HAMBURGUESA MIXTA TERNERA/POLLO GOURMET 80% 6 KG",
+    "format": "6 KG.",
+    "price": 3.75
+  },
+  {
+    "reference": "09080901",
+    "productName": "HAMBURGUESA MIXTA TERNERA/POLLO 6 KG",
+    "format": "6 KG.",
+    "price": 2.79
+  },
+  {
+    "reference": "09041100",
+    "productName": "LASAÑA CARNE 6 KG.",
+    "format": "6 KG.",
+    "price": 4.31
+  },
+  {
+    "reference": "09041120",
+    "productName": "LASAÑA VEGETAL 6 KG.",
+    "format": "6 KG.",
+    "price": 4.19
+  },
+  {
+    "reference": "09040455",
+    "productName": "MERLUZA REBOZADA EN RODAJA 4 KG",
+    "format": "4 KG.",
+    "price": 6.73
+  },
+  {
+    "reference": "09040122",
+    "productName": "MUSAKA 10 KG",
+    "format": "10 KG.",
+    "price": 6.43
+  },
+  {
+    "reference": "09041300",
+    "productName": "NUGGET DE POLLO GORMET 6 KG",
+    "format": "6 KG.",
+    "price": 4.24
+  },
+  {
+    "reference": "09041310",
+    "productName": "NUGGET DE POLLO 6 KG",
+    "format": "6 KG.",
+    "price": 3.24
+  },
+  {
+    "reference": "09030121",
+    "productName": "PALITOS DE MOZZARELLA 3 KG.",
+    "format": "3 KG.",
+    "price": 6.23
+  },
+  {
+    "reference": "09040475",
+    "productName": "PALITOS DE PESCADO 6 KG.",
+    "format": "6 KG.",
+    "price": 3.29
+  },
+  {
+    "reference": "09041012",
+    "productName": "PATATA RELLENA DE CARNE 6 KG",
+    "format": "6 KG.",
+    "price": 5.39
+  },
+  {
+    "reference": "09040941",
+    "productName": "PECHUGA DE POLLO ENTERA EMPANADA 2.5 KG FINDUS",
+    "format": "2.5 KG.",
+    "price": 6.84
+  },
+  {
+    "reference": "09060357",
+    "productName": "PECHUGA POLLO KENTUCKY MAHESO",
+    "format": "4X1 KG.",
+    "price": 11.25
+  },
+  {
+    "reference": "09040110",
+    "productName": "PIMIENTO PIQUILLO RELLENO BACALAO 5 KG.",
+    "format": "5 KG.",
+    "price": 6.36
+  },
+  {
+    "reference": "09041025",
+    "productName": "PIMIENTO RELLENO DE CARNE 6 KG.",
+    "format": "6 KG.",
+    "price": 5.46
+  },
+  {
+    "reference": "09041302",
+    "productName": "PIZZA MARGARITA ARTESANA 40 CM. 12 UND.",
+    "format": "10 UDS.",
+    "price": 5.0
+  },
+  {
+    "reference": "09040112",
+    "productName": "PIZZA MARGARITA 30*50 CM. 15 UND.",
+    "format": "15 UDS.",
+    "price": 5.41
+  },
+  {
+    "reference": "09040945",
+    "productName": "POLLO EMPANADO 6 KG",
+    "format": "6 KG.",
+    "price": 2.8
+  },
+  {
+    "reference": "09041121",
+    "productName": "POPIETAS DE COL 6 KG",
+    "format": "6 KG.",
+    "price": 5.76
+  },
+  {
+    "reference": "09041122",
+    "productName": "QUICHE BACON, JAMÓN Y QUESO 6 KG.",
+    "format": "6 KG.",
+    "price": 7.76
+  },
+  {
+    "reference": "09041130",
+    "productName": "QUICHE PUERRO Y CHAMPIÑONES 6 KG.",
+    "format": "6 KG.",
+    "price": 7.55
+  },
+  {
+    "reference": "09071004",
+    "productName": "RABAS ENHARINADAS 4 KG.",
+    "format": "5*800G.",
+    "price": 6.8
+  },
+  {
+    "reference": "09040255",
+    "productName": "ROLLITO PRIMAVERA VERDURA 4.05 KG",
+    "format": "4.05 KG.",
+    "price": 3.12
+  },
+  {
+    "reference": "09040905",
+    "productName": "SALCHICHA COCKTAIL 6 KG",
+    "format": "6 KG.",
+    "price": 4.51
+  },
+  {
+    "reference": "09040118",
+    "productName": "SAMOSAS VERDURAS Y CURRY 15 GR",
+    "format": "4,5 KG",
+    "price": 3.51
+  },
+  {
+    "reference": "09040940",
+    "productName": "SAN JACOBO DE YORK 6 KG.",
+    "format": "6 KG.",
+    "price": 2.65
+  },
+  {
+    "reference": "09060358",
+    "productName": "STICK BONIATO TEMPURA MAHESO",
+    "format": "4X1 KG",
+    "price": 6.06
+  },
+  {
+    "reference": "09040451",
+    "productName": "SKIPPER DE BACALAO 4.44 KG FINDUS",
+    "format": "4.44 KG.",
+    "price": 8.48
+  },
+  {
+    "reference": "09041080",
+    "productName": "TORTILLA DE PATATA Y CEBOLLA 800 GR. 10 UND.",
+    "format": "10 UDS.",
+    "price": 4.03
+  },
+  {
+    "reference": "09060359",
+    "productName": "TEMPURA DE VERDURAS MAESTRA 5 KG. (coliflor, zanahoria, judía verde, cebolla, calabacín)",
+    "format": "5 KG.",
+    "price": 6.59
+  },
+  {
+    "reference": "09040167",
+    "productName": "TEMPURA DE VERDURAS SELECCIÓN 4 KG. (pimiento verde, rojo, cebolla y calabacín) FINDUS",
+    "format": "4 KG.",
+    "price": 4.56
+  },
+  {
+    "reference": "09040461",
+    "productName": "VARITAS DE VERDURA 6 KG. FINDUS",
+    "format": "3*2 KG.",
+    "price": 3.39
+  },
+  {
+    "reference": "09040460",
+    "productName": "VARITAS DE MERLUZA",
+    "format": "5 KG.",
+    "price": 4.33
+  },
+  {
+    "reference": "09023101",
+    "productName": "VERDURAS FRITAS TRICOLOR 8 KG",
+    "format": "4*2 KG.",
+    "price": 3.8
+  },
+  {
+    "reference": "09051103",
+    "productName": "CHURRO BITE NOCILLA MAHESO",
+    "format": "4X1 KG",
+    "price": 6.63
+  },
+  {
+    "reference": "09050050",
+    "productName": "CHURROS LAZO 4 KG",
+    "format": "4 KG.",
+    "price": 2.15
+  },
+  {
+    "reference": "09050200",
+    "productName": "CHURROS RELLENOS CACAO 3 KG",
+    "format": "3 KG.",
+    "price": 4.23
+  },
+  {
+    "reference": "09050215",
+    "productName": "CREPES DE CREMA DE CACAO 4.5 KG",
+    "format": "4.5 KG.",
+    "price": 10.49
+  },
+  {
+    "reference": "09050205",
+    "productName": "CREPES DE MANZANA 4.5 KG",
+    "format": "4.5 KG.",
+    "price": 10.49
+  },
+  {
+    "reference": "09051104",
+    "productName": "ENSAIMADA GROSSA SOBRASSADA I MELICOTÓ CAJA 4 UDS. (800 GR. UD.)",
+    "format": "4x800GR",
+    "price": 13.25
+  },
+  {
+    "reference": "09051105",
+    "productName": "ENSAIMADA GROSSA CHOCOLATE NEGRO CAJA 4 UDS. (800 GR. UD.)",
+    "format": "4x800GR",
+    "price": 12.59
+  },
+  {
+    "reference": "09051106",
+    "productName": "ENSAIMADA GROSSA CREMA CAJA 4 UDS. (750 GR. UD.)",
+    "format": "4x750GR",
+    "price": 12.0
+  },
+  {
+    "reference": "09051107",
+    "productName": "ENSAIMADA GROSSA LLISA CAJA 4 UDS. (650 GR. UD.)",
+    "format": "4x650GR",
+    "price": 10.0
+  },
+  {
+    "reference": "09051108",
+    "productName": "ENSAIMADA GOURMET PETITE LLISA CAJA 24 UDS. (70 GR. UD.)",
+    "format": "24x70GR",
+    "price": 2.0
+  },
+  {
+    "reference": "09050100",
+    "productName": "LECHE FRITA 5 KG",
+    "format": "5 KG.",
+    "price": 3.66
+  },
+  {
+    "reference": "09050230",
+    "productName": "MINI GOFRE 3.15 KG",
+    "format": "3.15 KG.",
+    "price": 12.42
+  },
+  {
+    "reference": "09051101",
+    "productName": "PROFITEROLES MINI DE NATA 2.5 KG",
+    "format": "2.5 KG.",
+    "price": 4.97
+  },
+  {
+    "reference": "09051102",
+    "productName": "PROFITEROLES MINI DE TRUFA 2.5 KG",
+    "format": "2.5 KG.",
+    "price": 5.06
+  },
+  {
+    "reference": "09051109",
+    "productName": "TARTA QUESO MANCHEGO 1,5 KG. ABUELA CANDIDA.",
+    "format": "1,5 KG",
+    "price": 20.84
+  },
+  {
+    "reference": "09051110",
+    "productName": "TARTA QUESO CHOCO Y CACAO 1,5 KG. ABUELA CANDIDA.",
+    "format": "1,5 KG",
+    "price": 24.82
+  },
+  {
+    "reference": "09051111",
+    "productName": "TARTALETA COULANT DE QUESO CHOCOLATE Y CACAO ABUELA CANDIDA, 100 GR. CAJA 16 UDS.",
+    "format": "16x100 GR",
+    "price": 28.95
+  },
+  {
+    "reference": "09051112",
+    "productName": "TARTALETA COULANT DE QUESO ABUELA CANDIDA, 100 GR. CAJA 16 UDS.",
+    "format": "16x100 GR",
+    "price": 26.17
+  },
+  {
+    "reference": "01011009",
+    "productName": "PATATA EXTRA 25 KG",
+    "format": "25 KG.",
+    "price": 0.85
+  },
+  {
+    "reference": "01011015",
+    "productName": "PATATA EXTRA 5X3 KG",
+    "format": "15 KG",
+    "price": 0.85
+  },
+  {
+    "reference": "01011010",
+    "productName": "PATATÓ 25 KG",
+    "format": "25 KG.",
+    "price": 1.1
+  },
+  {
+    "reference": "01011011",
+    "productName": "PATATÓ 12X1 KG",
+    "format": "12X1 KG",
+    "price": 1.1
+  },
+  {
+    "reference": "01011025",
+    "productName": "PATATA AGRIA (ESPECIAL FREIR)",
+    "format": "25 KG.",
+    "price": 1.1
+  },
+  {
+    "reference": "01011028",
+    "productName": "PATATA AGRIA (ESPECIAL FREIR) 2X6 KG",
+    "format": "2X6 KG",
+    "price": 1.1
+  },
+  {
+    "reference": "02021110",
+    "productName": "CEBOLLA 25 KG",
+    "format": "25 KG.",
+    "price": 1.1
+  },
+  {
+    "reference": "02021126",
+    "productName": "CEBOLLA 15X1 KG",
+    "format": "15 KG",
+    "price": 1.1
+  },
+  {
+    "reference": "02021114",
+    "productName": "CEBOLLA BLANCA",
+    "format": "10 KG.",
+    "price": 1.1
+  },
+  {
+    "reference": "02021127",
+    "productName": "CEBOLLA BLANCA 15X1 KG",
+    "format": "15X1 KG",
+    "price": 1.15
+  },
+  {
+    "reference": "01011038",
+    "productName": "PATATA EXTRA 25 KG. Cor del Raiguer KM 0*",
+    "format": "25 KG.",
+    "price": 0.9
+  },
+  {
+    "reference": "01011039",
+    "productName": "PATATA EXTRA 5X3 KG. Cor del Raiguer KM 0*",
+    "format": "15 KG",
+    "price": 0.9
+  },
+  {
+    "reference": "01011040",
+    "productName": "PATATÓ 25 KG. Cor del Raiguer KM 0*",
+    "format": "25 KG.",
+    "price": 1.15
+  },
+  {
+    "reference": "01011041",
+    "productName": "PATATÓ 12X1 KG. Cor del Raiguer KM 0*",
+    "format": "12X1 KG",
+    "price": 1.15
+  },
+  {
+    "reference": "01011042",
+    "productName": "PATATA AGRIA (ESPECIAL FREIR). Cor del Raiguer KM 0*",
+    "format": "25 KG.",
+    "price": 1.15
+  },
+  {
+    "reference": "01011043",
+    "productName": "PATATA AGRIA (ESPECIAL FREIR) 2X6 KG. Cor del Raiguer KM 0*",
+    "format": "2X6 KG",
+    "price": 1.15
+  },
+  {
+    "reference": "02021255",
+    "productName": "CEBOLLA 25 KG. Cor del Raiguer KM 0*",
+    "format": "25 KG.",
+    "price": 1.15
+  },
+  {
+    "reference": "02021256",
+    "productName": "CEBOLLA 15X1 KG. Cor del Raiguer KM 0*",
+    "format": "15 KG",
+    "price": 1.15
+  },
+  {
+    "reference": "02021257",
+    "productName": "CEBOLLA BLANCA. Cor del Raiguer KM 0*",
+    "format": "10 KG.",
+    "price": 1.15
+  },
+  {
+    "reference": "02021258",
+    "productName": "CEBOLLA BLANCA 15X1 KG. Cor del Raiguer KM 0*",
+    "format": "15X1 KG",
+    "price": 1.2
+  },
+  {
+    "reference": "02021118",
+    "productName": "CEBOLLA MORADA",
+    "format": "10 KG.",
+    "price": 1.4
+  },
+  {
+    "reference": "01060016",
+    "productName": "MIGAS DE ATÚN EN ACEITE DE GIRASOL. BOLSA 1 KG",
+    "format": "KG",
+    "price": 5.23
+  },
+  {
+    "reference": "01060017",
+    "productName": "ATÚN EN ACEITE DE GIRASOL. BOLSA 1 KG",
+    "format": "KG",
+    "price": 5.9
+  },
+  {
+    "reference": "11900010",
+    "productName": "BACON AHUMADO LONCHEADO FALGAS PIEZA (APROX 5 KG)",
+    "format": "pc",
+    "price": 6.43
+  },
+  {
+    "reference": "11300031",
+    "productName": "BACK BACON 400 GR. LONCHEADO CONNOLLY'S 20*400 GR Congelado",
+    "format": "8 KG",
+    "price": 8.32
+  },
+  {
+    "reference": "11400001",
+    "productName": "BASE FONDO CALDO VERDURAS F022",
+    "format": "Cubo 3 kg",
+    "price": 7.05
+  },
+  {
+    "reference": "11400003",
+    "productName": "BASE CALDO DE PESCADO DF012",
+    "format": "Cubo 3 kg",
+    "price": 8.75
+  },
+  {
+    "reference": "11400013",
+    "productName": "BASE FONDO CALDO CASERO F040 (bajo sal)",
+    "format": "Cubo 3 kg",
+    "price": 10.39
+  },
+  {
+    "reference": "11400002",
+    "productName": "BASE FONDO TERNERA bajo en sal F015- B/S",
+    "format": "Cubo 3 kg",
+    "price": 8.87
+  },
+  {
+    "reference": "11400004",
+    "productName": "CALDO DE AVE F027",
+    "format": "Cubo 3 kg",
+    "price": 6.59
+  },
+  {
+    "reference": "01140005",
+    "productName": "BASE SALSA CHAMPIÑONES S012",
+    "format": "Cubo 3 kg",
+    "price": 9.31
+  },
+  {
+    "reference": "11400020",
+    "productName": "BASE SALSA PIMIENTA VERDE S014",
+    "format": "Cubo 3 kg",
+    "price": 8.61
+  },
+  {
+    "reference": "11400014",
+    "productName": "BASE CREMA BECHAMEL EN FRIO B014",
+    "format": "Cubo 3 kg",
+    "price": 8.57
+  },
+  {
+    "reference": "11400006",
+    "productName": "BASE SALSA TOMATE S050",
+    "format": "Cubo 3 kg",
+    "price": 11.33
+  },
+  {
+    "reference": "11400007",
+    "productName": "BASE SALSA DEMIGLACE S024",
+    "format": "Cubo 3 kg",
+    "price": 7.17
+  },
+  {
+    "reference": "11400008",
+    "productName": "BASE SALSA MARINERA S056",
+    "format": "Cubo 3 kg",
+    "price": 10.96
+  },
+  {
+    "reference": "11400024",
+    "productName": "BASE SALSA BOLETUS S035",
+    "format": "Cubo 3 kg",
+    "price": 13.08
+  },
+  {
+    "reference": "11400009",
+    "productName": "BASE BECHAMEL B011-CG",
+    "format": "Cubo 3 kg",
+    "price": 5.72
+  },
+  {
+    "reference": "11400015",
+    "productName": "SALSA MOJO-PICON I012",
+    "format": "Cubo 3 kg",
+    "price": 9.39
+  },
+  {
+    "reference": "11400016",
+    "productName": "SALSA DI ROMA MIEL & MOSTAZA I015",
+    "format": "Cubo 3 kg",
+    "price": 5.92
+  },
+  {
+    "reference": "11400010",
+    "productName": "SALSA POMODORO S060",
+    "format": "Cubo 3 kg",
+    "price": 10.56
+  },
+  {
+    "reference": "11400017",
+    "productName": "BASE PAELLA VALENCIANA A014",
+    "format": "Cubo 3 kg",
+    "price": 11.43
+  },
+  {
+    "reference": "11400011",
+    "productName": "BASE ARROZ MARISCO A015",
+    "format": "Cubo 3 kg",
+    "price": 17.45
+  },
+  {
+    "reference": "11400012",
+    "productName": "PAELLA MIXTA A045",
+    "format": "Cubo 3 kg",
+    "price": 12.43
+  },
+  {
+    "reference": "11400025",
+    "productName": "BASE GAZPACHO S310",
+    "format": "Cubo 3 kg",
+    "price": 7.63
+  },
+  {
+    "reference": "11400026",
+    "productName": "SALMOREJO S311",
+    "format": "Cubo 3 kg",
+    "price": 8.09
+  },
+  {
+    "reference": "11400021",
+    "productName": "CREMA DE CHAMPIÑÓN CR020",
+    "format": "Cubo 3 kg",
+    "price": 8.83
+  }
+]
