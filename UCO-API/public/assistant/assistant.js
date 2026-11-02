@@ -613,6 +613,12 @@ async function askUcoLogic(question){
   if(!items.length){
    if(data.filter_applied)return 'No encuentro coincidencias tras excluir las referencias indicadas en el catálogo. Esto no certifica características o ausencia de ingredientes.';
    if(topic)return HELP_TOPICS[topic];
+   // Solo consultas generales sin resultado interno pasan a OpenAI.
+   // Las consultas comerciales siguen siendo responsabilidad exclusiva del catálogo.
+   if(contextualRoute(question)==='general'){
+    const ai=await askProtectedOpenAI(question);
+    if(ai)return ai;
+   }
    return 'No encuentro una coincidencia verificable en el catálogo actual. Puedes darme otra palabra, una categoría o más detalles. No afirmaré que no existe sin verificarlo.';
   }
   const describe=arr=>arr.slice(0,9).map(p=>'• '+p.name+(p.unit?' · '+p.unit:'')+(p.category?' ('+p.category+')':'')).join('\n');
@@ -863,11 +869,27 @@ function isOwnDocumentQuery(value){
   && !/\b(como|donde|crear|emitir|modificar|hacer)\b/.test(n)
   && (/\b(mi|mis|pedido|compra|descargar|ver|consultar|obtener|mostrar|ultimo|ese|este)\b/.test(n)||parseOrderId(value)!==null);
 }
+// UCO OpenAI V2: canal paralelo y optativo. No altera reglas ni rutas del motor local.
+// Prefijo «IA:» para consultas de lenguaje natural; nunca modifica carrito ni pagos.
+async function askProtectedOpenAI(question){
+ const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),20000);
+ try{
+  const r=await fetch('/api/assistant-openai.php',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({message:question}),signal:ctrl.signal});
+  if(!r.ok)return null;
+  const data=await r.json();return data.ok&&typeof data.response==='string'?data.response:null;
+ }catch{return null}finally{clearTimeout(timer)}
+}
 form.addEventListener('submit',async e=>{
  e.preventDefault();const value=input.value.trim();if(!value||busy)return;
  append('user',value);input.value='';busy=true;
  const submit=form.querySelector('button[type="submit"]');if(submit)submit.disabled=true;
  try{
+  if(/^ia\s*:/i.test(value)){
+   const question=value.replace(/^ia\s*:/i,'').trim();
+   const answer=question?await askProtectedOpenAI(question):null;
+   append('bot',answer||'No puedo consultar OpenAI ahora. El asistente local sigue disponible sin cambios.');
+   return;
+  }
   if(isReset(value)){
    clearCatalogContext();lastOwnOrderId=null;lastComparedProducts=null;provisionalBudget=null;pendingCartTransfer=null;lastCartReference=null;append('bot','He borrado el contexto de esta conversación. ¿Qué necesitas consultar?');
   }else{
