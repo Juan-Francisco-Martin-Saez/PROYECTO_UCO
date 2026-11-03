@@ -34,7 +34,7 @@ try{
  $expanded=$analysis['expanded'];
  $intent=$analysis['intent'];
  $topics=$analysis['topics'];
- $rows=$db->query("SELECT p.id,p.name,p.description,p.unit,p.search_text,p.is_demo,p.stock,c.name AS category
+ $rows=$db->query("SELECT p.id,p.sku,p.name,p.description,p.unit,p.search_text,p.is_demo,p.stock,c.name AS category
  FROM products p LEFT JOIN categories c ON c.id=p.category_id
  WHERE p.active=1 AND (c.id IS NULL OR c.active=1)")->fetchAll();
  $comparison=uco_comparison_request($q);
@@ -50,7 +50,7 @@ try{
   $rank=uco_semantic_rank($p,$expanded);
   if(!$rank['score'])continue;
   foreach($rank['concepts'] as $concept)$recognized[$concept]=true;
-  $found[]=['id'=>(int)$p['id'],'name'=>$p['name'],'unit'=>$p['unit'],
+  $found[]=['id'=>(int)$p['id'],'name'=>$p['name'],'reference'=>$p['sku'],'unit'=>$p['unit'],
    'category'=>$p['category'],'is_demo'=>(bool)$p['is_demo'],
    'score'=>$rank['score'],'matched'=>$rank['matched'],'coverage'=>$rank['coverage']];
  }
@@ -59,6 +59,28 @@ try{
  if($intent==='price'){
   $commercial=array_values(array_filter($found,static fn($p)=>!$p['is_demo']));
   if($commercial)$found=$commercial;
+ }
+ // 7.2: la denominación compuesta tiene prioridad sobre coincidencias parciales.
+ // Solo se impone una frase cuando aparece literalmente en el nombre comercial.
+ $normalizedQuestion=uco_norm($filter['active']?$filter['positive']:$q);
+ $compoundPatterns=['aros de cebolla'=>'aro de cebolla','aro de cebolla'=>'aro de cebolla',
+  'filetes empanados'=>'filete empanado','filete empanado'=>'filete empanado',
+  'crema de champinones'=>'crema de champinon','nuggets de pollo'=>'nugget de pollo'];
+ foreach($compoundPatterns as $requested=>$needle){
+  if(str_contains(' '.$normalizedQuestion.' ',' '.$requested.' ')){
+   $strict=array_values(array_filter($found,static function($item)use($rows,$needle){
+    foreach($rows as $row){if((int)$row['id']===(int)$item['id']){
+     $name=uco_norm((string)$row['name']);
+     return str_contains($name,$needle)||($needle==='aro de cebolla'&&str_contains($name,'aros de cebolla'));
+    }}return false;
+   }));
+   $found=$strict;break;
+  }
+ }
+ // Si hay coincidencias que cubren todos los conceptos, excluir resultados parciales.
+ if(count($expanded)>1){
+  $complete=array_values(array_filter($found,static fn($p)=>$p['coverage']>=0.999));
+  if($complete)$found=$complete;
  }
  $found=uco_semantic_filter($found,count($expanded));
  usort($found,static fn($a,$b)=>($b['coverage']<=>$a['coverage'])?:($b['score']<=>$a['score'])?:($a['is_demo']<=>$b['is_demo'])?:strcmp($a['name'],$b['name']));

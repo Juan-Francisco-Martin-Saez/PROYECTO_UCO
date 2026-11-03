@@ -1931,3 +1931,12 @@ body.uco-modal-open{overflow:hidden}
 .uco-shipping-history-modal .uco-wizard-snapshot-state[data-status=incident]{background:#ffe8e8;color:#9c2525;border-color:#eab9b9}
 @media(max-width:650px){.uco-payment-dialog-head{height:58px!important;max-height:58px!important}.uco-payment-dialog-frame{top:58px!important;height:calc(100% - 58px)!important}.uco-shipping-history-modal .uco-wizard-snapshot-state{font-size:.7rem;padding:5px 8px}}
 @media(max-height:450px){.uco-payment-dialog-head{height:48px!important;max-height:48px!important}.uco-payment-dialog-frame{top:48px!important;height:calc(100% - 48px)!important}}
+
+
+/* 2026-11-03: flechas de select con margen interior uniforme */
+select:not([multiple]):not([size]) {
+  -webkit-appearance:none;appearance:none;
+  padding-right:2.7rem!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23232f5d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-size:1rem 1rem;background-position:right .9rem center;
+}

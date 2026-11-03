@@ -13,7 +13,15 @@ button.secondary{background:#eaf0e2}.actions{display:flex;flex-wrap:wrap;gap:8px
 .item strong{display:block}.item small{display:block;color:#62738a;margin-top:4px}#status{min-height:1.5rem}
 @media(max-width:700px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.form{grid-template-columns:1fr}.form button{width:100%}}
 @media(max-width:360px){.stats{grid-template-columns:1fr}.actions button{width:100%}}
-body.modal h2{font-family:'Space Grotesk',Manrope,Arial,sans-serif!important;font-weight:800!important;font-size:clamp(1.2rem,2.3vw,1.55rem)!important;line-height:1.2!important;color:#232f5d!important;margin:0 0 12px!important}body.modal .stat strong{font-family:Manrope,Arial,sans-serif!important;font-weight:800!important;font-size:1.35rem!important}body.modal .panel{border-radius:18px 3px 18px 3px!important}body.modal button{font-family:Manrope,Arial,sans-serif!important}</style></head><body><script>if(new URLSearchParams(location.search).get("modal")==="1")document.body.classList.add("modal");</script><header><a href="./">← Administración</a><h1>Preparación del chatbot</h1></header><main>
+body.modal h2{font-family:'Space Grotesk',Manrope,Arial,sans-serif!important;font-weight:800!important;font-size:clamp(1.2rem,2.3vw,1.55rem)!important;line-height:1.2!important;color:#232f5d!important;margin:0 0 12px!important}body.modal .stat strong{font-family:Manrope,Arial,sans-serif!important;font-weight:800!important;font-size:1.35rem!important}body.modal .panel{border-radius:18px 3px 18px 3px!important}body.modal button{font-family:Manrope,Arial,sans-serif!important}</style><style>
+/* 2026-11-03: flechas de select con margen interior uniforme */
+select:not([multiple]):not([size]) {
+  -webkit-appearance:none;appearance:none;
+  padding-right:2.7rem!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23232f5d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-size:1rem 1rem;background-position:right .9rem center;
+}
+</style></head><body><script>if(new URLSearchParams(location.search).get("modal")==="1")document.body.classList.add("modal");</script><header><a href="./">← Administración</a><h1>Preparación del chatbot</h1></header><main>
 <p class="notice"><strong>Fase 6.41 · Entorno de preparación.</strong> El chatbot no está activado. Los permisos administrativos no equivalen al consentimiento del cliente. Ningún cambio de esta pantalla autoriza cobros ni crea pedidos.</p>
 <section class="panel"><h2>Estado de preparación</h2><div class="stats" id="stats"></div><p class="muted">Los pedidos sin origen registrado siguen siendo «sin clasificar»; no se atribuyen automáticamente a la web.</p></section>
 <section class="panel"><h2>Acceso administrativo por cliente</h2><p class="muted">Permite o bloquea el uso futuro del bot por ID de cliente. El cliente tendrá que aceptar expresamente el servicio y autenticarse cuando se implemente la fase 7.</p>

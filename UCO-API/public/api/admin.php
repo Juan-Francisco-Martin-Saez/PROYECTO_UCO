@@ -312,7 +312,9 @@ if($action==='list' &&$method==='GET'){
  $stmt=$db->prepare('SELECT p.id,p.sku,p.name,p.image,p.active,p.stock,p.notes,p.description,p.unit,p.created_at,p.updated_at,c.slug AS category,c.name AS family'.$sql.' ORDER BY p.created_at DESC,p.id DESC LIMIT 2000');$stmt->execute($args);
  $categories=$db->query('SELECT id,slug,name FROM categories WHERE active=1 ORDER BY sort_order,id')->fetchAll();
  $totals=$db->query('SELECT COUNT(*) AS total,COALESCE(SUM(active),0) AS active,COALESCE(SUM(CASE WHEN active=0 THEN 1 ELSE 0 END),0) AS inactive FROM products')->fetch();
- respond(['products'=>$stmt->fetchAll(),'categories'=>$categories,'totals'=>$totals]);
+ require_once dirname(__DIR__,2).'/private/presentaciones.php';
+ $products=$stmt->fetchAll();foreach($products as &$product)$product['presentacion']=ucoPresentacion($db,(int)$product['id']);unset($product);
+ respond(['products'=>$products,'categories'=>$categories,'totals'=>$totals]);
 }
 if($action==='save'&&$method==='POST'){
  csrf();$id=(int)($_POST['id']??0);$sku=trim((string)($_POST['sku']??''));$name=trim((string)($_POST['name']??''));$cat=(int)($_POST['category_id']??0);$active=(string)($_POST['active']??'1')==='1'?1:0;$stock=filter_var($_POST['stock']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>100000000]]);$notes=trim((string)($_POST['notes']??''));$description=trim((string)($_POST['description']??''));$unit=(string)($_POST['unit']??'unidad');

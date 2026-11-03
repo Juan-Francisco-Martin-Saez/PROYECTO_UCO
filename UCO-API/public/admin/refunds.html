@@ -57,6 +57,14 @@ body #message{overflow-wrap:anywhere}
  body button,body select{font-size:.68rem!important;padding:.42rem .48rem}
  body table{min-width:540px}
 }
+</style><style>
+/* 2026-11-03: flechas de select con margen interior uniforme */
+select:not([multiple]):not([size]) {
+  -webkit-appearance:none;appearance:none;
+  padding-right:2.7rem!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23232f5d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-size:1rem 1rem;background-position:right .9rem center;
+}
 </style></head><body><header><a href="./payments.html">← Volver a control de pagos</a><h1>Devoluciones e incidencias</h1><p>Consulta administrativa · Fase 6.21</p></header><main><p class="notice">Solo lectura. El estado registrado no acredita por sí mismo una devolución bancaria. No se ejecutan cobros, cancelaciones ni reembolsos.</p><label for="status">Estado:</label> <select id="status"><option value="all">Todos</option><option value="prepared">Preparada</option><option value="submitted">Enviada</option><option value="succeeded">Registrada como completada</option><option value="failed">Fallida</option><option value="requires_review">Revisión</option></select> <button id="refresh" type="button">Actualizar</button><p id="message" role="status"></p><section><table><thead><tr><th>Referencia</th><th>Proveedor</th><th>Importe</th><th>Estado</th><th>Pedido</th><th>Verificaciones</th><th>Incidencia</th><th>Fecha</th></tr></thead><tbody id="rows"></tbody></table></section><p><button id="previous" type="button">Anterior</button> <span id="page"></span> <button id="next" type="button">Siguiente</button></p></main><script src="./refunds-621.js" defer></script><script>
 if(new URLSearchParams(location.search).get('modal')==='1')document.body.classList.add('modal');
 </script></body></html>

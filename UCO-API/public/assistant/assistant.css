@@ -192,3 +192,77 @@
 /* 7.1T.1: two client-only shortcuts to existing floating windows. */
 #uco-assistant-root[data-area="client"] .uco-ai-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
 #uco-assistant-root[data-area="client"] .uco-ai-actions button{min-width:0;font-size:clamp(11px,2.8vw,13px)!important;padding:10px 7px!important;letter-spacing:0!important}
+
+/* 7.2: fichas legibles en el globo de conversación */
+#uco-assistant-root .uco-ai-msg[data-who="bot"]{line-height:1.65;white-space:pre-wrap;padding:13px 15px;border-left:3px solid #a9e13f;box-shadow:0 2px 9px #1322480c}
+@media(max-width:650px){#uco-assistant-root .uco-ai-msg[data-who="bot"]{max-width:98%;padding:10px 11px}}
+
+/* Prepedido conversacional */
+#uco-assistant-root .uco-prepedido{background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:12px;display:grid;gap:10px;color:#232f5d;font-size:13px;min-width:0}
+#uco-assistant-root .uco-prepedido-choice{display:grid;gap:6px;border-bottom:1px solid #e2e8f0;padding-bottom:10px}
+#uco-assistant-root .uco-prepedido select,#uco-assistant-root .uco-prepedido input{width:100%;min-width:0;padding:8px;border:1px solid #cbd5e1;border-radius:7px;background:white;color:#232f5d}
+#uco-assistant-root .uco-prepedido input[type=number]{max-width:90px}
+#uco-assistant-root .uco-prepedido button{padding:8px 10px;background:#232f5d;color:white;border:0;border-radius:8px;cursor:pointer}
+#uco-assistant-root .uco-prepedido small{display:block;color:#526079;margin-top:3px}
+#uco-assistant-root .uco-prepedido-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;border-bottom:1px solid #e2e8f0;padding-bottom:8px;align-items:center}
+#uco-assistant-root .uco-prepedido-line input{grid-column:1;max-width:80px}
+#uco-assistant-root .uco-prepedido-line button{grid-column:2;justify-self:end}
+
+/* UCO: historial compacto de pedidos dentro del asistente */
+#uco-assistant-root .uco-prepedido-history{display:grid;gap:5px;border-bottom:1px solid #e2e8f0;padding:9px 0}
+#uco-assistant-root .uco-prepedido-history details{font-size:12px}
+#uco-assistant-root .uco-prepedido-history summary{cursor:pointer;color:#232f5d}
+#uco-assistant-root .uco-prepedido-history button{justify-self:start}
+
+/* 03-11-2026: barra pública compacta de ocho accesos en una sola fila. */
+#uco-assistant-root[data-area="public"] .uco-ai-actions{
+ display:grid!important;
+ grid-template-columns:repeat(8,minmax(0,1fr))!important;
+ gap:3px!important;
+ padding:7px 8px 5px!important;
+ flex-wrap:nowrap!important;
+}
+#uco-assistant-root[data-area="public"] .uco-ai-actions button{
+ min-width:0!important;width:100%!important;
+ padding:8px 1px!important;
+ font-size:clamp(6px,1.25vw,9px)!important;
+ line-height:1.15!important;
+ letter-spacing:-.3px!important;
+ white-space:nowrap!important;
+}
+@media(max-width:650px){
+ #uco-assistant-root[data-area="public"] .uco-ai-actions{gap:2px!important;padding:6px 5px 4px!important}
+ #uco-assistant-root[data-area="public"] .uco-ai-actions button{font-size:clamp(5.5px,1.5vw,8px)!important;padding:8px 0!important;letter-spacing:-.4px!important}
+}
+
+/* Panel comercial independiente del chat: escritorio al lado, móvil superpuesto. */
+#uco-assistant-root .uco-ai-workspace{position:fixed!important;z-index:2147482002!important;box-sizing:border-box;background:#f8faf7;border:1px solid #cddbdc;border-radius:17px 5px 17px 5px;box-shadow:0 18px 45px #16234740;display:flex;flex-direction:column;max-height:calc(100dvh - 24px);min-height:180px;overflow:hidden;color:#232f5d}
+#uco-assistant-root .uco-ai-workspace[hidden]{display:none!important}
+#uco-assistant-root .uco-ai-workspace-head{display:flex;align-items:center;justify-content:space-between;background:#232f5d;color:white;padding:11px 15px;gap:12px}
+#uco-assistant-root .uco-ai-workspace-head button{background:#a9e13f;color:#232f5d;border:0;border-radius:6px;padding:3px 10px;font-size:20px;cursor:pointer}
+#uco-assistant-root .uco-ai-workspace-body{padding:12px;overflow:auto;display:grid;gap:12px}
+#uco-assistant-root .uco-ai-workspace .uco-prepedido{width:100%;box-sizing:border-box}
+#uco-assistant-root[data-area="client"] .uco-ai-actions{grid-template-columns:repeat(var(--uco-ai-shortcut-count,4),minmax(0,1fr))!important;gap:3px!important;padding:7px 8px 5px!important}
+#uco-assistant-root[data-area="client"] .uco-ai-actions button{font-size:clamp(8px,.78vw,10px)!important;padding:8px 1px!important;min-width:0!important;white-space:normal!important;line-height:1.1!important}
+#uco-assistant-root .uco-ai-actions button[hidden]{display:none!important}
+@media(max-width:900px){#uco-assistant-root .uco-ai-workspace{left:8px!important;top:auto!important;bottom:8px!important;width:calc(100vw - 16px)!important;max-height:min(68dvh,600px)!important}}
+@media(max-width:650px){#uco-assistant-root[data-area="client"] .uco-ai-actions button{font-size:8px!important;letter-spacing:-.25px!important}}
+
+/* 2026-11-03: menú compacto público, sin alterar cliente ni administración. */
+#uco-assistant-root[data-area="public"] .uco-ai-actions{position:relative!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;padding:9px 10px 6px!important;overflow:visible!important}
+#uco-assistant-root[data-area="public"] .uco-ai-actions > button{font-size:12px!important;letter-spacing:0!important;padding:10px 5px!important;line-height:1.2!important;min-height:38px!important;white-space:nowrap!important;border-radius:9px!important}
+#uco-assistant-root[data-area="public"] .uco-ai-actions > .uco-ai-shortcut-menu{position:absolute;z-index:35;bottom:calc(100% - 2px);left:10px;min-width:190px;width:min(260px,calc(100% - 20px));display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;background:#fff;border:1px solid #d8e3e8;border-radius:12px;box-shadow:0 10px 26px #14244b38}
+#uco-assistant-root[data-area="public"] .uco-ai-actions > .uco-ai-shortcut-menu[hidden]{display:none!important}
+#uco-assistant-root[data-area="public"] .uco-ai-shortcut-menu button{font-size:12px!important;padding:10px 6px!important;letter-spacing:0!important;min-height:36px!important;border-radius:8px!important}
+#uco-assistant-root[data-area="public"] .uco-ai-actions > button[data-uco-draft-button]{grid-column:1/-1}
+@media(max-width:400px){#uco-assistant-root[data-area="public"] .uco-ai-actions > button{font-size:11px!important;padding:9px 2px!important}}
+
+/* Prepedido: mostrar tres referencias; a partir de la cuarta, scroll interno. */
+#uco-assistant-root .uco-prepedido-lines{display:flex;flex-direction:column;gap:8px;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable;max-width:100%;}
+#uco-assistant-root .uco-prepedido-lines .uco-prepedido-line{flex:none;min-width:0;}
+#uco-assistant-root .uco-prepedido-lines::-webkit-scrollbar{width:7px;}
+#uco-assistant-root .uco-prepedido-lines::-webkit-scrollbar-thumb{background:#a9b5c8;border-radius:8px;}
+
+/* Ajuste fino: espacio reservado para la barra de scroll sin tapar controles. */
+#uco-assistant-root .uco-prepedido-lines{box-sizing:border-box;padding-right:12px;scrollbar-gutter:stable;}
+#uco-assistant-root .uco-prepedido-lines .uco-prepedido-line{box-sizing:border-box;width:100%;}

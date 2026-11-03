@@ -40,7 +40,7 @@ try {
  if(!$user||!hash_equals((string)($_SESSION['customer_stamp']??''),hash('sha256',(string)$user['password_hash'])))reply71i(['error'=>'Sesión caducada'],401);
  $out=[];$unavailable=[];
  $inspect=$db->prepare('SELECT p.id,p.active,p.is_demo,c.active AS category_active FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=?');
- $stmt=$db->prepare('SELECT p.id,p.name,p.unit FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.active=1 AND p.is_demo=0 AND (c.id IS NULL OR c.active=1)');
+ $stmt=$db->prepare('SELECT p.id,p.sku,p.name,p.unit FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.active=1 AND p.is_demo=0 AND (c.id IS NULL OR c.active=1)');
  foreach($clean as $pid){
   $stmt->execute([$pid]);$p=$stmt->fetch();
   if(!$p){
@@ -51,7 +51,8 @@ try {
   }
   $price=commercialPrice($db,$pid,$cid,isset($user['group_id'])?(int)$user['group_id']:null);
   if($price['price_cents']===null)$unavailable[]=['id'=>$pid,'reason'=>'price_missing'];
-  $out[]=['id'=>(int)$p['id'],'name'=>$p['name'],'unit'=>$p['unit'],
+  require_once dirname(__DIR__,2).'/private/presentaciones.php';
+  $out[]=['presentacion'=>ucoPresentacion($db,$pid),'id'=>(int)$p['id'],'name'=>$p['name'],'reference'=>$p['sku'],'unit'=>$p['unit'],
    'price_cents'=>$price['price_cents'],'price_source'=>$price['price_source']];
  }
  reply71i(['items'=>$out,'unavailable'=>$unavailable,'authenticated'=>true]);

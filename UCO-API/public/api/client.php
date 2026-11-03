@@ -55,10 +55,29 @@ try{
  if($action==='catalog'&&$method==='GET'){
   $page=max(1,min(100000,(int)($_GET['page']??1)));$limit=12;$q=trim((string)($_GET['q']??''));if(mb_strlen($q)>100)reply(['error'=>'Búsqueda demasiado larga'],400);
   $where=' WHERE p.active=1 AND c.active=1';$args=[];if($q!==''){$where.=" AND (p.name LIKE :qname ESCAPE '!' OR p.sku LIKE :qsku ESCAPE '!')";$term='%'.str_replace(['!','%','_'],['!!','!%','!_'],$q).'%';$args[':qname']=$term;$args[':qsku']=$term;}
+  // Relevancia de la búsqueda conversacional: no restringe el catálogo.
+  $priorityRaw=substr((string)($_GET['priority']??''),0,2500);
+  $priorityTerms=array_slice(array_values(array_unique(array_filter(array_map('trim',explode('|',$priorityRaw))))),0,30);
+  $rankParts=[];$rankArgs=[];
+  foreach($priorityTerms as $i=>$term){
+   if(mb_strlen($term)<2||mb_strlen($term)>80)continue;
+   $key=':prio'.$i;$rankArgs[$key]='%'.str_replace(['!','%','_'],['!!','!%','!_'],$term).'%';
+   $rankParts[]='CASE WHEN p.name LIKE '.$key." ESCAPE '!' THEN 1 ELSE 0 END";
+  }
+  $rankSql='';
+  if($rankParts){
+   $rankSql='('.implode('+',$rankParts).') DESC, ';
+   // Después de los resultados, mostrar otros artículos de las mismas familias.
+   $categoryParts=[];
+   foreach($rankArgs as $key=>$value){$categoryParts[]='EXISTS (SELECT 1 FROM products related WHERE related.category_id=p.category_id AND related.active=1 AND related.name LIKE '.$key." ESCAPE '!')";}
+   $rankSql.='CASE WHEN '.implode(' OR ',$categoryParts).' THEN 1 ELSE 0 END DESC, ';
+  }
+
   $from=' FROM products p JOIN categories c ON c.id=p.category_id';$st=$db->prepare('SELECT COUNT(*)'.$from.$where);$st->execute($args);$total=(int)$st->fetchColumn();
-  $sql='SELECT p.id,p.sku,p.name,p.description,p.unit,p.image,p.stock,c.name AS family'.$from.$where.' ORDER BY p.name COLLATE NOCASE,p.id LIMIT :limit OFFSET :offset';
-  $st=$db->prepare($sql);foreach($args as $k=>$v)$st->bindValue($k,$v);$st->bindValue(':limit',$limit,PDO::PARAM_INT);$st->bindValue(':offset',($page-1)*$limit,PDO::PARAM_INT);$st->execute();
-  $rows=$st->fetchAll();foreach($rows as &$row){$price=commercialPrice($db,(int)$row['id'],(int)$u['id'],$u['group_id']===null?null:(int)$u['group_id']);$row=array_merge($row,$price);}unset($row);
+  $sql='SELECT p.id,p.sku,p.name,p.description,p.unit,p.image,p.stock,c.name AS family'.$from.$where.' ORDER BY '.$rankSql.'p.name COLLATE NOCASE,p.id LIMIT :limit OFFSET :offset';
+  $st=$db->prepare($sql);foreach(array_merge($args,$rankArgs) as $k=>$v)$st->bindValue($k,$v);$st->bindValue(':limit',$limit,PDO::PARAM_INT);$st->bindValue(':offset',($page-1)*$limit,PDO::PARAM_INT);$st->execute();
+  require_once dirname(__DIR__,2).'/private/presentaciones.php';
+  $rows=$st->fetchAll();foreach($rows as &$row){$row['presentacion']=ucoPresentacion($db,(int)$row['id']);$price=commercialPrice($db,(int)$row['id'],(int)$u['id'],$u['group_id']===null?null:(int)$u['group_id']);$row=array_merge($row,$price);}unset($row);
   $group=null;if($u['group_id']){$g=$db->prepare('SELECT name FROM customer_groups WHERE id=? AND active=1');$g->execute([$u['group_id']]);$group=$g->fetchColumn()?:null;}
   reply(['products'=>$rows,'total'=>$total,'page'=>$page,'limit'=>$limit,'group'=>$group]);
  }

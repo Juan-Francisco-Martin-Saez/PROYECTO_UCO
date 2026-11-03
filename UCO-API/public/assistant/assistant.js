@@ -45,6 +45,10 @@ if(area==='client'||area==='admin'){
 let speechTimer=0;
 function speak(text){robot.classList.add('is-speaking');clearTimeout(speechTimer);speechTimer=setTimeout(()=>robot.classList.remove('is-speaking'),Math.min(6500,Math.max(1000,text.length*35)))}
 function append(who,text,persist=true){const el=document.createElement('div');el.className='uco-ai-msg';el.dataset.who=who;el.textContent=text;messages.append(el);messages.scrollTop=messages.scrollHeight;if(who==='bot'&&persist)speak(text);if(persist){state.messages.push({who,text});state.messages=state.messages.slice(-MAX);save()}}
+document.addEventListener('uco:assistant-new-chat',()=>{
+ state.messages=[];save();messages.replaceChildren();
+ // No tocar el prepedido ni el historial de pedidos del cliente.
+});
 const greeting=area==='admin'?'Puedo orientarte por las secciones de administración. No realizo cambios por ti.':area==='client'?'Puedo ayudarte a localizar productos y explicarte cómo preparar tu pedido.':'Puedo ayudarte a encontrar productos y orientarte sobre cómo comprar en UCO.';
 if(state.messages.length)state.messages.slice(-MAX).forEach(m=>{if(['bot','user'].includes(m.who)&&typeof m.text==='string')append(m.who,m.text,false)});else append('bot',greeting);
 // Shortcuts reuse existing navigation, never privileged APIs.
@@ -90,6 +94,18 @@ shortcuts.forEach(([label,selector])=>{
  b.addEventListener('click',()=>navigateShortcut(label,selector));actions.append(b);
 });
 actions.style.setProperty('--uco-ai-shortcut-count',String(shortcuts.length));
+// Menú compacto exclusivo de la web pública. Se conservan los handlers originales.
+if(area==='public'){
+ const nav=document.createElement('div');nav.className='uco-ai-shortcut-menu';nav.hidden=true;nav.id='uco-ai-shortcut-menu';
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='uco-ai-menu-toggle';toggle.textContent='☰  Menú';toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',nav.id);toggle.setAttribute('aria-haspopup','true');
+ const existing=[...actions.querySelectorAll('button')];existing.forEach(b=>{nav.append(b);b.addEventListener('click',()=>hideMenu())});
+ actions.prepend(toggle,nav);
+ function hideMenu(){nav.hidden=true;toggle.setAttribute('aria-expanded','false')}
+ toggle.addEventListener('click',()=>{const opening=nav.hidden;nav.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening))});
+ document.addEventListener('pointerdown',e=>{if(!actions.contains(e.target))hideMenu()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')hideMenu()});
+}
+
 // Each draggable surface uses viewport-fixed coordinates; no transforms or parent-relative offsets.
 const margin=8;const coords={launch:read(POS+'_launch',null),panel:read(POS+'_panel',null)};
 function size(){return {w:document.documentElement.clientWidth,h:window.visualViewport?.height||innerHeight,offsetTop:window.visualViewport?.offsetTop||0}}
@@ -621,16 +637,16 @@ async function askUcoLogic(question){
    }
    return 'No encuentro una coincidencia verificable en el catálogo actual. Puedes darme otra palabra, una categoría o más detalles. No afirmaré que no existe sin verificarlo.';
   }
-  const describe=arr=>arr.slice(0,9).map(p=>'• '+p.name+(p.unit?' · '+p.unit:'')+(p.category?' ('+p.category+')':'')).join('\n');
+  // 7.2: una referencia por línea, con precio privado verificado por sesión.
+  const formatRow=p=>'• '+String(p.name||'Producto')+'\n  Ref. '+String(p.reference||p.sku||p.id)+
+   (p.unit?' · '+p.unit:'')+(p.category?' · '+p.category:'')+(p.presentacion?.detalle?'\n  Presentación: '+p.presentacion.detalle:'');
   let answer=real.length
-   ?'He encontrado '+real.length+(data.truncated?' o más':'')+' referencia'+(real.length===1?'':'s')+' comercial'+(real.length===1?'':'es')+' relacionada'+(real.length===1?'':'s')+':\n'+describe(real)
-   :'He encontrado referencias relacionadas, pero ninguna confirmada como producto comercial activo.';
-  if(data.filter_applied)answer+='\nHe excluido las referencias que mencionan el término indicado en los datos del catálogo. Esto no acredita ausencia de ingredientes ni alérgenos.';
-  if(demo.length)answer+='\nReferencias de demostración (no confirman disponibilidad):\n'+describe(demo);
-  if(data.intent==='price')answer+='\n'+await askOwnPrices(real);
-  else if(data.intent==='buy')answer+='\nSi quieres comprar, dime las cantidades. Todavía no puedo crear ni cobrar pedidos desde el chat.';
-  else if(data.intent==='varieties')answer+='\nEstas son las presentaciones o variedades relacionadas que he localizado.';
-  else answer+='\nQue aparezca en catálogo no confirma existencias en tiempo real.';
+   ?'Productos encontrados ('+real.length+(data.truncated?'+':'')+'):\n\n'+real.slice(0,9).map(formatRow).join('\n\n')
+   :'No hay referencias comerciales activas que cumplan los criterios.';
+  if(data.filter_applied)answer+='\n\nSe han aplicado las exclusiones indicadas; no se certifica ausencia de alérgenos.';
+  if(data.intent==='price'||area==='client')answer+='\n\n'+await askOwnPrices(real);
+  else answer+='\n\nLos precios requieren una sesión de cliente autenticada.';
+  if(data.intent==='buy')answer+='\nPara preparar el pedido, indica cantidades y formatos. No se realizará ningún cobro desde el chat.';
   if(data.truncated)answer+='\nHay más coincidencias; concreta un tipo para afinar la búsqueda.';
   return answer;
  }catch(error){
@@ -744,7 +760,7 @@ async function askOwnPrices(products){
   }
   const rows=data.items.slice(0,9).map(p=>{
    const amount=p.price_cents===null?'Sin precio asignado':(Number(p.price_cents)/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
-   return '• '+String(p.name||'Producto')+': '+amount+(p.unit?' / '+p.unit:'');
+   return '• Ref. '+String(p.reference||p.sku||p.id)+' · '+String(p.unit||'Formato no indicado')+' · '+amount;
   });
   const missing=(Array.isArray(data.unavailable)?data.unavailable:[]).filter(x=>x.reason==='price_missing').length;
   return 'Precios según tu cuenta de cliente:\n'+rows.join('\n')+(missing?'\nHay '+missing+' referencia(s) sin precio asignado.':'')+'\nLos importes pueden variar hasta confirmar el pedido.';

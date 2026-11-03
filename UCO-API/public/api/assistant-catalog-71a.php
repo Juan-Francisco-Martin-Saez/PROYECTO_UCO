@@ -8,7 +8,8 @@ function out(array $v,int $status=200):never{http_response_code($status);echo js
 if(($_SERVER['REQUEST_METHOD']??'')!=='GET')out(['ok'=>false,'error'=>'Método no permitido'],405);
 $q=trim((string)($_GET['q']??''));
 if(strlen($q)>200)out(['ok'=>false,'error'=>'Consulta demasiado larga'],400);
-$words=preg_split('/\s+/u',mb_strtolower($q,'UTF-8'))?:[];
+require_once dirname(__DIR__,2).'/private/assistant/dictionary.php';
+$words=preg_split('/\s+/u',uco_norm($q))?:[];
 $words=array_values(array_filter($words,static fn($w)=>mb_strlen($w,'UTF-8')>=3));
 if(!$words)out(['ok'=>true,'items'=>[]]);
 $words=array_slice($words,0,7);
@@ -25,6 +26,7 @@ try{
   $params[$key]='%'.str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$root).'%';
  }
  $sql='SELECT p.id,p.name,p.unit,c.name AS category,p.is_demo FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.active=1 AND (c.id IS NULL OR c.active=1) AND '.implode(' AND ',$clauses).' ORDER BY p.is_demo ASC,p.name ASC LIMIT 12';
- $stmt=$db->prepare($sql);$stmt->execute($params);
- out(['ok'=>true,'items'=>$stmt->fetchAll()]);
+ require_once dirname(__DIR__,2).'/private/presentaciones.php';
+ $stmt=$db->prepare($sql);$stmt->execute($params);$rows=$stmt->fetchAll();foreach($rows as &$row)$row['presentacion']=ucoPresentacion($db,(int)$row['id']);unset($row);
+ out(['ok'=>true,'items'=>$rows]);
 }catch(Throwable $e){error_log('[UCO assistant catalog] '.$e->getMessage());out(['ok'=>false,'error'=>'Catálogo temporalmente no disponible'],503);}
