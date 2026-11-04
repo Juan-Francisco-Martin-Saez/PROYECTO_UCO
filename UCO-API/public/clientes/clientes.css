@@ -1101,3 +1101,67 @@ uco-client-product-list .client-card-content>.uco-client-price-row{margin-top:au
 
 /* UCO: desglose de envases, con aviso de incertidumbre visible. */
 uco-client-product-list .uco-client-presentation{margin:3px 0 5px;font-size:.76rem;line-height:1.3;color:#486178;overflow-wrap:anywhere}
+
+
+/* UCO 2026-11-04 · Carrito acompañado por el asistente (solo cliente).
+   Se activa únicamente tras transferir correctamente el prepedido. */
+@media(min-width:901px){
+ body.uco-assisted-cart #cart-view .uco-cart-panel{
+  left:auto!important;right:clamp(12px,3vw,50px)!important;top:50%!important;
+  transform:translateY(-50%)!important;
+  width:min(55vw,760px)!important;max-height:calc(100dvh - 28px)!important;
+ }
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-panel:not([hidden]){
+  left:clamp(8px,2vw,30px)!important;right:auto!important;
+  top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+  width:min(40vw,480px)!important;max-height:calc(100dvh - 28px)!important;
+ }
+}
+@media(max-width:900px){
+ body.uco-assisted-cart #cart-view .uco-cart-panel,
+ body.uco-assisted-cart #cart-view .uco-cart-panel.uco-cart-checkout-active{
+  top:8px!important;left:8px!important;right:8px!important;bottom:auto!important;
+  transform:none!important;width:calc(100vw - 16px)!important;
+  height:var(--uco-cart-natural-height,auto)!important;
+  max-height:calc(58dvh - 12px)!important;min-height:0!important;
+  border-radius:15px 5px 15px 5px!important;
+ }
+ body.uco-assisted-cart #cart-view .uco-cart-content,
+ body.uco-assisted-cart #cart-view .uco-cart-checkout-active .uco-cart-layout{
+  overflow-y:auto!important;min-height:0!important;max-height:calc(38dvh)!important;
+ }
+ body.uco-assisted-cart #cart-view .uco-cart-footer{flex-shrink:0!important}
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-panel:not([hidden]){
+  left:8px!important;right:8px!important;top:auto!important;bottom:8px!important;
+  transform:none!important;width:calc(100vw - 16px)!important;
+  height:calc(42dvh - 8px)!important;min-height:0!important;max-height:calc(42dvh - 8px)!important;
+ }
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-stage{display:none!important}
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-head{min-height:38px!important}
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-messages{min-height:0!important;overflow-y:auto!important}
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-actions{padding:4px!important}
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-actions button{padding:5px 1px!important}
+ body.uco-assisted-cart #uco-assistant-root .uco-ai-foot{display:none!important}
+}
+
+/* 04-11-2026: carrito móvil, solo desplaza la lista de productos.
+   La zona inferior se mantiene visible; en checkout largo tiene su propio espacio. */
+@media(max-width:700px){
+ #cart-view .uco-cart-panel{
+  height:calc(100dvh - 140px);max-height:calc(100dvh - 140px);
+  top:8px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 16px);display:flex;flex-direction:column;
+ }
+ #cart-view .uco-cart-header{flex:0 0 auto}
+ #cart-view .uco-cart-content{flex:1 1 auto;min-height:95px;overflow:hidden;display:flex;flex-direction:column}
+ #cart-view .uco-cart-lines{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+ #cart-view .uco-cart-footer{flex:0 1 auto;min-height:0;max-height:48%;overflow-y:auto;overscroll-behavior:contain}
+ #cart-view .uco-cart-note{overflow-wrap:anywhere}
+}
+@media(max-width:390px){
+ #cart-view .uco-cart-panel{height:calc(100dvh - 130px);max-height:calc(100dvh - 130px);top:6px;width:calc(100% - 12px);border-radius:1rem 0 1rem 0}
+}
+@media(max-width:700px){
+ /* When the checkout form is expanded, preserve its usability rather than clipping it. */
+ #cart-view .uco-cart-footer:has(.uco-checkout-view:not(:empty)){max-height:70%}
+}

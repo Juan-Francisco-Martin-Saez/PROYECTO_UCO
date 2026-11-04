@@ -26,6 +26,49 @@ const form=document.createElement('form');form.className='uco-ai-form';const inp
 const foot=document.createElement('div');foot.className='uco-ai-foot';foot.textContent='Consulta de catálogo · Sin pedidos ni pagos desde el chat';panel.append(head,stage,messages,actions,form,foot);
 const hint=document.createElement('div');hint.className='uco-ai-hint';hint.hidden=true;const hintRobot=document.createElement('span');hintRobot.className='uco-ai-hint-robot';hintRobot.innerHTML=robotSVG;const hintText=document.createElement('span');hintText.className='uco-ai-hint-bubble';hintText.textContent='¿Te ayudo?';const hintClose=document.createElement('button');hintClose.type='button';hintClose.textContent='×';hintClose.setAttribute('aria-label','Ocultar sugerencia');hint.append(hintRobot,hintText,hintClose);
 root.append(panel,launch,hint);document.body.append(root);
+// Checkout: compact movable assistant with one current instruction and an optional question drawer.
+if(area==='client'){
+ const question=document.createElement('section');question.className='uco-ai-checkout-question';question.hidden=true;
+ question.innerHTML='<div class="uco-ai-checkout-question-head"><strong>¿Tienes dudas?</strong><button type="button" aria-label="Cerrar consulta">×</button></div><div class="uco-ai-checkout-recent" role="log"></div><form class="uco-ai-checkout-form"><input type="text" maxlength="300" aria-label="Escribe tu pregunta" placeholder="Escribe tu duda…" required><button type="submit">Enviar</button></form>';
+ root.append(question);
+ const questionButton=document.createElement('button');questionButton.type='button';questionButton.className='uco-ai-checkout-doubts';questionButton.textContent='¿Tienes dudas?';hint.append(questionButton);
+ let checkoutMode=false;
+ const checkoutTransfer=document.createElement('button');checkoutTransfer.type='button';checkoutTransfer.className='uco-ai-checkout-transfer';checkoutTransfer.textContent='Enviar al carrito';checkoutTransfer.hidden=true;
+ hint.insertBefore(checkoutTransfer,questionButton);
+ checkoutTransfer.addEventListener('click',e=>{e.stopPropagation();document.dispatchEvent(new CustomEvent('uco:assistant-request-transfer'))});
+ const lastGuidance=()=>[...messages.querySelectorAll('.uco-ai-msg')].slice(-4);
+ const showQuestion=()=>{
+  if(!checkoutMode)return;
+  question.hidden=false;
+  const recent=question.querySelector('.uco-ai-checkout-recent');recent.replaceChildren();
+  lastGuidance().forEach(m=>{const item=document.createElement('div');item.className='uco-ai-checkout-recent-msg';item.textContent=m.textContent;recent.append(item)});
+  const r=hint.getBoundingClientRect(), qh=question.offsetHeight, qw=question.offsetWidth;const roomBelow=innerHeight-r.bottom-12,roomAbove=r.top-12;let top;if(roomBelow>=qh)top=r.bottom+8;else if(roomAbove>=qh)top=r.top-qh-8;else top=Math.max(8,Math.min(innerHeight-qh-8,(innerHeight-qh)/2));question.style.left=Math.max(8,Math.min(innerWidth-qw-8,r.left))+'px';question.style.top=Math.round(top)+'px';
+  question.querySelector('input').focus({preventScroll:true});
+ };
+ const guidance=text=>{if(!checkoutMode)return;hintText.textContent=String(text||'Revisa los siguientes pasos en el carrito.');hint.hidden=false;root.classList.add('uco-ai-inviting');question.hidden=true;placeHint();};
+ document.addEventListener('uco:assistant-checkout-mode',e=>{
+  checkoutMode=e.detail?.active!==false;
+  checkoutTransfer.hidden=!checkoutMode||e.detail?.stage!=='draft';
+  root.classList.toggle('uco-ai-checkout-mode',checkoutMode);
+  if(checkoutMode){panel.hidden=true;launch.setAttribute('aria-expanded','false');root.classList.remove('uco-ai-open');if(e.detail?.stage!=='draft')root.querySelector('.uco-ai-workspace')?.setAttribute('hidden','');guidance(e.detail?.message||'Revisa los productos y el total de tu carrito.');}
+  else{question.hidden=true;hint.hidden=true;checkoutTransfer.hidden=true;root.classList.remove('uco-ai-inviting');}
+ });
+ document.addEventListener('uco:assistant-checkout-guidance',e=>guidance(e.detail?.message));
+ questionButton.addEventListener('click',e=>{e.stopPropagation();showQuestion()});
+ question.querySelector('.uco-ai-checkout-question-head button').addEventListener('click',()=>question.hidden=true);
+ question.querySelector('form').addEventListener('submit',e=>{
+  e.preventDefault();const value=question.querySelector('input').value.trim();if(!value)return;
+  question.querySelector('input').value='';question.hidden=true;
+  input.value=value;form.requestSubmit();
+  // A reply can arrive asynchronously; the floating assistant stays active.
+  panel.hidden=true;root.classList.remove('uco-ai-open');launch.setAttribute('aria-expanded','false');
+ });
+ // Keep the floating robot compact during checkout; questions use the small drawer.
+ hint.addEventListener('click',e=>{if(!checkoutMode||e.target.closest('button'))return; e.stopImmediatePropagation(); hintDragged=false;},true);
+ launch.addEventListener('click',e=>{if(!checkoutMode)return;e.preventDefault();e.stopImmediatePropagation();},true);
+ window.addEventListener('resize',()=>{if(!question.hidden)question.hidden=true});
+}
+
 // 7.1T.2: Private assistants are unavailable until the corresponding
 // authenticated panel is actually mounted. Login, registration and loading
 // screens never expose the launcher, panel or invitation.
@@ -44,7 +87,7 @@ if(area==='client'||area==='admin'){
 
 let speechTimer=0;
 function speak(text){robot.classList.add('is-speaking');clearTimeout(speechTimer);speechTimer=setTimeout(()=>robot.classList.remove('is-speaking'),Math.min(6500,Math.max(1000,text.length*35)))}
-function append(who,text,persist=true){const el=document.createElement('div');el.className='uco-ai-msg';el.dataset.who=who;el.textContent=text;messages.append(el);messages.scrollTop=messages.scrollHeight;if(who==='bot'&&persist)speak(text);if(persist){state.messages.push({who,text});state.messages=state.messages.slice(-MAX);save()}}
+function append(who,text,persist=true){const el=document.createElement('div');el.className='uco-ai-msg';el.dataset.who=who;el.textContent=text;messages.append(el);messages.scrollTop=messages.scrollHeight;if(who==='bot'&&persist)speak(text);if(persist){state.messages.push({who,text});state.messages=state.messages.slice(-MAX);save();if(area==='client'&&who==='bot'&&root.classList.contains('uco-ai-checkout-mode'))document.dispatchEvent(new CustomEvent('uco:assistant-checkout-guidance',{detail:{message:'He respondido a tu consulta. Pulsa «¿Tienes dudas?» para leer la respuesta.'}}))}}
 document.addEventListener('uco:assistant-new-chat',()=>{
  state.messages=[];save();messages.replaceChildren();
  // No tocar el prepedido ni el historial de pedidos del cliente.
@@ -107,7 +150,7 @@ if(area==='public'){
 }
 
 // Each draggable surface uses viewport-fixed coordinates; no transforms or parent-relative offsets.
-const margin=8;const coords={launch:read(POS+'_launch',null),panel:read(POS+'_panel',null)};
+const margin=8;const coords={launch:read(POS+'_launch',null),panel:read(POS+'_panel',null),hint:read(POS+'_hint',null)};
 function size(){return {w:document.documentElement.clientWidth,h:window.visualViewport?.height||innerHeight,offsetTop:window.visualViewport?.offsetTop||0}}
 function clamp(el,x,y){const {w,h,offsetTop}=size(),r=el.getBoundingClientRect();return {x:Math.max(margin,Math.min(Math.max(margin,w-r.width-margin),x)),y:Math.max(offsetTop+margin,Math.min(Math.max(offsetTop+margin,offsetTop+h-r.height-margin),y))}}
 function apply(el,xy){const p=clamp(el,xy.x,xy.y);el.style.setProperty('left',p.x+'px','important');el.style.setProperty('top',p.y+'px','important');el.style.setProperty('right','auto','important');el.style.setProperty('bottom','auto','important');return p}
@@ -115,7 +158,7 @@ function defaultPosition(el,kind){const {w,h,offsetTop}=size(),r=el.getBoundingC
 function place(el,kind){const saved=coords[kind];return apply(el,saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)?saved:defaultPosition(el,kind))}
 function savePosition(kind,xy){coords[kind]=xy;try{localStorage.setItem(POS+'_'+kind,JSON.stringify(xy))}catch{}}
 function hideHint(){hint.hidden=true;root.classList.remove('uco-ai-inviting')}
-function open(){panel.hidden=false;hideHint();launch.setAttribute('aria-expanded','true');root.classList.add('uco-ai-open');place(panel,'panel');input.focus({preventScroll:true})}
+function open(){if(area==='client'&&root.classList.contains('uco-ai-checkout-mode')){root.querySelector('.uco-ai-checkout-doubts')?.click();return}panel.hidden=false;hideHint();launch.setAttribute('aria-expanded','true');root.classList.add('uco-ai-open');place(panel,'panel');input.focus({preventScroll:true})}
 function minimize(){panel.hidden=true;root.classList.remove('uco-ai-open');launch.setAttribute('aria-expanded','false');showHint();hint.focus?.({preventScroll:true})}
 function dismiss(){state.closedAt=Date.now();state.invitedAt=Date.now();save();panel.hidden=true;hideHint();root.classList.remove('uco-ai-open');launch.setAttribute('aria-expanded','false');launch.focus({preventScroll:true})}
 // Dragging is independent from clicking. Pointer capture stays on the handle
@@ -157,7 +200,16 @@ function draggable(handle,target,kind){
 }
 draggable(launch,launch,'launch');
 // The invitation is a separate movable robot. Preserve the launcher position when it is dismissed.
-function placeHint(){const saved=coords.hint;if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){apply(hint,saved);return}const r=launch.getBoundingClientRect();const h=hint.getBoundingClientRect();apply(hint,{x:Math.max(8,r.right-h.width),y:Math.max(8,r.bottom-h.height)})}
+function placeHint(){
+ const saved=coords.hint;if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){apply(hint,saved);return}
+ if(area==='client'&&root.classList.contains('uco-ai-checkout-mode')){
+  const h=hint.getBoundingClientRect(),mobile=innerWidth<=650;
+  if(mobile){const ws=root.querySelector('.uco-ai-workspace');const wr=ws&&!ws.hidden?ws.getBoundingClientRect():null;const y=wr?Math.min(innerHeight-h.height-8,wr.bottom+12):innerHeight-h.height-20;apply(hint,{x:(innerWidth-h.width)/2,y:Math.max(8,y)});}
+  else{const ws=root.querySelector('.uco-ai-workspace');const wr=ws&&!ws.hidden?ws.getBoundingClientRect():null;apply(hint,{x:wr?wr.right+24:(innerWidth-h.width)/2,y:wr?wr.top+Math.max(0,(wr.height-h.height)/2):(innerHeight-h.height)/2});}
+  return;
+ }
+ const r=launch.getBoundingClientRect(),h=hint.getBoundingClientRect();apply(hint,{x:Math.max(8,r.right-h.width),y:Math.max(8,r.bottom-h.height)})
+}
 function showHint(){hint.hidden=false;placeHint();root.classList.add('uco-ai-inviting')}
 draggable(hint,hint,'hint');
 draggable(head,panel,'panel');
@@ -927,7 +979,7 @@ form.addEventListener('submit',async e=>{
  }finally{busy=false;if(submit)submit.disabled=false}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)minimize()});
-let scheduled=false;function reflow(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;place(launch,'launch');if(!panel.hidden)place(panel,'panel');if(!hint.hidden)placeHint()})}
+let scheduled=false;function reflow(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;place(launch,'launch');if(!panel.hidden)place(panel,'panel');if(!hint.hidden)placeHint();const ws=root.querySelector('.uco-ai-workspace');if(ws&&!ws.hidden)document.dispatchEvent(new CustomEvent('uco:workspace-reflow'))})}
 window.addEventListener('resize',reflow);window.visualViewport?.addEventListener('resize',reflow);
 window.visualViewport?.addEventListener('scroll',reflow);
 place(launch,'launch');

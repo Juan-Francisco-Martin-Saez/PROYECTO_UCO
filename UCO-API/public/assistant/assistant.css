@@ -266,3 +266,128 @@
 /* Ajuste fino: espacio reservado para la barra de scroll sin tapar controles. */
 #uco-assistant-root .uco-prepedido-lines{box-sizing:border-box;padding-right:12px;scrollbar-gutter:stable;}
 #uco-assistant-root .uco-prepedido-lines .uco-prepedido-line{box-sizing:border-box;width:100%;}
+
+/* Asistente flotante durante la compra: instrucciones reemplazables y consulta breve. */
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-launch{visibility:hidden!important}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{width:min(320px,calc(100vw - 20px));min-height:140px;padding:12px 12px 10px 122px;cursor:grab}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-robot{left:4px;bottom:5px;width:112px;height:130px}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-bubble{position:relative;display:block;max-height:105px;overflow-y:auto;overflow-wrap:anywhere;white-space:normal;font-size:12px;line-height:1.35}
+#uco-assistant-root .uco-ai-checkout-doubts{display:none}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-checkout-doubts{display:block;position:relative;margin:6px 0 0!important;padding:5px 8px!important;border:1px solid #c8d7e2!important;border-radius:8px;background:#fff!important;color:#232f5d;font-size:12px;font-weight:700;cursor:pointer}
+#uco-assistant-root .uco-ai-checkout-question{position:fixed;z-index:2147482100;width:min(370px,calc(100vw - 16px));max-height:min(330px,55dvh);overflow:hidden;background:#fff;border:1px solid #d4dfe7;border-radius:12px;box-shadow:0 14px 40px #13224850;padding:12px;box-sizing:border-box}
+#uco-assistant-root .uco-ai-checkout-question[hidden]{display:none!important}
+#uco-assistant-root .uco-ai-checkout-question-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;color:#232f5d}
+#uco-assistant-root .uco-ai-checkout-question-head button{border:0;background:#a9e13f;border-radius:6px;padding:4px 9px;cursor:pointer}
+#uco-assistant-root .uco-ai-checkout-recent{max-height:155px;overflow-y:auto;display:grid;gap:5px;margin-bottom:8px}
+#uco-assistant-root .uco-ai-checkout-recent-msg{font-size:12px;line-height:1.35;padding:6px 8px;border-radius:8px;background:#f1f5f8;color:#232f5d;overflow-wrap:anywhere}
+#uco-assistant-root .uco-ai-checkout-form{display:flex;gap:6px}
+#uco-assistant-root .uco-ai-checkout-form input{flex:1;min-width:0;border:1px solid #cbd5df;border-radius:7px;padding:8px;font-size:13px}
+#uco-assistant-root .uco-ai-checkout-form button{border:0;border-radius:7px;padding:8px 11px;background:#a9e13f;color:#232f5d;font-weight:700}
+@media(max-width:650px){
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{width:min(240px,calc(100vw - 16px));min-height:108px;padding:8px 8px 8px 82px}
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-robot{width:76px;height:99px;left:2px}
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-bubble{font-size:11px;max-height:70px}
+ #uco-assistant-root .uco-ai-checkout-question{max-height:min(280px,48dvh)}
+}
+/* Specificity overrides the original fixed-size draggable invitation. */
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{width:min(340px,calc(100vw - 16px))!important;height:auto!important;min-height:148px!important;padding:10px 12px 10px 120px!important;background:transparent!important}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-bubble{position:relative!important;right:auto!important;top:auto!important;max-width:100%!important;max-height:105px!important;white-space:normal!important;overflow:auto!important}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-doubts{display:block!important;position:relative!important;top:auto!important;right:auto!important;width:auto!important;height:auto!important;border-radius:8px!important;line-height:1.25!important;font-size:12px!important}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint>button[aria-label="Ocultar sugerencia"]{display:none!important}
+@media(max-width:650px){
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{width:min(260px,calc(100vw - 16px))!important;min-height:108px!important;padding:8px 8px 8px 82px!important}
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-bubble{max-height:75px!important}
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-robot{width:76px!important;height:99px!important}
+}
+
+/* UCO: floating draft handoff button; no catalog rows in speech bubble. */
+#uco-assistant-root .uco-ai-checkout-transfer{display:none}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-checkout-transfer:not([hidden]){display:block;position:relative;width:100%;margin:7px 0 4px;padding:7px 9px;border:0;border-radius:8px;background:#a9e13f;color:#232f5d;font-size:12px;font-weight:700;cursor:pointer}
+@media(max-width:650px){#uco-assistant-root.uco-ai-checkout-mode .uco-ai-checkout-transfer:not([hidden]){font-size:11px;padding:6px 7px}}
+
+/* Solo los botones responden a pulsaciones; el robot y el globo son superficies de arrastre. */
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{cursor:grab}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-bubble{cursor:grab}
+@media(max-width:700px){
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-doubts{min-height:34px!important;padding:8px 10px!important;touch-action:manipulation!important}
+}
+
+/* Panel comercial independiente del robot durante el prepedido autenticado. */
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-workspace{z-index:2147481999!important;max-height:min(58dvh,530px)!important;min-height:0!important;bottom:16px!important;top:auto!important}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{z-index:2147482005!important}
+#uco-assistant-root .uco-ai-checkout-question{z-index:2147482010!important}
+@media(max-width:650px){#uco-assistant-root.uco-ai-checkout-mode .uco-ai-workspace{bottom:8px!important;max-height:min(48dvh,420px)!important;width:calc(100vw - 16px)!important;left:8px!important}#uco-assistant-root .uco-ai-checkout-question{max-height:min(260px,44dvh)!important}}
+
+/* 04-11: panel de prepedido desplazable, disposición central escritorio / vertical móvil. */
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-workspace{bottom:auto!important;max-height:min(72dvh,620px)!important;}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-workspace-head{touch-action:none;user-select:none;cursor:grab;}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-transfer:not([hidden]){margin:9px 0 0!important;}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-doubts{margin:12px 0 0!important;position:relative!important;z-index:2!important;}
+@media(max-width:650px){
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-workspace{bottom:auto!important;left:auto!important;width:calc(100vw - 16px)!important;max-height:min(53dvh,460px)!important;}
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-doubts{margin-top:14px!important;}
+}
+
+
+/* 04-11: disposición estable del robot: burbuja y botones en filas independientes.
+   Se anulan los posicionamientos absolutos heredados del botón genérico. */
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{
+ box-sizing:border-box!important;
+ display:grid!important;
+ grid-template-columns:112px minmax(0,1fr)!important;
+ grid-template-rows:auto auto auto!important;
+ column-gap:12px!important;row-gap:9px!important;
+ align-items:start!important;
+ width:min(370px,calc(100vw - 16px))!important;
+ height:auto!important;min-height:156px!important;
+ padding:8px 8px 8px 0!important;
+ overflow:visible!important;
+}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-robot{
+ position:relative!important;grid-column:1!important;grid-row:1/4!important;
+ left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+ width:112px!important;height:145px!important;align-self:center!important;
+}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-bubble{
+ box-sizing:border-box!important;grid-column:2!important;grid-row:1!important;
+ position:relative!important;inset:auto!important;
+ width:100%!important;max-width:none!important;
+ min-height:0!important;max-height:115px!important;
+ margin:0!important;padding:10px!important;
+}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-transfer:not([hidden]),
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-doubts{
+ box-sizing:border-box!important;
+ position:relative!important;inset:auto!important;
+ display:block!important;
+ width:100%!important;height:auto!important;min-height:34px!important;
+ max-width:none!important;
+ margin:0!important;padding:8px 6px!important;
+ border-radius:9px!important;
+ line-height:1.25!important;
+ text-align:center!important;white-space:normal!important;
+ transform:none!important;
+}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-transfer:not([hidden]){
+ grid-column:2!important;grid-row:2!important;background:#a9e13f!important;
+}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-doubts{
+ grid-column:2!important;grid-row:3!important;background:#fff!important;
+}
+#uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint .uco-ai-checkout-transfer[hidden]{
+ display:none!important;
+}
+@media(max-width:650px){
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint{
+  grid-template-columns:82px minmax(0,1fr)!important;
+  column-gap:8px!important;row-gap:7px!important;
+  width:min(310px,calc(100vw - 16px))!important;
+  min-height:126px!important;padding:5px 5px 5px 0!important;
+ }
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-robot{
+  width:82px!important;height:112px!important;
+ }
+ #uco-assistant-root.uco-ai-checkout-mode .uco-ai-hint-bubble{
+  max-height:96px!important;font-size:11px!important;padding:8px!important;
+ }
+}

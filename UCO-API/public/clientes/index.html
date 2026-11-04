@@ -1,5 +1,5 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>UCO · Área de clientes</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../admin/admin.css?v=1.9.6.4"><link rel="stylesheet" href="./clientes.css?v=1.9.7.cart-modal"><link rel="stylesheet" href="../assistant/assistant.css?v=7.2.1"></head><body><main id="app"><div class="loading">Cargando área de clientes…</div></main><script type="module">
-import('./clientes.js?v=7.1N.2').catch(error => {
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>UCO · Área de clientes</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../admin/admin.css?v=1.9.6.4"><link rel="stylesheet" href="./clientes.css?v=1.9.7.cart-scroll-2"><link rel="stylesheet" href="../assistant/assistant.css?v=7.2.6"></head><body><main id="app"><div class="loading">Cargando área de clientes…</div></main><script type="module">
+import('./clientes.js?v=7.1N.3').catch(error => {
  console.error('[UCO CLIENTES] Fallo al iniciar el módulo:', error);
  const app = document.getElementById('app');
  if (!app || !app.querySelector('.loading')) return;
@@ -15,4 +15,4 @@ import('./clientes.js?v=7.1N.2').catch(error => {
  retry.onclick = () => location.reload();
  section.append(heading, message, retry); app.replaceChildren(section);
 });
-</script><script src="../assistant/assistant.js?v=7.2.0" data-area="client" defer></script><script src="../assistant/prepedido.js?v=1.6" defer></script></body></html>
+</script><script src="../assistant/assistant.js?v=7.2.5" data-area="client" defer></script><script src="../assistant/prepedido.js?v=2.0" defer></script></body></html>

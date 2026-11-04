@@ -179,7 +179,29 @@ async function cartAction(fn){try{await fn();await refreshCart()}catch(e){alert(
 function login(){app.innerHTML=`<uco-client-login></uco-client-login>`;document.querySelector('#register').onclick=register;document.querySelector('#login-form').onsubmit=async e=>{e.preventDefault();try{const d=await request('login',{method:'POST',body:new FormData(e.currentTarget)});csrf=d.csrf;customer=d.customer;panel()}catch(err){document.querySelector('#error').textContent=err.message}}}
 function register(){app.innerHTML=`<uco-client-register></uco-client-register>`;document.querySelector('#back-login').onclick=login;document.querySelector('#register-form').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,button=form.querySelector('[type=submit]'),error=document.querySelector('#error');error.textContent='';button.disabled=true;try{const data=await request('register',{method:'POST',body:new FormData(form)});login();const note=document.querySelector('#error');note.style.color='hsl(109 52% 25%)';note.textContent=data.message}catch(err){error.textContent=err.message}finally{button.disabled=false}}}
 let cartReturnFocus=null;
-function closeCart(){cartSizeObserver?.disconnect();cartMutationObserver?.disconnect();const el=document.querySelector('#cart-view');if(el)el.hidden=true;document.body.classList.remove('uco-cart-open');if(cartReturnFocus?.isConnected)cartReturnFocus.focus({preventScroll:true});cartReturnFocus=null;}
+function closeCart(){document.body.classList.remove('uco-assisted-cart');cartSizeObserver?.disconnect();cartMutationObserver?.disconnect();const el=document.querySelector('#cart-view');if(el)el.hidden=true;document.body.classList.remove('uco-cart-open');if(cartReturnFocus?.isConnected)cartReturnFocus.focus({preventScroll:true});cartReturnFocus=null;}
+// Transferencia asistida: conserva el chat y abre el carrito auténtico.
+document.addEventListener('uco:assistant-open-transferred-cart',async()=>{
+ if(!customer||!csrf)return;
+ try{
+  if(document.querySelector('#cart-view')?.hidden)openCart();
+  else await refreshCart();
+  document.body.classList.add('uco-assisted-cart');
+  document.dispatchEvent(new CustomEvent('uco:client-purchase-stage',{detail:{stage:'review'}}));
+  const result=await cart.list();
+  const items=Array.isArray(result.items)?result.items:[];
+  const money=c=>(c/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+  const lines=items.slice(0,12).map(x=>'• '+String(x.name||'Referencia '+x.product_id)+' · '+Number(x.quantity)+' ud.');
+  let total='El importe definitivo todavía no está disponible; consúltalo en el carrito.';
+  try{
+   const r=await fetch('../api/economy-quote.php',{credentials:'same-origin',cache:'no-store'});
+   const q=await r.json();
+   if(r.ok&&q.ready&&Number.isSafeInteger(q.total_cents))total='Total calculado (incluidos los conceptos de la cotización): '+money(q.total_cents)+'.';
+   else if(Array.isArray(q.issues)&&q.issues.length)total='Total pendiente: '+q.issues.slice(0,3).join('; ')+'.';
+  }catch{}
+  document.dispatchEvent(new CustomEvent('uco:assistant-purchase-summary',{detail:{message:'Tu carrito contiene '+items.length+' referencias: '+lines.join('; ')+(items.length>12?'; y otras '+(items.length-12):'')+'. '+total+' Revisa existencias, entrega y pago antes de confirmar.'}}));
+ }catch(error){document.dispatchEvent(new CustomEvent('uco:assistant-purchase-summary',{detail:{message:'No he podido comprobar el resumen del carrito: '+String(error.message||error)}}))}
+});
 function openCart(){const el=document.querySelector('#cart-view');if(!el)return;cartReturnFocus=document.activeElement;el.hidden=false;document.body.classList.add('uco-cart-open');refreshCart().then(syncReservation).catch(e=>{const m=el.querySelector('.uco-cart-message');if(m)m.textContent=e.message});el.querySelector('.uco-cart-close')?.focus({preventScroll:true});}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.querySelector('#cart-view')?.hidden)closeCart();});
 async function openPurchaseHistory(){
@@ -330,6 +352,7 @@ async function showOrderConfirmation(orderId,chosenMethod){
   confirm.textContent=chosenMethod==='transfer'?'Generar instrucciones de transferencia':'Continuar a la pasarela segura';
   explanation.textContent='No se almacenan datos de tarjetas ni contraseñas bancarias en UCO.';
  }
+ document.dispatchEvent(new CustomEvent('uco:client-purchase-stage',{detail:{stage:'confirmation'}}));
  const simulation=document.createElement('div');simulation.className='uco-simulation-controls';simulation.hidden=true;
  const simText=document.createElement('p');simText.textContent='SIMULADOR DE PAGO · No se realizará ningún cobro real.';
  const approved=document.createElement('button');approved.type='button';approved.textContent='Simular aprobación';
@@ -391,6 +414,7 @@ async function showOrderConfirmation(orderId,chosenMethod){
     note.textContent='OPERACIÓN DE PRUEBA. No se ha realizado ningún cobro real.';
     explanation.textContent=result.state==='approved'?'Puedes consultar, imprimir o descargar el justificante de prueba.':'La operación no ha sido aprobada; no se emitirá justificante.';
     if(result.state==='approved'){
+     document.dispatchEvent(new CustomEvent('uco:client-purchase-stage',{detail:{stage:'receipt'}}));
      const receipt=document.createElement('button');receipt.type='button';receipt.textContent='Ver justificante del pedido';receipt.className='uco-order-review-confirm';
      receipt.onclick=()=>openUcoReceipt(orderId).catch(e=>alert('Justificante: '+e.message));
      simulation.append(receipt);
@@ -430,19 +454,21 @@ function ensureCheckoutLayout(){
 document.querySelector('#cart-view').onclick=async e=>{if(e.target.closest('[data-order-checkout]')){const feedback=document.querySelector('#cart-view .uco-order-feedback');if(feedback)feedback.textContent='';document.querySelector('#cart-view .uco-checkout-notice')?.remove();
  const {panel}=ensureCheckoutLayout();
  panel.classList.add('uco-cart-checkout-active');scheduleCartFit();
+ document.dispatchEvent(new CustomEvent('uco:client-purchase-stage',{detail:{stage:'checkout'}}));
  const out=panel.querySelector('.uco-checkout-view');out.textContent='Comprobando existencias y condiciones del pedido…';try{const preview=await orders.preview();if(!preview.valid){showCheckoutNotice(preview.issues.length?preview.issues.map(i=>`${i.name}: solicitadas ${i.requested}, disponibles ${i.available}`).join(' · '):'El carrito está vacío.');return;}const methods=await orders.methods();const format=c=>(c/100).toLocaleString('es-ES',{style:'currency',currency:'EUR'});out.innerHTML=`<section class="uco-checkout-box"><div class="uco-checkout-title"><span class="uco-checkout-kicker">REVISIÓN DE COMPRA</span><h3>Resumen del pedido</h3><p>Comprueba los detalles antes de reservar tus productos.</p></div><div class="uco-checkout-metrics"><div><span>Referencias</span><strong>${preview.items.length}</strong></div><div><span>Subtotal provisional</span><strong>${format(preview.subtotal_cents)}</strong></div></div><div class="uco-checkout-info"><strong>Importe pendiente de confirmar</strong><p>Los impuestos y la entrega se calcularán en el cierre definitivo.<br>En esta fase no se realizará ningún cobro.</p></div><div class="uco-checkout-methods"><h4>Formas de pago previstas</h4><p>${methods.methods.map(m=>m.name).join(' · ')}</p></div><form class="uco-delivery-form" id="uco-delivery-form"><h4>Datos de entrega</h4><p>Indica dónde quieres recibir el pedido. Podrás modificarlos antes de la confirmación definitiva.</p><div class="uco-delivery-grid"><label>Persona de contacto<input name="contact" maxlength="100" autocomplete="name" required></label><label>Teléfono<input name="phone" maxlength="35" autocomplete="tel" required></label><label class="wide">Dirección de entrega<input name="address" maxlength="180" autocomplete="street-address" required></label><label>Código postal<input name="postal_code" maxlength="12" autocomplete="postal-code" required></label><label>Localidad<input name="city" maxlength="90" autocomplete="address-level2" required></label><label class="wide">Provincia<input name="province" maxlength="90" autocomplete="address-level1" required></label><label class="wide">Observaciones<textarea name="notes" maxlength="500" rows="2"></textarea></label></div><p class="uco-delivery-feedback" role="status" aria-live="polite"></p></form><p class="uco-checkout-hint">Al continuar, reservaremos tus existencias durante <strong>10 minutos</strong>.</p><button type="button" class="primary" data-order-reserve>Reservar existencias</button><button type="button" class="secondary" data-order-back>Volver al carrito</button></section>`;try{const saved=await fetch('../api/checkout.php',{credentials:'same-origin',cache:'no-store'});if(saved.ok){const data=await saved.json();if(data.details){const form=out.querySelector('#uco-delivery-form');for(const [key,value] of Object.entries(data.details)){const field=form.elements.namedItem(key);if(field)field.value=value??'';}}}}catch(error){console.warn('No se pudieron recuperar los datos de entrega',error)}}catch(err){showCheckoutNotice(err.message);}return;}if(e.target.closest('[data-order-back]')){document.querySelector('#cart-view .uco-checkout-view')?.replaceChildren();document.querySelector('#cart-view .uco-cart-panel')?.classList.remove('uco-cart-checkout-active');await syncReservation();updatePaymentEntry();scheduleCartFit();return;}if(e.target.closest('[data-order-reserve]')){const out=document.querySelector('.uco-checkout-view');try{const delivery=out.querySelector('#uco-delivery-form');if(delivery){if(!delivery.reportValidity())return;const response=await fetch('../api/checkout.php',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'X-CSRF-Token':csrf},body:new FormData(delivery)});const data=await response.json();if(!response.ok)throw Error(data.error||'No se pudieron guardar los datos de entrega');}await syncReservation();
  if(reservationId&&reservationEnds>Date.now()/1000){
   showCheckoutNotice('Ya tienes una reserva activa. Puedes continuar con la forma de pago.');
   updatePaymentEntry();return;
  }
- const r=await orders.reserve();reservationEnds=Number(r.expires_at);reservationId=r.order_id;reservationClock();showCheckoutNotice('Existencias reservadas correctamente. Todavía no se ha confirmado ni cobrado el pedido.');
+ const r=await orders.reserve();reservationEnds=Number(r.expires_at);reservationId=r.order_id;reservationClock();showCheckoutNotice('Existencias reservadas correctamente. Todavía no se ha confirmado ni cobrado el pedido.');document.dispatchEvent(new CustomEvent('uco:client-purchase-stage',{detail:{stage:'reservation'}}));
  updatePaymentEntry();
 }catch(err){showCheckoutNotice(err.details?.issues?.length?err.details.issues.map(i=>`${i.name}: disponibles ${i.available}`).join(' · '):err.message);}return;}if(e.target.closest('[data-payment-open]')){const quoteResponse=await fetch('../api/economy-quote.php',{credentials:'same-origin',cache:'no-store'});const quote=await quoteResponse.json();if(!quote.ready){showCheckoutNotice('Antes de elegir el pago hay que completar los impuestos, el transporte y la dirección de entrega.');return;}
  const structure=ensureCheckoutLayout();
  if(!structure||!structure.out){showCheckoutNotice('No se pudo abrir el formulario de pago. Vuelve a intentarlo.');return;}
  const {panel,out}=structure;
  panel.classList.add('uco-cart-checkout-active');scheduleCartFit();
- out.innerHTML='<section class="uco-payment-step"><h3 class="uco-payment-main-title">Forma de pago</h3><p>Selecciona cómo deseas pagar. Ningún cobro se realizará todavía.</p><div class="uco-payment-loading">Comprobando la reserva y los datos de entrega…</div></section>';
+ document.dispatchEvent(new CustomEvent('uco:client-purchase-stage',{detail:{stage:'payment'}}));
+  out.innerHTML='<section class="uco-payment-step"><h3 class="uco-payment-main-title">Forma de pago</h3><p>Selecciona cómo deseas pagar. Ningún cobro se realizará todavía.</p><div class="uco-payment-loading">Comprobando la reserva y los datos de entrega…</div></section>';
  try{
   const r=await fetch('../api/payment-selection.php',{credentials:'same-origin',cache:'no-store'});
   const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudieron consultar los pagos');
