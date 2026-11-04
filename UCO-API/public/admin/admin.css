@@ -1231,7 +1231,23 @@ uco-economy-settings{display:block;width:100%;min-width:0}.uco-economy-panel{pad
 .uco-unified-head p{margin:.2rem 0 .8rem;color:#617087}
 .uco-unified-actions{display:flex;flex-wrap:wrap;gap:.55rem}
 .uco-unified-filters{display:grid;grid-template-columns:minmax(12rem,2fr) repeat(2,minmax(9rem,1fr));gap:.65rem;margin:1rem 0}
-.uco-unified-filters input,.uco-unified-filters select{width:100%;min-width:0}
+.uco-unified-filters input,.uco-unified-filters select{
+ width:100%;min-width:0;min-height:3.15rem;
+ border:1px solid hsl(205 20% 80%);
+ background-color:hsl(80 20% 98%);
+ color:hsl(207 55% 14%);
+ border-radius:.9rem 0 .9rem 0;
+ padding:.85rem 1rem;
+ outline-offset:2px;
+ transition:border-color .15s ease,box-shadow .15s ease;
+}
+.uco-unified-filters input::placeholder{color:hsl(205 17% 43%);opacity:1}
+.uco-unified-filters select:last-child{background-color:hsl(203 45% 95%)}
+.uco-unified-filters input:focus-visible,.uco-unified-filters select:focus-visible{
+ outline:2px solid hsl(84 49% 37%);
+ border-color:hsl(84 49% 37%);
+ box-shadow:0 0 0 3px hsl(80 73% 58% / .15);
+}
 .uco-unified-list{display:grid;gap:.45rem}
 .uco-account-row{display:grid;grid-template-columns:3.4rem minmax(9rem,2fr) minmax(6rem,1fr) minmax(6rem,1fr) 5.5rem 5.5rem auto;align-items:center;gap:.7rem;padding:.65rem .75rem;background:#fff;border:1px solid #e4e8ed;border-radius:.8rem 0 .8rem 0;min-width:0}
 .uco-account-photo{width:3.25rem;height:3.25rem;object-fit:cover;border-radius:.7rem 0 .7rem 0;background:#edf2e7}
@@ -1252,6 +1268,7 @@ uco-economy-settings{display:block;width:100%;min-width:0}.uco-economy-panel{pad
 .uco-history-order li{padding:.2rem 0}
 @media(max-width:1000px){.uco-account-row{grid-template-columns:3.4rem minmax(9rem,1fr) 7rem 5rem auto}.uco-account-row>.uco-account-meta:nth-of-type(2),.uco-account-count{display:none}}
 @media(max-width:720px){.uco-unified-head{flex-direction:column;align-items:stretch}.uco-unified-actions{justify-content:center}.uco-unified-filters{grid-template-columns:1fr 1fr}.uco-unified-filters input{grid-column:1/-1}.uco-account-row{grid-template-columns:3.4rem minmax(0,1fr) auto;gap:.5rem}.uco-account-row>.uco-account-meta,.uco-account-count{display:none}.uco-account-actions{grid-column:2/-1;justify-content:flex-start}.uco-account-status{grid-column:3;grid-row:1}.uco-account-details{grid-column:2;grid-row:1}}
+@media(max-width:600px){.uco-unified-filters{grid-template-columns:minmax(0,1fr)}.uco-unified-filters input{grid-column:auto}}
 @media(max-width:420px){.uco-unified{padding:.8rem}.uco-unified-actions button{flex:1}.uco-account-row{padding:.5rem}.uco-account-photo{width:2.85rem;height:2.85rem}}
 
 .uco-unified[hidden]{display:none!important}
@@ -1824,6 +1841,7 @@ button[data-edit],button[data-edit-product],button[data-edit-client]{
 }
 
 /* Control de pagos: quinta pestaña integrada */
+.admin-section-nav .admin-section-picker{display:none}
 .admin-section-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.65rem}
 .admin-section-nav button{min-width:0}
 .payments-integrated{padding-top:1rem}
@@ -1832,6 +1850,13 @@ button[data-edit],button[data-edit-product],button[data-edit-client]{
 #payments-frame{display:block;width:100%;min-height:850px;border:0;background:transparent}
 @media(max-width:850px){.admin-section-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:440px){.admin-section-nav{grid-template-columns:1fr}}
+@media(max-width:600px){
+ .admin-section-nav.wrap{grid-template-columns:minmax(0,1fr)}
+ .admin-section-nav>button{display:none}
+ .admin-section-nav .admin-section-picker{display:flex;gap:.45rem}
+ .admin-section-picker>span{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:#526579}
+ .admin-section-picker select{min-height:3.15rem;font-weight:800;color:#232f5d;background-color:#fff}
+}
 
 /* Ventanas de consulta de pagos: mismo lenguaje visual de UCO */
 body.uco-modal-open{overflow:hidden}

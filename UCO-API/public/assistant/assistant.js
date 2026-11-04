@@ -150,13 +150,24 @@ if(area==='public'){
 }
 
 // Each draggable surface uses viewport-fixed coordinates; no transforms or parent-relative offsets.
-const margin=8;const coords={launch:read(POS+'_launch',null),panel:read(POS+'_panel',null),hint:read(POS+'_hint',null)};
+const margin=8;const coords={launch:null,panel:read(POS+'_panel',null),hint:read(POS+'_hint',null)};
 function size(){return {w:document.documentElement.clientWidth,h:window.visualViewport?.height||innerHeight,offsetTop:window.visualViewport?.offsetTop||0}}
 function clamp(el,x,y){const {w,h,offsetTop}=size(),r=el.getBoundingClientRect();return {x:Math.max(margin,Math.min(Math.max(margin,w-r.width-margin),x)),y:Math.max(offsetTop+margin,Math.min(Math.max(offsetTop+margin,offsetTop+h-r.height-margin),y))}}
 function apply(el,xy){const p=clamp(el,xy.x,xy.y);el.style.setProperty('left',p.x+'px','important');el.style.setProperty('top',p.y+'px','important');el.style.setProperty('right','auto','important');el.style.setProperty('bottom','auto','important');return p}
-function defaultPosition(el,kind){const {w,h,offsetTop}=size(),r=el.getBoundingClientRect();if(kind==='launch'){const gap=mobile()?16:24;const safe=mobile()?Math.max(76,parseInt(getComputedStyle(document.documentElement).getPropertyValue('--uco-ai-mobile-clearance'),10)||76):24;return {x:w-r.width-gap,y:offsetTop+h-r.height-safe}};return {x:w-r.width-16,y:offsetTop+h-r.height-(mobile()?10:96)}}
+function defaultPosition(el,kind){const {w,h,offsetTop}=size(),r=el.getBoundingClientRect();if(kind==='launch'){
+ if(area==='public'){
+  const header=document.querySelector('uco-header .site-head'),catalog=document.querySelector('uco-header .head-catalog'),account=document.querySelector('uco-header .head-account');
+  const headerBottom=header?.getBoundingClientRect().bottom;
+  if(innerWidth<=1180){return {x:w-r.width-16,y:Math.max(offsetTop+8,Math.min(offsetTop+h-r.height-8,(headerBottom??100)+12))}}
+  const catalogVisible=catalog&&getComputedStyle(catalog).display!=='none';
+  const anchor=catalogVisible?catalog:account,ar=anchor?.getBoundingClientRect();
+  if(ar&&ar.width&&ar.height)return {x:ar.left-r.width-16,y:ar.top+(ar.height-r.height)/2};
+  return {x:w-r.width-16,y:Math.max(offsetTop+8,(headerBottom??100)+12)}
+ }
+ const gap=mobile()?16:24;const safe=mobile()?Math.max(gap,parseInt(getComputedStyle(document.documentElement).getPropertyValue('--uco-ai-mobile-clearance'),10)||gap):gap;return {x:w-r.width-gap,y:offsetTop+h-r.height-safe}
+};return {x:w-r.width-16,y:offsetTop+h-r.height-(mobile()?10:96)}}
 function place(el,kind){const saved=coords[kind];return apply(el,saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)?saved:defaultPosition(el,kind))}
-function savePosition(kind,xy){coords[kind]=xy;try{localStorage.setItem(POS+'_'+kind,JSON.stringify(xy))}catch{}}
+function savePosition(kind,xy){coords[kind]=xy;if(kind==='launch')return;try{localStorage.setItem(POS+'_'+kind,JSON.stringify(xy))}catch{}}
 function hideHint(){hint.hidden=true;root.classList.remove('uco-ai-inviting')}
 function open(){if(area==='client'&&root.classList.contains('uco-ai-checkout-mode')){root.querySelector('.uco-ai-checkout-doubts')?.click();return}panel.hidden=false;hideHint();launch.setAttribute('aria-expanded','true');root.classList.add('uco-ai-open');place(panel,'panel');input.focus({preventScroll:true})}
 function minimize(){panel.hidden=true;root.classList.remove('uco-ai-open');launch.setAttribute('aria-expanded','false');showHint();hint.focus?.({preventScroll:true})}
@@ -199,6 +210,49 @@ function draggable(handle,target,kind){
  handle.addEventListener('lostpointercapture',()=>{drag=null});
 }
 draggable(launch,launch,'launch');
+// Reset the launcher on reload; protect underlying actions without moving it during scroll.
+let launcherScrolling=false,launcherDragging=false,launcherScrollTimer=0,launcherCheckFrame=0;
+const protectedContent='button,a,input,select,textarea,summary,iframe,td,th,label,strong,[role="alert"],.uco-account-status,[role="button"],[role="tab"],[role="status"],h1,h2,h3,.client-price,.uco-cart-total,.uco-economy-grand,.uco-pager-controls';
+function launcherCoversAction(){
+ const box=launch.getBoundingClientRect();
+ for(const el of document.querySelectorAll(protectedContent)){
+  if(root.contains(el))continue;
+  for(const r of el.getClientRects()){
+   const left=Math.max(box.left-4,r.left),right=Math.min(box.right+4,r.right);
+   const top=Math.max(box.top-4,r.top),bottom=Math.min(box.bottom+4,r.bottom);
+   if(right<=left||bottom<=top)continue;
+   const visible=document.elementsFromPoint((left+right)/2,(top+bottom)/2);
+   if(visible.some(hit=>hit===el||el.contains(hit)))return true;
+  }
+ }
+ return false;
+}
+function checkLauncherSpace(){
+ launcherCheckFrame=0;
+ const engaged=launcherDragging||root.contains(document.activeElement)||!panel.hidden;
+ const blocked=!engaged&&(launcherScrolling||(!coords.launch&&launcherCoversAction()));
+ launch.classList.toggle('uco-ai-launch-obstructed',blocked);
+}
+function queueLauncherCheck(){if(!launcherCheckFrame)launcherCheckFrame=requestAnimationFrame(checkLauncherSpace)}
+window.addEventListener('scroll',e=>{
+ if(root.contains(e.target))return;
+ launcherScrolling=true;checkLauncherSpace();clearTimeout(launcherScrollTimer);
+ launcherScrollTimer=setTimeout(()=>{launcherScrolling=false;queueLauncherCheck()},180);
+},{capture:true,passive:true});
+launch.addEventListener('pointerdown',()=>{launcherDragging=true;queueLauncherCheck()});
+const finishLauncherDrag=()=>{launcherDragging=false;queueLauncherCheck()};
+launch.addEventListener('pointerup',finishLauncherDrag);
+launch.addEventListener('pointercancel',finishLauncherDrag);
+launch.addEventListener('lostpointercapture',finishLauncherDrag);
+document.addEventListener('focusin',queueLauncherCheck);
+document.addEventListener('focusout',queueLauncherCheck);
+window.addEventListener('resize',queueLauncherCheck);
+window.visualViewport?.addEventListener('resize',queueLauncherCheck);
+new MutationObserver(queueLauncherCheck).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','open']});
+const launcherResizeObserver=new ResizeObserver(()=>{place(launch,'launch');queueLauncherCheck()});
+launcherResizeObserver.observe(launch);
+if(area==='public'){document.querySelectorAll('uco-header,.site-head,.head-catalog,.head-account').forEach(el=>launcherResizeObserver.observe(el))}
+queueLauncherCheck();
 // The invitation is a separate movable robot. Preserve the launcher position when it is dismissed.
 function placeHint(){
  const saved=coords.hint;if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){apply(hint,saved);return}
@@ -979,7 +1033,7 @@ form.addEventListener('submit',async e=>{
  }finally{busy=false;if(submit)submit.disabled=false}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)minimize()});
-let scheduled=false;function reflow(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;place(launch,'launch');if(!panel.hidden)place(panel,'panel');if(!hint.hidden)placeHint();const ws=root.querySelector('.uco-ai-workspace');if(ws&&!ws.hidden)document.dispatchEvent(new CustomEvent('uco:workspace-reflow'))})}
+let scheduled=false;function reflow(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;place(launch,'launch');queueLauncherCheck();if(!panel.hidden)place(panel,'panel');if(!hint.hidden)placeHint();const ws=root.querySelector('.uco-ai-workspace');if(ws&&!ws.hidden)document.dispatchEvent(new CustomEvent('uco:workspace-reflow'))})}
 window.addEventListener('resize',reflow);window.visualViewport?.addEventListener('resize',reflow);
 window.visualViewport?.addEventListener('scroll',reflow);
 place(launch,'launch');

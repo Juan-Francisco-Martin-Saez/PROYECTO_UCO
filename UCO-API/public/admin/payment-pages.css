@@ -1,0 +1,40 @@
+/* Shared presentation for gateway settings and readiness. */
+.uco-payment-page{background:#f7f8f3;color:#232f5d;line-height:1.6}
+.uco-payment-page>header{background:#232f5d;color:#fff;padding:2rem max(1.5rem,calc((100% - 960px)/2)) 2.25rem}
+.uco-payment-page>header>a{display:inline-flex;align-items:center;min-height:2.75rem;color:#fff;text-decoration:none;font-size:.85rem;font-weight:700;margin-bottom:1rem}
+.uco-payment-page>header>a:hover{text-decoration:underline;text-underline-offset:.25rem;color:#b0e344}
+.uco-payment-page>header>a.payment-back-button{justify-content:center;min-height:3.15rem;padding:.8rem 1.25rem;border-radius:1rem 0 1rem 0;background:#a9df39;color:#232f5d;font-weight:800;text-decoration:none}
+.uco-payment-page>header>a.payment-back-button:hover{background:#b8e75c;color:#232f5d;text-decoration:none}
+.uco-payment-page .payment-eyebrow{display:block;color:#b0e344;font-size:.72rem;font-weight:800;letter-spacing:.14em;margin-bottom:.6rem}
+.uco-payment-page h1{max-width:960px;margin:0;font:700 clamp(1.8rem,3.2vw,2.7rem)/1.15 'Space Grotesk',Manrope,sans-serif;overflow-wrap:anywhere}
+.uco-payment-page>main{max-width:1008px;margin:auto;padding:1.75rem 1.5rem 3rem;min-width:0}
+.uco-payment-page main>p:first-child{margin-top:0}
+.uco-payment-page main a{color:#232f5d;font-weight:700;text-underline-offset:.2rem}
+.uco-payment-page .notice,.uco-payment-page .note{background:#eef5e3;color:#344264;border:1px solid #dce8c9;border-left:4px solid #a9df39;border-radius:1rem 0 1rem 0;padding:1rem 1.25rem;margin:1.25rem 0 1.75rem;font-size:.9rem;line-height:1.7}
+.uco-payment-page fieldset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:1.5rem;row-gap:1rem;min-width:0;background:#fff;border:1px solid #dfe4e8;border-radius:1.5rem 0 1.5rem 0;padding:1.25rem 1.5rem 1.5rem;margin:1.75rem 0;box-shadow:0 18px 45px #1230470a}
+.uco-payment-page legend{font:700 1.4rem/1.3 'Space Grotesk',Manrope,sans-serif;color:#232f5d;padding:0 .5rem;max-width:100%}
+.uco-payment-page label{display:flex;flex-direction:column;gap:.45rem;min-width:0;margin:0;font-size:.8rem;font-weight:800;color:#526579}
+.uco-payment-page fieldset>label:nth-of-type(3),.uco-payment-page fieldset>.inline,.uco-payment-page fieldset>p{grid-column:1/-1}
+.uco-payment-page input:not([type=checkbox]){box-sizing:border-box;width:100%;min-width:0;min-height:3.15rem;border:1px solid #c2cdd3;border-radius:.9rem 0 .9rem 0;padding:.85rem 1rem;background:#fafbf9;color:#232f5d;font:500 1rem Manrope,sans-serif;outline-offset:3px}
+.uco-payment-page label.inline{flex-direction:row;align-items:center;gap:.7rem;font-size:.85rem;font-weight:600;min-height:2.75rem}
+.uco-payment-page input[type=checkbox]{width:1.15rem;height:1.15rem;flex:none;margin:0;accent-color:#698d28}
+.uco-payment-page fieldset>p{font-size:.82rem;line-height:1.6;margin:0;color:#617087}
+.uco-payment-page button{min-height:3.15rem;border:0;border-radius:1rem 0 1rem 0;padding:.85rem 1.4rem;background:#a9df39;color:#232f5d;font:800 .95rem Manrope,sans-serif;cursor:pointer;max-width:100%;white-space:normal;line-height:1.4}
+.uco-payment-page button:hover:not(:disabled){background:#b8e75c}
+.uco-payment-page button:disabled{background:#e3e7e9;color:#65717f;opacity:1;cursor:not-allowed}
+.uco-payment-page :is(input,button,a):focus-visible{outline:2px solid #698d28;outline-offset:3px}
+.uco-payment-page #status{margin:1.2rem 0;color:#526579;font-size:.88rem;font-weight:600;overflow-wrap:anywhere}
+.uco-payment-page #checks{display:grid;gap:.8rem;padding:0;list-style:none;margin:1.5rem 0}
+.uco-payment-page #checks li{min-width:0;background:#fff;border:1px solid #dfe4e8;border-radius:1rem 0 1rem 0;padding:1rem 1.25rem;box-shadow:0 10px 30px #12304708;overflow-wrap:anywhere}
+.uco-payment-page #checks strong{color:#232f5d}
+.uco-payment-page #checks small{display:block;color:#617087;margin-top:.35rem;line-height:1.6}
+@media(max-width:600px){
+ .uco-payment-page>header{padding:1rem 1.25rem 1.5rem}
+ .uco-payment-page>header>a{margin-bottom:.7rem}
+ .uco-payment-page>main{padding:1.25rem 1rem 2rem}
+ .uco-payment-page fieldset{grid-template-columns:minmax(0,1fr);padding:1rem;margin:1.5rem 0;gap:.9rem}
+ .uco-payment-page legend{font-size:1.25rem}
+ .uco-payment-page .notice,.uco-payment-page .note{padding:.9rem 1rem;margin:1rem 0 1.5rem}
+ .uco-payment-page button{width:100%}
+ .uco-payment-page .payment-eyebrow{font-size:.66rem}
+}
