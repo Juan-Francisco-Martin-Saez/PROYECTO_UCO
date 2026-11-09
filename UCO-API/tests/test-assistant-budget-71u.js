@@ -1,7 +1,10 @@
-const fs=require('node:fs');const assert=require('node:assert/strict');
-const s=fs.readFileSync(require('node:path').join(__dirname,'../public/assistant/assistant.js'),'utf8');
-for(const key of ['parseBudgetCommand','updateProvisionalBudget','showProvisionalBudget','provisionalBudget=null','credentials:\'same-origin\'','price_cents','sellingUnit(row.unit)','area===\'client\''])assert(s.includes(key),`Missing ${key}`);
-assert(s.includes('provisionalBudget=products.map'),'Initial multi-product estimate must establish draft');
-assert(s.includes('provisionalBudget=null;append'),'Reset must discard draft');
-assert(!s.includes('sessionStorage.setItem(\'uco_budget'),'Budget must remain ephemeral');
-console.log('7.1U static integration: OK');
+const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');
+const bot=fs.readFileSync(path.join(__dirname,'../public/assistant/assistant.js'),'utf8');
+const draft=fs.readFileSync(path.join(__dirname,'../public/assistant/prepedido.js'),'utf8');
+for(const key of ['parseBudgetCommand','updateProvisionalBudget','showProvisionalBudget','provisionalBudget=null',"credentials:'same-origin'",'price_cents','sellingUnit(row.unit)',"area==='client'"])assert(bot.includes(key),`Missing ${key}`);
+assert(bot.includes('provisionalBudget=products.map'),'Multi-product estimate must establish draft');
+assert(/if\(isReset\(value\)\)\s*\{[^}]*provisionalBudget=null/.test(bot),'Conversation reset must clear ephemeral estimate');
+assert(!bot.includes("sessionStorage.setItem('uco_budget"),'Ephemeral budget must not be persisted');
+assert(draft.includes("KEY='uco_prepedido_v1'"),'Persistent pre-order must have separate storage');
+assert(draft.includes('sessionStorage.setItem(KEY,JSON.stringify(draft))'),'Pre-order must persist separately');
+console.log('7.1U budget vs pre-order separation OK');

@@ -1,0 +1,102 @@
+[
+  {
+    "caso": "referencia exacta",
+    "estado": "OK",
+    "coincidencias": 1,
+    "ejemplos": [
+      {
+        "id": 17,
+        "name": "CANÓNIGOS"
+      }
+    ]
+  },
+  {
+    "caso": "nombre exacto",
+    "estado": "OK",
+    "coincidencias": 1,
+    "ejemplos": [
+      {
+        "id": 17,
+        "name": "CANÓNIGOS"
+      }
+    ]
+  },
+  {
+    "caso": "producto inexistente",
+    "estado": "OK",
+    "coincidencias": 0,
+    "ejemplos": []
+  },
+  {
+    "caso": "formato 1kg",
+    "estado": "OK",
+    "coincidencias": 13,
+    "ejemplos": [
+      {
+        "id": 20,
+        "name": "ENSALADA PAYESA"
+      },
+      {
+        "id": 22,
+        "name": "BROTES DE HOJAS, MEZCLUM MARCA UCO"
+      },
+      {
+        "id": 23,
+        "name": "MEZCLUM SABORES VARIADOS"
+      }
+    ]
+  },
+  {
+    "caso": "presentaciones desglosadas",
+    "estado": "OK",
+    "coincidencias": 13,
+    "ejemplos": [
+      {
+        "id": 96,
+        "name": "PATATA PREF. PREMIUM Foodmen PF 7/16 11X11 A++ X PALE"
+      },
+      {
+        "id": 97,
+        "name": "PATATA PREF. PREMIUM Foodmen PF 7/16 11X11 A++"
+      },
+      {
+        "id": 98,
+        "name": "PATATA PREF. PREMIUM Fontane 3/8 A+ PALE"
+      }
+    ]
+  },
+  {
+    "caso": "nombre ambiguo",
+    "estado": "OK",
+    "coincidencias": 13,
+    "ejemplos": [
+      {
+        "id": 53,
+        "name": "PATATA PELADA Y CORTADA CUADROS"
+      },
+      {
+        "id": 54,
+        "name": "PATATA PELADA Y CORTADA STEAK"
+      },
+      {
+        "id": 55,
+        "name": "PATATA PELADA Y CORTADA STEAK/CON PIEL"
+      }
+    ]
+  },
+  {
+    "caso": "sintaxis PHP endpoint",
+    "estado": "OK",
+    "detalle": "No syntax errors detected in /mnt/data/uco_72e7_verified/public/api/assistant-catalog-71a.php"
+  },
+  {
+    "caso": "ejecución HTTP PHP/SQLite",
+    "estado": "PENDIENTE",
+    "detalle": "El entorno actual carece de pdo_sqlite y/o mbstring; pruebas SQL realizadas directamente contra SQLite con Python."
+  },
+  {
+    "caso": "regresión SQLite automatizada",
+    "estado": "OK",
+    "detalle": "6 comprobaciones SQLite correctas"
+  }
+]

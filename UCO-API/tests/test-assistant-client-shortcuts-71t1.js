@@ -1,1 +1,8 @@
-const fs=require('fs'),assert=require('assert');const js=fs.readFileSync('public/assistant/assistant.js','utf8');const html=fs.readFileSync('public/clientes/index.html','utf8');assert(js.includes("[['Carrito','#cart-toggle'],['Historial de compras','#uco-purchase-history']]"));assert(js.includes("if(area==='client'){"));assert(js.includes('target.click();return;'));assert(html.includes('assistant.js?v=7.1T.1'));console.log('7.1T.1 shortcuts OK');
+const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');
+const js=fs.readFileSync(path.join(__dirname,'../public/assistant/assistant.js'),'utf8');
+const html=fs.readFileSync(path.join(__dirname,'../public/clientes/index.html'),'utf8');
+assert(js.includes("[['Carrito','#cart-toggle'],['Historial de compras','#uco-purchase-history']]"));
+assert(js.includes("if(area==='client'){"));
+assert(js.includes('if(nav){nav.click()}'),'Shortcuts must trigger native client navigation');
+assert(/assistant\.js\?v=[\w.%-]+/.test(html),'Client must load versioned assistant script');
+console.log('7.1T.1 client shortcuts OK');
