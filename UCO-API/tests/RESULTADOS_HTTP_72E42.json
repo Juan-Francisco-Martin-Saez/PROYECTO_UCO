@@ -1,0 +1,106 @@
+{
+  "passed": 25,
+  "total": 25,
+  "cases": [
+    {
+      "name": "GET rechazado",
+      "status": 405
+    },
+    {
+      "name": "tipo text/plain",
+      "status": 415
+    },
+    {
+      "name": "tipo application/json falso",
+      "status": 415
+    },
+    {
+      "name": "JSON malformado",
+      "status": 422
+    },
+    {
+      "name": "array JSON",
+      "status": 422
+    },
+    {
+      "name": "mensaje objeto",
+      "status": 422
+    },
+    {
+      "name": "mensaje corto",
+      "status": 422
+    },
+    {
+      "name": "mensaje largo",
+      "status": 422
+    },
+    {
+      "name": "cuerpo excesivo",
+      "status": 413
+    },
+    {
+      "name": "correo privado",
+      "status": 422
+    },
+    {
+      "name": "consulta comercial",
+      "status": 422
+    },
+    {
+      "name": "identificador DNI",
+      "status": 422
+    },
+    {
+      "name": "identificador IBAN",
+      "status": 422
+    },
+    {
+      "name": "general admitida 1",
+      "status": 503
+    },
+    {
+      "name": "general admitida 2",
+      "status": 503
+    },
+    {
+      "name": "general admitida 3",
+      "status": 503
+    },
+    {
+      "name": "general admitida 4",
+      "status": 503
+    },
+    {
+      "name": "general admitida 5",
+      "status": 503
+    },
+    {
+      "name": "general admitida 6",
+      "status": 503
+    },
+    {
+      "name": "general admitida 7",
+      "status": 503
+    },
+    {
+      "name": "general admitida 8",
+      "status": 503
+    },
+    {
+      "name": "general admitida 9",
+      "status": 503
+    },
+    {
+      "name": "general admitida 10",
+      "status": 503
+    },
+    {
+      "name": "limite 11a peticion",
+      "status": 429
+    },
+    {
+      "name": "privacidad antes del limite",
+      "status": 422
+    }
+  ]
+}

@@ -737,7 +737,7 @@ async function askUcoLogic(question){
    if(topic)return HELP_TOPICS[topic];
    // Solo consultas generales sin resultado interno pasan a OpenAI.
    // Las consultas comerciales siguen siendo responsabilidad exclusiva del catálogo.
-   if(contextualRoute(question)==='general'){
+   if(shouldUseGeneralEngine72e22(question)){
     const ai=await askProtectedOpenAI(question);
     if(ai)return ai;
    }
@@ -915,6 +915,8 @@ function orderQuestion(value){
  const instruction=/\b(como|donde|crear|hacer|modificar|cancelar|anadir|asignar|editar|borrar)\b/.test(n);
  if(instruction)return false;
  if(order&&(own||parseOrderId(value)!==null))return true;
+ // 7.2E.59: referencia elíptica inequívoca al pedido autenticado ya seleccionado.
+ if(lastOwnOrderId!==null&&/^(?:y )?(?:ese|este|aquel) pedido$/.test(n))return true;
  return lastOwnOrderId!==null&&/^(y |y el |y la |que |cual |cuanto |cuantos |cuando |estado|importe|total|fecha|productos|articulos|detalles)/.test(n)
    && /\b(estado|importe|total|fecha|productos|articulos|detalles|detalle|lleva|coste|cuesta|tiene|contiene)\b/.test(n);
 }
@@ -943,7 +945,7 @@ async function fetchOwnOrderHistory(){
 async function askOwnOrders(value){
  const data=await fetchOwnOrderHistory();if(data.error)return data.error;
  const n=normalizeUco(value),explicit=parseOrderId(value);
- const follow=lastOwnOrderId!==null&&/^(y |y el |y la |que |cual |cuanto |cuantos |cuando |estado|importe|total|fecha|productos|articulos|detalles)/.test(n);
+ const follow=lastOwnOrderId!==null&&(/^(y |y el |y la |que |cual |cuanto |cuantos |cuando |estado|importe|total|fecha|productos|articulos|detalles)/.test(n)||/^(?:ese|este|aquel) pedido$/.test(n));
  const detail=/\b(detalle|detalles|productos|articulos|contiene|tiene)\b/.test(n);
  let orders=data.orders;
  if(explicit!==null)orders=orders.filter(o=>Number(o.id)===explicit);
@@ -993,13 +995,53 @@ function isOwnDocumentQuery(value){
 }
 // UCO OpenAI V2: canal paralelo y optativo. No altera reglas ni rutas del motor local.
 // Prefijo «IA:» para consultas de lenguaje natural; nunca modifica carrito ni pagos.
+function isSafeGeneralQuestion72e39(question){
+ // 7.2E.48: normalizar caracteres invisibles y variantes Unicode antes del filtro.
+ const clean=String(question).normalize('NFKC').replace(/[\u200B-\u200D\u2060\uFEFF]/g,'');
+ const n=normalizeUco(clean);
+ const compact=clean.replace(/[\s.\-\u00A0]/g,'');
+ // Identificadores con separadores y tokens divididos no deben salir a terceros.
+ if(/(?:ES\d{22}|[XYZ]\d{7}[A-Z]|\d{8}[A-Z])/i.test(compact))return false;
+ if(/(?:sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9]{12,})/.test(compact))return false;
+ if(/(?:\+?34)?[6789]\d{8}\b/.test(compact))return false;
+ if(/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i.test(clean))return false;
+ // 7.2E.52: lista cerrada de consultas didácticas, tras descartar identificadores estructurados.
+ const educational52=new Set(["que es el formato wav en audio", "que es el catalogo de messier en astronomia", "explica el formato wav en audio", "define el catalogo de messier", "que es el formato pdf", "que es el formato json", "que es el formato mp3", "que es un catalogo estelar", "explica el catalogo astronomico", "que es una referencia bibliografica", "que es el precio de equilibrio", "explica la ley de la oferta y la demanda", "que es el producto escalar", "que es la fotografia de stock", "que es una cuenta matematica", "que es el modelo cliente servidor", "que es un token en programacion", "que es una api key"]);
+ if(educational52.has(n))return true;
+ // Evitar la división letra a letra de términos comerciales frecuentes.
+ const spaced=n.replace(/\b(?:[a-z]\s+){3,}[a-z]\b/g,m=>m.replace(/\s+/g,''));
+ if(/\b(?:pedido|factura|precio|carrito|cliente|usuario|tarjeta|contrasena|password|token|iban)\b/.test(spaced))return false;
+ if(/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i.test(question))return false;
+ if(/(?:\+?34[\s.\-]*)?[6789](?:[\s.\-]*\d){8}\b/.test(question))return false;
+ if(/\b(?:ES[0-9]{22}|[XYZ][0-9]{7}[A-Z]|[0-9]{8}[A-Z])\b/i.test(question))return false;
+ if(/\b(?:sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9]{12,})\b/.test(question))return false;
+ // 7.2E.50: solo dos consultas educativas exactas; el resto del filtro sigue activo.
+ const educational=n==='que es el formato wav en audio' || n==='que es el catalogo de messier en astronomia';
+ if(/\b(?:pedido|pedidos|factura|facturas|cliente|clientes|usuario|usuarios|cuenta|direccion|telefono|correo|email|carrito|pago|pagar|comprar|presupuesto|precio|precios|tarifa|tarifas|referencia|sku|stock|disponibilidad|catalogo|formato|envase|kilos|kg|producto|productos|entrega|envio|devolucion|descuento|oferta|ofertas|uco|ucosapobla|dni|nie|nif|cif|iban|bic|swift|tarjeta|contrasena|password|token|api key|clave secreta|domicilio)\b/.test(educational ? n.replace(/\b(?:formato|catalogo)\b/g,'concepto') : n))return false;
+ return true;
+}
 async function askProtectedOpenAI(question){
+ if(!isSafeGeneralQuestion72e39(question))return null;
  const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),20000);
  try{
   const r=await fetch('/api/assistant-openai.php',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({message:question}),signal:ctrl.signal});
   if(!r.ok)return null;
   const data=await r.json();return data.ok&&typeof data.response==='string'?data.response:null;
  }catch{return null}finally{clearTimeout(timer)}
+}
+// 7.2E.22: derivación automática conservadora; pedidos y catálogo conservan su flujo.
+function shouldUseGeneralEngine72e22(value){
+ const n=normalizeUco(value).replace(/^[¿?¡!\s]+/,'');
+ // Los conectores discursivos no convierten una pregunta general explícita
+ // en seguimiento comercial. Los seguimientos elípticos siguen siendo locales.
+ const generalQuestion=n.replace(/^(?:(?:y|ahora|por cierto|otra cosa|cambiando de tema)\s*[,;:]?\s*)+/,'').replace(/^[¿?¡!\s]+/,'');
+ if(!n || (isFollowup(value) && generalQuestion===n) || lastOwnOrderId!==null ||
+    provisionalBudget || pendingCartTransfer || lastCartReference)return false;
+ if(contextualRoute(value)!=='general')return false;
+ // No transferir identificadores, posibles datos privados ni solicitudes transaccionales.
+ if(/\b(mi|mis|nuestro|nuestros|cliente|usuario|cuenta|direccion|telefono|correo|email|factura|facturas|pedido|pedidos|carrito|pago|pagar|comprar|presupuesto|precio|precios|referencia|sku|stock|disponibilidad|catalogo|formato|envase|kilos|kg|producto|productos|entrega|envio|devolucion|descuento|oferta|ofertas|u[ck]o)\b/.test(n))return false;
+ // Solo preguntas generales explícitas: no enviar saludos ni comandos ambiguos.
+ return /^(que es|que significa|quien fue|quien es|cuando ocurrio|donde esta|explica|explicame|define|cual es la diferencia entre|como funciona|por que|porque)\b/.test(generalQuestion);
 }
 form.addEventListener('submit',async e=>{
  e.preventDefault();const value=input.value.trim();if(!value||busy)return;
@@ -1015,6 +1057,13 @@ form.addEventListener('submit',async e=>{
   if(isReset(value)){
    clearCatalogContext();lastOwnOrderId=null;lastComparedProducts=null;provisionalBudget=null;pendingCartTransfer=null;lastCartReference=null;append('bot','He borrado el contexto de esta conversación. ¿Qué necesitas consultar?');
   }else{
+   if(shouldUseGeneralEngine72e22(value)){
+    const answer=await askProtectedOpenAI(value);
+    if(answer!==null){append('bot',answer);return;}
+    // Fallo de OpenAI: informar sin inventar una respuesta comercial.
+    append('bot','Ahora mismo no puedo responder esa consulta general. Puedes intentarlo de nuevo más tarde.');
+    return;
+   }
    const budgetCommand=area==='client'?(parseBudgetCommand(value)||cartContextCommand(value)):null;
    if(!budgetCommand)lastCartReference=null;
    const budgetReply=budgetCommand?await updateProvisionalBudget(budgetCommand):null;

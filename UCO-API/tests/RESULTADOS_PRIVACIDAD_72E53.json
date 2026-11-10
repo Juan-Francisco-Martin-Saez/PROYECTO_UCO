@@ -1,0 +1,232 @@
+{
+  "passed": 31,
+  "total": 31,
+  "cases": [
+    {
+      "case": "exacta wav",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "exacta api",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "exacta token",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "exacta precio",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "exacta cuenta",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "exacta catalogo",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra pedido",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra precio",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra tarjeta",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra email",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra movil",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra dni",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra iban",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra sk",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra github",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra letra",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra zero width",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra salto",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "extra unicode",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variante puntuacion",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variante coma",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variante comillas",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variante salto",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variante unicode invisible",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variante acento",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variacion con comercial",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variacion pregunta uco",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "variacion producto",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    }
+  ],
+  "static_guards": 3,
+  "limitations": "Las expectativas educativas son criterios de auditoría, no garantías del enrutamiento; sin IONOS ni OpenAI."
+}

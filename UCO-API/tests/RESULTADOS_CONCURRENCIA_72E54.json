@@ -1,0 +1,29 @@
+{
+  "passed": 23,
+  "total": 23,
+  "checks": [
+    "Concurrencia: exactamente diez aceptadas",
+    "Concurrencia: treinta rechazadas",
+    "Rechazo tras alcanzar límite",
+    "IP independiente admitida",
+    "Historial JSON íntegro",
+    "Recuperación tras ventana vencida",
+    "Historial recuperado limpio",
+    "Recuperación tras estado corrupto",
+    "Estado corrupto reparado",
+    "HTTP consulta general 1: 503 sin clave",
+    "HTTP consulta general 2: 503 sin clave",
+    "HTTP consulta general 3: 503 sin clave",
+    "HTTP consulta general 4: 503 sin clave",
+    "HTTP consulta general 5: 503 sin clave",
+    "HTTP consulta general 6: 503 sin clave",
+    "HTTP consulta general 7: 503 sin clave",
+    "HTTP consulta general 8: 503 sin clave",
+    "HTTP consulta general 9: 503 sin clave",
+    "HTTP consulta general 10: 503 sin clave",
+    "HTTP solicitud 11: 429",
+    "HTTP 429 incluye Retry-After",
+    "HTTP privacidad antes de limitación: 422",
+    "HTTP recuperación tras expiración: 503"
+  ]
+}

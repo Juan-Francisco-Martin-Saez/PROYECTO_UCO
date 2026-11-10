@@ -1,0 +1,42 @@
+{
+  "phase": "7.2E.13",
+  "scope": "SQLite lexical smoke tests; not HTTP endpoint",
+  "passed": 3,
+  "total": 5,
+  "cases": [
+    {
+      "query": "patata",
+      "lexical_candidates": 75,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "query": "cebolla",
+      "lexical_candidates": 26,
+      "passed": false,
+      "issues": [
+        "posible falso positivo zanahori: TEMPURA DE VERDURAS MAESTRA 5 KG. (coliflor, zanahoria, judía verde, cebolla, calabacín)"
+      ]
+    },
+    {
+      "query": "zanahoria",
+      "lexical_candidates": 11,
+      "passed": false,
+      "issues": [
+        "posible falso positivo ceboll: TEMPURA DE VERDURAS MAESTRA 5 KG. (coliflor, zanahoria, judía verde, cebolla, calabacín)"
+      ]
+    },
+    {
+      "query": "tomate",
+      "lexical_candidates": 5,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "query": "arroz",
+      "lexical_candidates": 4,
+      "passed": true,
+      "issues": []
+    }
+  ]
+}

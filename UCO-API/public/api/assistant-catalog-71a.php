@@ -38,37 +38,35 @@ try{
  // Expand only APPROVED dictionary synonyms. Each query term remains mandatory:
  // alternatives apply within a term, never across unrelated product qualifiers.
  // Do not write to the production dictionary or invent product relationships.
- $alternatives=[];
+ // Resolve approved aliases to their canonical catalog term, including plural forms.
+ // Do not search all aliases as substrings: "papas" must not match "papaya".
+ $canonicalByStem=[];
  try{
   $dict=new PDO('sqlite:'.dirname(__DIR__,2).'/private/assistant/dictionary.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
   $entries=$dict->query("SELECT c.term,s.alias FROM synonyms s JOIN concepts c ON c.id=s.concept_id WHERE s.status='approved'")->fetchAll();
-  $groups=[];
   foreach($entries as $entry){
    $canonical=uco_norm((string)$entry['term']);$alias=uco_norm((string)$entry['alias']);
    if($canonical===''||$alias===''||str_contains($canonical,' ')||str_contains($alias,' '))continue;
-   $groups[$canonical][$canonical]=true;$groups[$canonical][$alias]=true;
-  }
-  foreach($groups as $group){
-   $members=array_keys($group);
-   foreach($members as $member)$alternatives[$member]=$members;
+   foreach([$canonical,$alias] as $member){
+    $stem=uco_stem($member);
+    // Ambiguous stems must not be arbitrarily mapped to one concept.
+    if(!array_key_exists($stem,$canonicalByStem))$canonicalByStem[$stem]=$canonical;
+    elseif($canonicalByStem[$stem]!==$canonical)$canonicalByStem[$stem]=null;
+   }
   }
  }catch(Throwable $dictionaryError){
-  // Dictionary unavailability must not disable the basic product search.
   error_log('[UCO assistant synonyms] '.$dictionaryError->getMessage());
  }
- // LIKE does not fold singular/plural or Spanish accents; query using word stems and alternate roots.
  $clauses=[];$params=[];
  foreach($words as $i=>$word){
-  $variants=$alternatives[$word]??[$word];
-  $parts=[];
-  foreach(array_unique($variants) as $j=>$variant){
-   $root=preg_replace('/(es|s)$/u','',$variant);
-   if(mb_strlen($root,'UTF-8')<3)$root=$variant;
-   $key=':w'.$i.'_'.$j;
-   $parts[]="(p.name LIKE $key ESCAPE '\\' COLLATE NOCASE OR p.description LIKE $key ESCAPE '\\' COLLATE NOCASE OR c.name LIKE $key ESCAPE '\\' COLLATE NOCASE OR p.search_text LIKE $key ESCAPE '\\' COLLATE NOCASE)";
-   $params[$key]='%'.str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$root).'%';
-  }
-  $clauses[]='('.implode(' OR ',$parts).')';
+  $stem=uco_stem($word);
+  $canonical=$canonicalByStem[$stem]??null;
+  $variant=$canonical!==null?$canonical:$word;
+  $root=uco_stem($variant);
+  if(mb_strlen($root,'UTF-8')<3)$root=$variant;
+  $key=':w'.$i;
+  $clauses[]="(p.name LIKE $key ESCAPE '\\' COLLATE NOCASE OR p.description LIKE $key ESCAPE '\\' COLLATE NOCASE OR c.name LIKE $key ESCAPE '\\' COLLATE NOCASE OR p.search_text LIKE $key ESCAPE '\\' COLLATE NOCASE)";
+  $params[$key]='%'.str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$root).'%';
  }
  // Match weights against verified presentation data only. Unknown packaging is never guessed.
  $formatWhere=[];
@@ -93,7 +91,36 @@ try{
  $params[':rank_exact']=$rankText;
  $params[':rank_prefix']=str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$rankText).'%';
  $params[':rank_contains']='%'.str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$rankText).'%';
- $sql='SELECT p.id,p.name,p.unit,c.name AS category,p.is_demo FROM products p LEFT JOIN categories c ON c.id=p.category_id '.$formatJoin.' WHERE '.implode(' AND ',$filters)." ORDER BY CASE WHEN LOWER(p.name)=LOWER(:rank_exact) THEN 0 WHEN p.name LIKE :rank_prefix ESCAPE '\\' COLLATE NOCASE THEN 1 WHEN p.name LIKE :rank_contains ESCAPE '\\' COLLATE NOCASE THEN 2 ELSE 3 END ASC, p.is_demo ASC,p.name ASC LIMIT 13";
+ // A product mentioned in its official name is more relevant than an ingredient
+ // mentioned only in its description or search metadata. Use the canonical
+ // lexical stem for singular/plural queries, without loosening the AND filters.
+ $rankStemParts=[];
+ foreach($words as $word){
+  $stem=uco_stem($canonicalByStem[uco_stem($word)]??$word);
+  if($stem!=='')$rankStemParts[]=$stem;
+ }
+ $rankStem=implode(' ',$rankStemParts);
+ $escapedStem=str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$rankStem);
+ $params[':rank_stem_prefix']=$escapedStem.'%';
+ $params[':rank_stem_contains']='%'.$escapedStem.'%';
+ // All mandatory qualifiers in the official product name outrank matches
+ // that rely on descriptions or broad search metadata. Do not relax AND.
+ $nameAll=[];
+ foreach($rankStemParts as $i=>$stem){
+  $key=':rank_name_word_'.$i;
+  $nameAll[]="p.name LIKE $key ESCAPE '\\' COLLATE NOCASE";
+  $params[$key]='%'.str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$stem).'%';
+ }
+ $nameAllSql=$nameAll?'('.implode(' AND ',$nameAll).')':'0';
+ // A complete product phrase (e.g. "aros de cebolla") must outrank a
+ // product whose name merely contains the same words separately.
+ // Keep this as a ranking-only signal: it never changes eligibility.
+ $phraseWords=[];
+ foreach($rankStemParts as $stem){
+  if($stem!=='')$phraseWords[]=str_replace(['\\','%','_'],['\\\\','\\%','\\_'],$stem);
+ }
+ $params[':rank_phrase']='%'.implode('%',$phraseWords).'%';
+ $sql='SELECT p.id,p.name,p.unit,c.name AS category,p.is_demo FROM products p LEFT JOIN categories c ON c.id=p.category_id '.$formatJoin.' WHERE '.implode(' AND ',$filters)." ORDER BY CASE WHEN LOWER(p.name)=LOWER(:rank_exact) THEN 0 WHEN p.name LIKE :rank_prefix ESCAPE '\\' COLLATE NOCASE THEN 1 WHEN p.name LIKE :rank_contains ESCAPE '\\' COLLATE NOCASE THEN 2 WHEN p.name LIKE :rank_stem_prefix ESCAPE '\\' COLLATE NOCASE THEN 3 WHEN p.name LIKE :rank_stem_contains ESCAPE '\\' COLLATE NOCASE THEN 4 WHEN p.name LIKE :rank_phrase ESCAPE '\\' COLLATE NOCASE THEN 5 WHEN ".$nameAllSql." THEN 6 WHEN c.name LIKE :rank_stem_contains ESCAPE '\\' COLLATE NOCASE THEN 7 ELSE 8 END ASC, p.is_demo ASC,p.name ASC LIMIT 13";
  require_once dirname(__DIR__,2).'/private/presentaciones.php';
  $stmt=$db->prepare($sql);$stmt->execute($params);$rows=$stmt->fetchAll();$hasMore=count($rows)>12;if($hasMore)$rows=array_slice($rows,0,12);foreach($rows as &$row)$row['presentacion']=ucoPresentacion($db,(int)$row['id']);unset($row);
  out(['ok'=>true,'items'=>$rows,'match_status'=>count($rows)===0?'none':(count($rows)===1?'unique':'multiple'),'has_more'=>$hasMore]);

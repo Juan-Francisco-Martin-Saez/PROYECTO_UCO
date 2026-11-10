@@ -1,0 +1,195 @@
+{
+  "phase": "7.2E.11",
+  "scope": "catalog SQL and lexical diagnostic only",
+  "http_tested": false,
+  "php_executed": false,
+  "catalog_active_count": 370,
+  "cases": [
+    {
+      "name": "Aros de cebolla: sin sustitución por cebolla simple",
+      "query": "aros cebolla",
+      "expectation": "contains:aros",
+      "passed": true,
+      "count": 2,
+      "examples": [
+        {
+          "sku": "09040545",
+          "name": "AROS DE CEBOLLA REBOZADA 6 KG.",
+          "id": 224
+        },
+        {
+          "sku": "09041308",
+          "name": "AROS DE CEBOLLA REBOZADOS 6X1 KG FINDUS",
+          "id": 225
+        }
+      ]
+    },
+    {
+      "name": "Consulta inexistente",
+      "query": "zzzinexistentezz",
+      "expectation": "none:",
+      "passed": true,
+      "count": 0,
+      "examples": []
+    },
+    {
+      "name": "Zanahoria: coincidencias",
+      "query": "zanahoria",
+      "expectation": "contains:zanahoria",
+      "passed": true,
+      "count": 11,
+      "examples": [
+        {
+          "sku": "02040010",
+          "name": "ZANAHORIA ENTERA PELADA",
+          "id": 42
+        },
+        {
+          "sku": "02040021",
+          "name": "ZANAHORIA TIRAS/BASTÓN",
+          "id": 43
+        },
+        {
+          "sku": "02040020",
+          "name": "ZANAHORIA JULIANA",
+          "id": 44
+        },
+        {
+          "sku": "02042425",
+          "name": "ZANAHORIA RODAJA 3 MM",
+          "id": 45
+        },
+        {
+          "sku": "02042430",
+          "name": "ZANAHORIA CUBO ENSALADILLA",
+          "id": 46
+        }
+      ]
+    },
+    {
+      "name": "Patatas: coincidencias",
+      "query": "patatas",
+      "expectation": "contains:patat",
+      "passed": false,
+      "count": 0,
+      "examples": []
+    }
+  ],
+  "passed": 3,
+  "total": 4,
+  "format_checks": [
+    {
+      "name": "Peso total 1 kg",
+      "matches": 5,
+      "examples": [
+        {
+          "id": 20,
+          "sku": "02040070",
+          "name": "ENSALADA PAYESA",
+          "formato_original": "1 KG."
+        },
+        {
+          "id": 22,
+          "sku": "02043000",
+          "name": "BROTES DE HOJAS, MEZCLUM MARCA UCO",
+          "formato_original": "1 KG."
+        },
+        {
+          "id": 23,
+          "sku": "02043005",
+          "name": "MEZCLUM SABORES VARIADOS",
+          "formato_original": "1 KG."
+        },
+        {
+          "id": 25,
+          "sku": "02040131",
+          "name": "CALABACÍN RODAJA",
+          "formato_original": "1 KG."
+        },
+        {
+          "id": 26,
+          "sku": "02040009",
+          "name": "COLIFLOR PICADA",
+          "formato_original": "1 KG."
+        }
+      ]
+    },
+    {
+      "name": "Presentaciones múltiples desglosadas",
+      "matches": 5,
+      "examples": [
+        {
+          "id": 96,
+          "sku": "09039901",
+          "name": "PATATA PREF. PREMIUM Foodmen PF 7/16 11X11 A++ X PALE",
+          "formato_original": "4*2.5*80 KG"
+        },
+        {
+          "id": 97,
+          "sku": "09039999",
+          "name": "PATATA PREF. PREMIUM Foodmen PF 7/16 11X11 A++",
+          "formato_original": "4*2.5 KG"
+        },
+        {
+          "id": 98,
+          "sku": "09039002",
+          "name": "PATATA PREF. PREMIUM Fontane 3/8 A+ PALE",
+          "formato_original": "4*2.5*80 KG"
+        },
+        {
+          "id": 99,
+          "sku": "09039998",
+          "name": "PATATA PREF. PREMIUM Fontane 3/8 A+",
+          "formato_original": "4*2.5 KG"
+        },
+        {
+          "id": 100,
+          "sku": "09039903",
+          "name": "PATATA PREF. UCO 11x11 PALE",
+          "formato_original": "4*2.5*80 KG"
+        }
+      ]
+    },
+    {
+      "name": "Peso total 6 kg",
+      "matches": 5,
+      "examples": [
+        {
+          "id": 123,
+          "sku": "09010161",
+          "name": "AGUACATE CUBOS CONG. 6 KG",
+          "formato_original": "6 KG."
+        },
+        {
+          "id": 126,
+          "sku": "09020110",
+          "name": "ARROZ CINCO DELICIAS",
+          "formato_original": "4*1.5 KG."
+        },
+        {
+          "id": 129,
+          "sku": "09012000",
+          "name": "CALABACÍN CUBO 6*1 KG. FINDUS",
+          "formato_original": "6*1 KG."
+        },
+        {
+          "id": 130,
+          "sku": "09012100",
+          "name": "CALABAZA CUBO 6*1 KG. FINDUS",
+          "formato_original": "6*1 KG."
+        },
+        {
+          "id": 136,
+          "sku": "09013107",
+          "name": "CHAMPIÑÓN LAMINADO 6*1 KG. FINDUS",
+          "formato_original": "6*1 KG."
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Las coincidencias léxicas son una aproximación Python, no la lógica PHP exacta",
+    "Los ejemplos positivos no demuestran que el primer resultado sea correcto",
+    "No se ha ejecutado el endpoint HTTP ni se ha alterado la base de datos"
+  ]
+}

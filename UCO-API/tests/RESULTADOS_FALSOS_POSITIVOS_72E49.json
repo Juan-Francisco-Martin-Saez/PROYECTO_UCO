@@ -1,0 +1,384 @@
+{
+  "total": 45,
+  "passed": 43,
+  "failed": [
+    {
+      "query": "¿Qué es el formato WAV en audio?",
+      "expected_allowed": true,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": false
+    },
+    {
+      "query": "¿Qué es el catálogo de Messier en astronomía?",
+      "expected_allowed": true,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": false
+    }
+  ],
+  "cases": [
+    {
+      "query": "¿Qué es una API?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "Define biodiversidad",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Quién fue Cervantes?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Por qué llueve?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Cómo funciona internet?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "Explica la fotosíntesis",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es la astronomía?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué significa resiliencia?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Cuál es la diferencia entre calor y temperatura?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Cuándo ocurrió la Revolución francesa?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Dónde está el océano Pacífico?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es la inteligencia artificial?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es un agujero negro?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "Explica el ciclo del agua",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué significa algoritmo?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Por qué flotan los barcos?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "Define energía cinética",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Quién fue Marie Curie?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es la teoría de juegos?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Cómo funciona un motor eléctrico?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es la arquitectura gótica?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "Explica la tectónica de placas",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué significa HTTP?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es JSON?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Cómo funciona la gravedad?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Por qué las hojas son verdes?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es un ecosistema?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué significa entropía?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es una célula?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Cómo funciona la memoria RAM?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué significa 2FA en ciberseguridad?",
+      "expected_allowed": true,
+      "js_allowed": true,
+      "php_allowed": true,
+      "http": 503,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es el formato WAV en audio?",
+      "expected_allowed": true,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": false
+    },
+    {
+      "query": "¿Qué es el catálogo de Messier en astronomía?",
+      "expected_allowed": true,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": false
+    },
+    {
+      "query": "¿Qué precio tiene el producto?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Dónde está mi pedido?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es mi factura?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es p e d i d o?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es ES91 2100 0418 4502 0005 1332?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es 1234 5678 Z?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es mi pe​dido?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es una contraseña?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es un token?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es el stock?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es SKU?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    },
+    {
+      "query": "¿Qué es 612 345 678?",
+      "expected_allowed": false,
+      "js_allowed": false,
+      "php_allowed": false,
+      "http": 422,
+      "passed": true
+    }
+  ]
+}

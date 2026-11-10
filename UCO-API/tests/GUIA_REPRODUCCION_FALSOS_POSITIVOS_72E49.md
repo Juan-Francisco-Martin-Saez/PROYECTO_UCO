@@ -1,0 +1,1 @@
+Ejecutar las pruebas de privacidad existentes y contrastar las 45 entradas de RESULTADOS_FALSOS_POSITIVOS_72E49.json contra los filtros JS y PHP; el resultado identifica 2 falsos positivos. No ejecutar contra producción.

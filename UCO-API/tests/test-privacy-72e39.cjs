@@ -1,0 +1,17 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const path=require('path');
+const js=fs.readFileSync(path.join(__dirname,'../public/assistant/assistant.js'),'utf8');
+const php=fs.readFileSync(path.join(__dirname,'../public/api/assistant-openai.php'),'utf8');
+const start=js.indexOf('function isSafeGeneralQuestion72e39(question){');
+const end=js.indexOf('\nasync function askProtectedOpenAI(',start);
+assert(start>=0&&end>start);
+const ctx={normalizeUco:s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim()};
+vm.createContext(ctx);vm.runInContext(js.slice(start,end),ctx);
+const denied=['IA: mi pedido 123','mi factura','precio de patatas','mi cuenta','usuario 12','cliente 45','contacta con test@example.com','llama al 612345678','mi IBAN','mi DNI','mi tarjeta','mi contraseña','API key','referencia SKU','carrito','stock','devolución','dirección','teléfono','pago','presupuesto','UCO'];
+const allowed=['¿Qué es una API?','Define biodiversidad','¿Por qué llueve?','¿Cómo funciona internet?','Explica la fotosíntesis','¿Quién fue Cervantes?'];
+for(const x of denied)assert.strictEqual(ctx.isSafeGeneralQuestion72e39(x),false,x);
+for(const x of allowed)assert.strictEqual(ctx.isSafeGeneralQuestion72e39(x),true,x);
+assert(php.includes('$privatePatterns')&&php.includes("'Consulta no apta para el asistente general'"));
+assert(php.indexOf('$privatePatterns')<php.indexOf('ucoOpenAIRateAllow72e27'));
+assert(js.includes('if(!isSafeGeneralQuestion72e39(question))return null;'));
+console.log(`${denied.length+allowed.length} pruebas JS de privacidad OK; guardia PHP verificada estáticamente`);

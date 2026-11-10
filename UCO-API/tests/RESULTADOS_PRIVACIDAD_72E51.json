@@ -1,0 +1,288 @@
+{
+  "passed": 38,
+  "total": 38,
+  "cases": [
+    {
+      "case": "wav exacto",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "messier exacto",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "wav variación",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "messier variación",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "formato pdf",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "formato json",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "formato mp3",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "catalogo estelar",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "catalogo astronomia",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "referencia bibliografica",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "precio economico",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "oferta demanda",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "producto matematico",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "stock fotografia",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "cuenta matematica",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "cliente servidor",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "token programacion",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "api key tecnica",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "formato comercial",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "catalogo comercial",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "pedido comercial",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "precio comercial",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "factura comercial",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "tarjeta comercial",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "telefono real",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "email real",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "dni real",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "iban real",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "token real",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "wav con pedido",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "messier con cuenta",
+      "expected": false,
+      "js": false,
+      "php_http": 422,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "api general",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "historia general",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "astronomia general",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    },
+    {
+      "case": "programacion general",
+      "expected": true,
+      "js": true,
+      "php_http": 503,
+      "passed": true,
+      "js_php_agree": true
+    }
+  ],
+  "static_guards": 3,
+  "limitations": "Las expectativas educativas son criterios de auditoría, no garantías del enrutamiento; sin IONOS ni OpenAI."
+}

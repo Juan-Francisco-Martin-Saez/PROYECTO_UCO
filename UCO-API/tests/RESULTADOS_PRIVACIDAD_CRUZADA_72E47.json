@@ -1,0 +1,140 @@
+{
+  "passed": 25,
+  "total": 25,
+  "cases": [
+    {
+      "case": "email",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "telefono",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "dni",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "nie",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "iban",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "token",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "github token",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "factura",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "precio",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "pedido",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "contrasena",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "referencia",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "api key",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "cuenta",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "domicilio",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "catalogo",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "descuento",
+      "js": false,
+      "php_http": 422,
+      "passed": true
+    },
+    {
+      "case": "general api",
+      "js": true,
+      "php_http": 503,
+      "passed": true
+    },
+    {
+      "case": "general ciencia",
+      "js": true,
+      "php_http": 503,
+      "passed": true
+    },
+    {
+      "case": "general historia",
+      "js": true,
+      "php_http": 503,
+      "passed": true
+    },
+    {
+      "case": "general internet",
+      "js": true,
+      "php_http": 503,
+      "passed": true
+    },
+    {
+      "case": "general clima",
+      "js": true,
+      "php_http": 503,
+      "passed": true
+    }
+  ],
+  "static_guards": 3,
+  "limitations": "No prueba ataques de codificación deliberada, configuración de IONOS ni llamadas reales a OpenAI."
+}

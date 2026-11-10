@@ -1,0 +1,14 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const src=fs.readFileSync(require('path').join(__dirname,'../public/assistant/assistant.js'),'utf8');
+const guard=src.match(/function shouldUseGeneralEngine72e22\(value\)\{[\s\S]*?\n\}/);
+assert(guard);let state={catalog:null,order:null,budget:null,transfer:null,cart:null,follow:false};
+const sandbox={normalizeUco:v=>v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),isFollowup:()=>state.follow,readCatalogContext:()=>state.catalog,get lastOwnOrderId(){return state.order},get provisionalBudget(){return state.budget},get pendingCartTransfer(){return state.transfer},get lastCartReference(){return state.cart},contextualRoute:v=>/\b(cebolla|patata|producto|precio|pedido|comprar|catalogo)\b/i.test(v)?'catalog':'general'};
+vm.createContext(sandbox);vm.runInContext(guard[0],sandbox);
+const cases=[['¿Qué es la fotosíntesis?',true],['¿Cómo funciona una API REST?',true],['¿Qué es mi dirección?',false],['¿Cuál es el precio de los aros?',false],['¿Qué es mi cuenta?',false],['¿Qué es el catálogo?',false],['¿Qué es UCO?',false],['¿Qué es mi pedido 123?',false],['¿Qué es el stock?',false],['Hola',false],['¿Qué es la gravedad?',true]];
+for(const [q,expected] of cases)assert.strictEqual(sandbox.shouldUseGeneralEngine72e22(q),expected,q);
+state.catalog={term:'cebolla'};assert.strictEqual(sandbox.shouldUseGeneralEngine72e22('¿Qué es la gravedad?'),true);state.catalog=null;
+state.order=7;assert.strictEqual(sandbox.shouldUseGeneralEngine72e22('¿Qué es la gravedad?'),false);state.order=null;
+assert(src.includes("if(shouldUseGeneralEngine72e22(question)){\n    const ai=await askProtectedOpenAI(question);"),'Fallback sin guardia estricta');
+assert(!src.includes("if(contextualRoute(question)==='general'){\n    const ai=await askProtectedOpenAI(question);"),'Fallback inseguro sigue presente');
+assert(src.includes("if(shouldUseGeneralEngine72e22(value)){"),'Enrutamiento principal ausente');
+console.log('16/16 comprobaciones de rutas y guardas correctas; no son pruebas HTTP');

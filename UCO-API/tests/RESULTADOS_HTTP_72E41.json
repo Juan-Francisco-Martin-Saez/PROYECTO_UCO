@@ -1,0 +1,66 @@
+[
+  {
+    "method": "GET",
+    "case": "GET",
+    "expected": 405,
+    "actual": 405,
+    "ok": true,
+    "body": "{\"ok\":false,\"error\":\"Método no permitido\"}"
+  },
+  {
+    "method": "POST",
+    "case": "{}",
+    "expected": 415,
+    "actual": 415,
+    "ok": true,
+    "body": "{\"ok\":false,\"error\":\"Formato incorrecto\"}"
+  },
+  {
+    "method": "POST",
+    "case": "{}",
+    "expected": 422,
+    "actual": 422,
+    "ok": true,
+    "body": "{\"ok\":false,\"error\":\"Consulta inválida\"}"
+  },
+  {
+    "method": "POST",
+    "case": "{\"message\": \"mi pedido 43\"}",
+    "expected": 422,
+    "actual": 422,
+    "ok": true,
+    "body": "{\"ok\":false,\"error\":\"Consulta no apta para el asistente general\"}"
+  },
+  {
+    "method": "POST",
+    "case": "{\"message\": \"usuario@ejemplo.com\"}",
+    "expected": 422,
+    "actual": 422,
+    "ok": true,
+    "body": "{\"ok\":false,\"error\":\"Consulta no apta para el asistente general\"}"
+  },
+  {
+    "method": "POST",
+    "case": "{\"message\": \"ES9121000418450200051332\"}",
+    "expected": 422,
+    "actual": 422,
+    "ok": true,
+    "body": "{\"ok\":false,\"error\":\"Consulta no apta para el asistente general\"}"
+  },
+  {
+    "method": "POST",
+    "case": "{\"message\": \"12345678Z\"}",
+    "expected": 422,
+    "actual": 422,
+    "ok": true,
+    "body": "{\"ok\":false,\"error\":\"Consulta no apta para el asistente general\"}"
+  },
+  {
+    "method": "POST",
+    "case": "{\"message\": \"\\u00bfQu\\u00e9 es una API?\"}",
+    "expected": 503,
+    "actual": 503,
+    "ok": true,
+    "body": "{\"ok\":false,\"unavailable\":true,\"error\":\"OpenAI no configurado\"}"
+  }
+]
